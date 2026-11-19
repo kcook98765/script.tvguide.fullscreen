@@ -24,8 +24,9 @@ import source as src
 import xbmcgui
 from sdAPI import SdAPI
 from utils import *
+from skin_runtime import select_skin
 
-SKIN = get_setting('skin')
+SKIN_PATH, SKIN, SKIN_XML, _SKIN_SNAPSHOT = select_skin(ADDON)
 PATH = ADDON.getAddonInfo('path')
 
 ACTION_PARENT_DIR = 9
@@ -182,8 +183,8 @@ class StationsSelect(xbmcgui.WindowXMLDialog):
     C_CHANNELS_CANCEL = 6004
 
     def __new__(cls, lineup):
-        return super(StationsSelect, cls).__new__(cls, 'script-tvguide-stations.xml',
-                                                  ADDON.getAddonInfo('path'), SKIN)
+        return super(StationsSelect, cls).__new__(cls, SKIN_XML.get('script-tvguide-stations.xml', 'script-tvguide-stations.xml'),
+                                                  SKIN_PATH, SKIN)
 
     def __init__(self, lineup):
         """
