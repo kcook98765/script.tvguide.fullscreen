@@ -1100,7 +1100,8 @@ class TVGuide(xbmcgui.WindowXML):
             if program:
                 self.play_catchup(program)
         elif action.getId() in COMMAND_ACTIONS["EXTENDED_INFO"]:
-            return  # Removed obsolete external script dispatch from guide metadata.
+            program = self._getProgramFromControl(controlInFocus)
+            self.lookupMetadata(program)
         elif action.getId() in COMMAND_ACTIONS["UP"]:
             self._up(currentFocus)
         elif action.getId() in COMMAND_ACTIONS["DOWN"]:
@@ -1647,9 +1648,10 @@ class TVGuide(xbmcgui.WindowXML):
                     self.playOrChoose(program,True)
 
 
-    def programSearchSelect(self):
+    def programSearchSelect(self, program=None):
         d = xbmcgui.Dialog()
-        what = d.select("Search",["Title","Synopsis","Category","Channel"])
+        what = d.select("Search",["Title","Synopsis","Category","Channel",
+                                  "TMDbHelper movie / TV lookup…"])
         if what == -1:
             return
         if what == 0:
@@ -1660,6 +1662,15 @@ class TVGuide(xbmcgui.WindowXML):
             self.categorySearch()
         elif what == 3:
             self.channelSearch()
+        elif what == 4:
+            self.lookupMetadata(program)
+
+    def lookupMetadata(self, program=None):
+        from metadata_search import MetadataSearch
+        if program is None:
+            program = getattr(self, 'focusedProgram', None) or self.currentProgram
+        title = program.title if program is not None else ''
+        return MetadataSearch(xbmc.executeJSONRPC, xbmcgui.Dialog()).run(title)
 
 
     def programSearch(self):
@@ -2082,7 +2093,7 @@ class TVGuide(xbmcgui.WindowXML):
                     self.player.play(item="plugin://plugin.video.%s/tv/play_by_name_only/%s/%s" % (
                         catchup, title, language))
         elif buttonClicked == PopupMenu.C_POPUP_SEARCH:
-            self.programSearchSelect()
+            self.programSearchSelect(program)
         elif buttonClicked == PopupMenu.C_POPUP_FAVOURITES:
             favourites = ADDON.getSetting('favourites')
             if favourites == 'Simple Favourites':
@@ -2094,7 +2105,7 @@ class TVGuide(xbmcgui.WindowXML):
             elif favourites == 'Favourites':
                 xbmc.executebuiltin("ActivateWindow(10134)")
         elif buttonClicked == PopupMenu.C_POPUP_EXTENDED:
-            return
+            self.lookupMetadata(program)
         elif buttonClicked == PopupMenu.C_POPUP_CATCHUP_ADDON:
             self.play_catchup(program)
 
@@ -4763,7 +4774,6 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
             programTitleControl.setEnabled(False)
             programPlayBeginningControl.setEnabled(False)
             programSuperFavourites.setEnabled(False)
-            self.getControl(self.C_POPUP_EXTENDED).setEnabled(False)
             programDurationControl.setEnabled(False)
             programProgressInfoControl.setEnabled(False)
             programProgressBarControl.setEnabled(False)
