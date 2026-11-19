@@ -51,6 +51,11 @@ input, not an asserted physical-local device. Permissions must allow local reads
 Each supplied XML window must retain the chosen bundle's **element hierarchy,
 order, control IDs, types and attributes**. Omitted windows use the bundle;
 windows absent from Dark/CatBar (currently VOD) use the bundled Default window.
+Media precedence is **trusted Default → selected bundle → validated user PNG**.
+Dark therefore retains Default's `tvg-menu-focus.png`, `tvg-menu-nofocus.png`,
+`tvg-transparent.png`, `white.png`; CatBar retains the two missing menu textures.
+Selected bundle images still win over Default; user PNG overrides are decoded
+and snapshotted, never loaded directly from their source directories.
 Missing required controls/types fail clearly; they are not guessed or remapped.
 Start with the version of the bundled files shipped alongside this helper.
 
@@ -85,7 +90,12 @@ XML is **not inherently passive**. Reuses task04's official Kodi 19.4/20.5/21.3/
 22 RC2 research in [#14](https://github.com/kcook98765/script.tvguide.fullscreen/issues/14),
 especially `WindowXML.cpp`, `GUIControlFactory.cpp`, window/include/provider
 consumers. The Matrix `WindowXML` active-skin-first lookup and `Skin.cpp`
-`GetSkinPath` were rechecked for this implementation. No broad research repeat.
+`GetSkinPath` were rechecked for this implementation. The resource correction
+also checked Matrix's [TextureManager.cpp](https://github.com/xbmc/xbmc/blob/19.4-Matrix/xbmc/guilib/TextureManager.cpp):
+`HasTexture` checks loaded/image bundles then `GetTexturePath`'s registered image
+paths; `Load` uses image/animation decoding. This is distinct from WindowXML
+selection/action/include loading, not authority to load arbitrary texture URIs.
+No broad research repeat or new four-version native qualification.
 
 This is a constrained **diff against trusted bundled behavior**, not a blacklist
 of a few dangerous tag names. Any added/reordered element, attribute, include,
@@ -105,11 +115,22 @@ Only this validated data is materialized in a fresh private temporary directory
 for that Python invocation. No selected source root is passed to WindowXML.
 Window filenames and output texture paths are generated ASCII names. Unique
 window names avoid ordinary installed-skin files shadowing legacy guide window
-names; static XML textures and Python-drawn EPG textures use the snapshot's
-explicit paths. Trusted dynamic artwork expressions remain unchanged. Inherited
-missing bundled XML textures stay missing inside the snapshot, not looked up as
-unchecked custom assets or borrowed from another theme. Thus custom mode can
-show an absent image where an installed theme happened to supply one before.
+names; captured static XML textures and Python-drawn EPG textures use the
+snapshot's explicit paths. Trusted dynamic artwork expressions remain unchanged.
+For an **unchanged property inherited from trusted original XML**, a missing
+shipped image may retain its exact safe fixed raster basename and Kodi's normal
+image lookup (loaded textures, installed-skin bundles/registered texture paths).
+This does not select active-skin XML, includes or actions. The selected custom
+source directory is never registered as a texture path. A newly supplied texture
+reference, even one naming an image inherited elsewhere, still requires a
+validated captured PNG; no new basename/URI/provider fallback is permitted.
+
+In particular the shipped Default inventory does not resolve `menu-stream.png`,
+`menu.png`, `tvguide-background-right.png`, `vod-focus.png`, `white50.png`.
+Those unchanged trusted basenames are no longer forced to nonexistent generated
+paths. Their actual image availability depends on native Kodi's installed image
+resources, so this is source-level lookup preservation, **not rendering parity**.
+Custom files supplied for those references are decoded/captured like other PNGs.
 The snapshot stays alive for dialogs and is cleaned up on interpreter teardown;
 an abrupt Kodi/process death can leave temp data for normal temp maintenance.
 This does not defend against a hostile same-user process rewriting private Kodi
@@ -134,7 +155,7 @@ retained. Matrix 19.5-stub typing is not embedded Matrix 19.4 Python/native proo
 runtime library calls are deliberately Python 3.8-compatible. Toolkit CPython
 3.12, syntax and source-level contracts do not qualify all native versions.
 
-Task09 focused results: ten custom-skin tests, six reminder tests, four fixture
+Initial `af83ca9` focused results: ten custom-skin tests, six reminder tests, four fixture
 tests and the safety, Python3 and command-data scripts each exit 0. The Toolkit's
 focused Matrix type stage passes the two new helpers; its API negative control
 still fails with two expected extra-argument errors. It uses Kodistubs 19.0.3,
@@ -145,6 +166,13 @@ warnings remain. No full four-lane suite, new six-stage report, official checker
 package export or broad GUI typing run is claimed. The historical task03
 type/checker failures in [the port notes](modernization-python3.md#checks-and-remaining-gates)
 remain open; their old counts are not measurements of this changed snapshot.
+
+The resource correction reproduces the missing-media/forced-missing-lookup
+regressions before the fix, then passes twelve skin tests and narrow helper
+typing. Tests use the actual Dark/CatBar/Default images and XML: Default fallback,
+selected-image precedence, validated user PNG precedence and unchanged inherited
+image lookup are checked separately. Newly supplied unresolved/URI/provider
+textures remain rejected. These are pure data/AST checks, not native rendering.
 
 Integration note: this isolated work stays on reviewed base `9d0c225` while
 task08/PR17 and task10 change the canonical source independently. Eventual

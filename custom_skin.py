@@ -231,7 +231,12 @@ def prepare(addon_root: str, source_root: str, name: str, bundled: str,
                 raise SkinError(path.name + ': ' + str(exc)) from exc
         layouts[path.name] = base
     total = 0
-    for path in sorted((bundle / 'media').iterdir()):
+    # The layout union can inherit Default windows; inherit its trusted media
+    # too. Selected bundle wins, then only validated user PNGs may override.
+    assets = {p.name: p for p in (Path(addon_root) / 'resources/skins/Default/media').iterdir()
+              if p.is_file()}
+    assets.update({p.name: p for p in (bundle / 'media').iterdir() if p.is_file()})
+    for _, path in sorted(assets.items()):
         if path.is_file():
             relative = 'media/' + path.name
             user_path = _plain_path(source, relative)
@@ -266,8 +271,8 @@ def prepare(addon_root: str, source_root: str, name: str, bundled: str,
                         total += len(payload[relative])
                         if total > MAX_TOTAL:
                             raise SkinError('Skin resources exceed the 32 MiB snapshot limit.')
-                    # Inherited missing textures stay missing in the snapshot;
-                    # a NEW missing texture is rejected below.
+                    # An unchanged trusted basename may retain native image
+                    # lookup. A NEW uncaptured reference is rejected below.
     # Check every changed texture reference is actually in the snapshot.
     for filename, layout in layouts.items():
         for old_text, new in zip(original_texts[filename], layout.iter()):
@@ -298,14 +303,20 @@ def prepare(addon_root: str, source_root: str, name: str, bundled: str,
             # different unchecked file with the legacy guide window filename.
             unique = token + '-' + filename
             filenames[filename] = unique
-            for node in layout.iter():
+            for old_text, node in zip(original_texts[filename], layout.iter()):
                 value = (node.text or '').strip()
                 if node.tag in TEXTURES and value not in ('', '-') and '$' not in value:
-                    # Even inherited missing bundled images stay confined to
-                    # this root, not a similarly named active-theme resource.
                     _plain_path(source, 'media/' + value)
-                    missing = 'missing-' + hashlib.sha256(value.encode('utf-8')).hexdigest() + '.png'
-                    node.text = textures.get(value, str(root / 'media' / missing))
+                    if value in textures:
+                        node.text = textures[value]
+                    elif (node.text == old_text and
+                          re.fullmatch(r'[A-Za-z0-9_-]+\.(?:png|gif|jpg|jpeg)', value)):
+                        # Native fixed-basename raster lookup is not XML/action
+                        # lookup. Preserve only the exact trusted expression at
+                        # this property, never a user-supplied URI or provider.
+                        pass
+                    else:
+                        raise SkinError('Uncaptured texture is not an inherited fixed raster basename.')
             xml_bytes = ET.tostring(layout, encoding='utf-8', xml_declaration=True)
             written += len(xml_bytes)
             if len(xml_bytes) > MAX_FILE or written > MAX_TOTAL:

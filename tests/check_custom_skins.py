@@ -116,6 +116,63 @@ class CustomSkins(unittest.TestCase):
         with self.assertRaisesRegex(skin.SkinError, '<content>'):
             self.prepare()
 
+    def test_real_default_media_fallback_selected_and_user_precedence(self):
+        default = ROOT / 'resources/skins/Default/media'
+        for bundled, names in (
+                ('Dark', ('tvg-menu-focus.png', 'tvg-menu-nofocus.png', 'tvg-transparent.png', 'white.png')),
+                ('CatBar', ('tvg-menu-focus.png', 'tvg-menu-nofocus.png'))):
+            with self.subTest(bundled=bundled):
+                self.bundled = bundled
+                selected = ROOT / 'resources/skins' / bundled / 'media'
+                snapshot = self.prepare()
+                output_textures = [node.text for filename in snapshot.filenames
+                                   for node in self.loaded(snapshot, filename).iter()
+                                   if node.tag in skin.TEXTURES]
+                for name in names:
+                    self.assertFalse((selected / name).exists())
+                    self.assertEqual(Path(snapshot.textures[name]).read_bytes(), (default / name).read_bytes())
+                    self.assertIn(snapshot.textures[name], output_textures)
+                # Compare real overlapping inventories. Dark has genuinely
+                # different bytes; CatBar's current overlapping PNGs coincide.
+                differences = 0
+                for path in selected.glob('*.png'):
+                    if (default / path.name).exists():
+                        self.assertEqual(Path(snapshot.textures[path.name]).read_bytes(), path.read_bytes())
+                        differences += path.read_bytes() != (default / path.name).read_bytes()
+                if bundled == 'Dark':
+                    self.assertGreater(differences, 0)
+                raw = self.png('tvg-menu-focus.png')
+                overridden = self.prepare()
+                image_path = Path(overridden.textures['tvg-menu-focus.png'])
+                self.assertNotEqual(image_path.read_bytes(), raw)
+                with Image.open(image_path) as image:
+                    self.assertEqual(image.getpixel((0, 0)), (12, 34, 56, 78))
+                self.assertEqual((self.media / 'tvg-menu-focus.png').read_bytes(), raw)
+                (self.media / 'tvg-menu-focus.png').unlink()
+
+    def test_inherited_fixed_raster_lookup_is_not_new_resource_permission(self):
+        snapshot = self.prepare()
+        expected = {'menu-stream.png', 'menu.png', 'tvguide-background-right.png',
+                    'vod-focus.png', 'white50.png'}
+        inherited = {node.text.strip() for filename in snapshot.filenames
+                     for node in self.loaded(snapshot, filename).iter()
+                     if node.tag in skin.TEXTURES and (node.text or '').strip() in expected}
+        self.assertEqual(inherited, expected)
+        self.assertTrue(expected.isdisjoint(snapshot.textures))
+        # A different property cannot acquire native lookup merely by naming a
+        # basename inherited elsewhere. New references still need checked bytes.
+        layout = self.original()
+        next(layout.iter('texture')).text = 'menu.png'
+        self.save(layout)
+        with self.assertRaisesRegex(skin.SkinError, 'missing custom PNG'):
+            self.prepare()
+        raw = self.png('menu.png')
+        captured = self.prepare()
+        path = Path(next(self.loaded(captured).iter('texture')).text)
+        path.relative_to(Path(captured.path))
+        self.assertTrue(path.is_file())
+        self.assertNotEqual(path.read_bytes(), raw)
+
     def test_real_space_unicode_source_directory_and_png_names(self):
         for name in ('My Skin', 'Café 日本語'):
             with self.subTest(name=name):
@@ -141,6 +198,7 @@ class CustomSkins(unittest.TestCase):
         for tag, value in [('onclick', 'RunScript(INERT)'), ('onright', 'RunAddon(INERT)'),
                            ('texture', '../escape.png'), ('texture', '/tmp/escape.png'),
                            ('texture', 'plugin://INERT/image.png'), ('texture', '$INFO[INERT].png'),
+                           ('texture', 'https://INERT/image.png'), ('texture', 'special://profile/image.png'),
                            ('texture', 'missing.png'), ('label', '$INFO[INERT]'),
                            ('label', 'bad\x7f'),
                            ('width', '0'), ('width', '99999')]:
