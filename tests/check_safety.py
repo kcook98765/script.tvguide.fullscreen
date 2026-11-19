@@ -73,7 +73,8 @@ def check():
         skin = ET.parse(path)
         for control in skin.iter("control"):
             if control.get("id") == "4013":
-                assert control.findtext("visible") == "false", str(path)
+                assert control.findtext("visible") != "false", str(path)
+                assert control.findtext("label") == "TMDbHelper lookup…", str(path)
             if control.get("id") == "4009":
                 assert control.findtext("visible") != "false", str(path)
                 assert control.findtext("label") == "Record (Kodi PVR)…", str(path)
