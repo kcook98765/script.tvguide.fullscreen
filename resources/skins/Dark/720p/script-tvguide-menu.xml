@@ -544,6 +544,7 @@
 				<label>$ADDON[script.tvguide.fullscreen 30307]</label>
 			</control>
 			<control type="button" id="4009">
+                <visible>false</visible>
 				<!-- AutoPlay With -->
 				<description>autoplaywith</description>
 				<left>426</left>

@@ -12,7 +12,6 @@ EPG Window
 - search programs (4)
 - reminders list (5)
 - autoplays (6)
-- Extended Info (i,info)
 - delete unwanted IMDB/TVDB image (ACTION_DELETE_ITEM)
 - categories menu (m, menu)
 - Choose Stream (play)

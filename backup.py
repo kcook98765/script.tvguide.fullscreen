@@ -1,12 +1,9 @@
 import xbmcaddon
 import notification
 import autoplay
-import autoplaywith
 import xbmc,xbmcvfs,xbmcgui
 import source
 import time
-import requests
-import base64
 
 ADDON = xbmcaddon.Addon(id = 'script.tvguide.fullscreen')
 

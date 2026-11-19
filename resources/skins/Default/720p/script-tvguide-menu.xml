@@ -338,6 +338,7 @@
         </control>
 
         <control type="button" id="4013">
+            <visible>false</visible>
             <description>Extended Info</description>
             <posx>285</posx>
             <posy>110</posy>
@@ -416,6 +417,7 @@
         </control>
 
         <control type="button" id="4009">
+            <visible>false</visible>
             <description>autoplaywith</description>
             <posx>285</posx>
             <posy>290</posy>
