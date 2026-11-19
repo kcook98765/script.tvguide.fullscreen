@@ -26,10 +26,12 @@
 #
 import datetime
 import os
+import time
 import xbmc
-import xbmcgui, xbmcaddon
+import xbmcgui, xbmcaddon, xbmcvfs
 import source as src
-from command_safety import alarm_name, is_builtin_data
+from command_safety import alarm_name
+from reminder_data import ReminderData, alarm_command
 
 from strings import *
 
@@ -42,13 +44,16 @@ class Notification(object):
         self.database = database
         self.addonPath = addonPath
         self.icon = os.path.join(self.addonPath, 'icon.png')
+        self.reminders = ReminderData(xbmcvfs.translatePath(
+            xbmcaddon.Addon('script.tvguide.fullscreen').getAddonInfo('profile')))
 
     def createAlarmClockName(self, programTitle, startTime):
         return alarm_name('notification', programTitle, startTime)
        
     def scheduleNotifications(self):
+        self.reminders.prune_completed(time.time())
         for program in self.database.getFullNotifications():
-            self._scheduleNotification(program.channel.id, program.title, program.startDate)
+            self._scheduleNotification(program.channel.title, program.title, program.startDate)
 
             
     def _scheduleNotification(self, channelTitle, programTitle, startTime):
@@ -61,19 +66,20 @@ class Notification(object):
 
         description = strings(NOTIFICATION_5_MINS, channelTitle)
         descriptionNow = strings(NOTIFICATION_NOW, channelTitle)
-        if not all(is_builtin_data(value) for value in
-                   (programTitle, description, descriptionNow, self.icon)):
-            xbmc.log('[script.tvguide.fullscreen] Refused unsafe reminder arguments', xbmc.LOGERROR)
+        try:
+            token = self.reminders.save(name, programTitle, description, descriptionNow,
+                                        self.icon, startTime.timestamp(), timeToNotification >= 5)
+        except (OSError, ValueError, UnicodeError):
+            xbmc.log('[script.tvguide.fullscreen] Unable to save reminder data', xbmc.LOGERROR)
             return
-        xbmc.executebuiltin('AlarmClock(%s-5mins,Notification(%s,%s,10000,%s),%d,True)' %
-            (name, programTitle, description, self.icon, timeToNotification - 5))
-
-        description = descriptionNow
-        xbmc.executebuiltin('AlarmClock(%s-now,Notification(%s,%s,10000,%s),%d,True)' %
-                            (name, programTitle, description, self.icon, timeToNotification))
+        # Do not pass a negative interval for an already missed five-minute phase.
+        if timeToNotification >= 5:
+            xbmc.executebuiltin(alarm_command(name, token, '5mins', timeToNotification - 5))
+        xbmc.executebuiltin(alarm_command(name, token, 'now', timeToNotification))
 
     def _unscheduleNotification(self, programTitle, startTime):
         name = self.createAlarmClockName(programTitle, startTime)
+        self.reminders.cancel(name)
         xbmc.executebuiltin('CancelAlarm(%s-5mins,True)' % name)
         xbmc.executebuiltin('CancelAlarm(%s-now,True)' % name)
 
@@ -82,8 +88,20 @@ class Notification(object):
         self._scheduleNotification(program.channel.title, program.title, program.startDate)
 
     def removeNotification(self, program):
+        before = self.database.getFullNotifications()
         self.database.removeNotification(program)
+        remaining = {self.createAlarmClockName(p.title, p.startDate)
+                     for p in self.database.getFullNotifications()}
+        for previous in before:
+            if self.createAlarmClockName(previous.title, previous.startDate) not in remaining:
+                self._unscheduleNotification(previous.title, previous.startDate)
         self._unscheduleNotification(program.title, program.startDate)
+
+    def clearNotifications(self):
+        self.database.clearAllNotifications()
+        for name in self.reminders.clear():
+            xbmc.executebuiltin('CancelAlarm(%s-5mins,True)' % name)
+            xbmc.executebuiltin('CancelAlarm(%s-now,True)' % name)
 
 
 if __name__ == '__main__':
@@ -94,7 +112,7 @@ if __name__ == '__main__':
 
     def onInitialized(success):
         if success:
-            database.clearAllNotifications()
+            Notification(database, xbmcaddon.Addon('script.tvguide.fullscreen').getAddonInfo('path')).clearNotifications()
             database.close(onNotificationsCleared)
         else:
             database.close()
