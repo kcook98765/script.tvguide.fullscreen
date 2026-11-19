@@ -87,17 +87,22 @@ def check():
     for path, kind in [('notification.py', 'notification'), ('autoplay.py', 'autoplay')]:
         text = source(path)
         assert "alarm_name('%s', programTitle, startTime)" % kind in text
-        assert 'if not ' in text and 'is_builtin_data(' in text
-        assert text.index('is_builtin_data(', text.index('def _schedule')) < text.index("xbmc.executebuiltin('AlarmClock")
+        if kind == 'autoplay':
+            assert 'if not ' in text and 'is_builtin_data(' in text
+            assert text.index('is_builtin_data(', text.index('def _schedule')) < text.index("xbmc.executebuiltin('AlarmClock")
+        else:
+            assert 'is_builtin_data' not in text and ',Notification(' not in text
+            assert "alarm_command(name, token, '5mins', timeToNotification - 5)" in text
+            assert "alarm_command(name, token, 'now', timeToNotification)" in text
+            assert 'self.reminders.cancel(name)' in text
         name = safe.alarm_name(kind, hostile, start)
         assert re.fullmatch('tvguide-' + kind + '-[0-9a-f]{64}', name)
         assert name == safe.alarm_name(kind, hostile, start)
         assert name != safe.alarm_name(kind, hostile, start + '1')
         assert len(args('CancelAlarm(%s-now,True)' % name)) == 2
-    name = safe.alarm_name('notification', 'News HD', start)
-    capture = templates('notification.py', 'AlarmClock(')[0] % (name, 'News HD', 'Channel', 'icon.png', 10)
-    assert len(args(capture)) == 4 and len(args(args(capture)[1])) == 4
-    print('PASS positive reminder capture:', repr(capture))
+    # Actual fixed callback captures/exact text transfer and all phases are tested
+    # independently in check_reminders.py. Never recreate the old nested guard.
+    assert "CALLBACK = 'special://home/addons/script.tvguide.fullscreen/reminder_callback.py'" in source('reminder_data.py')
 
     gui = source('gui.py')
     assert gui.count("for value in (title, program.language, program.season, program.episode)") == 2
