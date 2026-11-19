@@ -343,10 +343,7 @@ def getCommandActions():
         for c in new_commands:
             if c in commands:
                 commands[c] = new_commands[c]
-    # Recording aliases now open interactive PVR choices, never legacy commands.
-    # The unrelated obsolete external metadata execution path remains disabled.
-    for command in ('EXTENDED_INFO',):
-        commands[command] = []
+    # Recording/metadata aliases open fixed interactive choices, never commands.
     return commands
 
 
