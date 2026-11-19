@@ -29,6 +29,7 @@ import os
 import xbmc
 import xbmcgui, xbmcaddon
 import source as src
+from command_safety import alarm_name, is_builtin_data
 
 from strings import *
 
@@ -43,7 +44,7 @@ class Notification(object):
         self.icon = os.path.join(self.addonPath, 'icon.png')
 
     def createAlarmClockName(self, programTitle, startTime):
-        return 'tvguide-%s-%s' % (programTitle, startTime)
+        return alarm_name('notification', programTitle, startTime)
        
     def scheduleNotifications(self):
         for program in self.database.getFullNotifications():
@@ -59,10 +60,15 @@ class Notification(object):
         name = self.createAlarmClockName(programTitle, startTime)
 
         description = strings(NOTIFICATION_5_MINS, channelTitle)
+        descriptionNow = strings(NOTIFICATION_NOW, channelTitle)
+        if not all(is_builtin_data(value) for value in
+                   (programTitle, description, descriptionNow, self.icon)):
+            xbmc.log('[script.tvguide.fullscreen] Refused unsafe reminder arguments', xbmc.LOGERROR)
+            return
         xbmc.executebuiltin('AlarmClock(%s-5mins,Notification(%s,%s,10000,%s),%d,True)' %
             (name.encode('utf-8', 'replace'), programTitle.encode('utf-8', 'replace'), description.encode('utf-8', 'replace'), self.icon, timeToNotification - 5))
 
-        description = strings(NOTIFICATION_NOW, channelTitle)
+        description = descriptionNow
         xbmc.executebuiltin('AlarmClock(%s-now,Notification(%s,%s,10000,%s),%d,True)' %
                             (name.encode('utf-8', 'replace'), programTitle.encode('utf-8', 'replace'), description.encode('utf-8', 'replace'), self.icon, timeToNotification))
 

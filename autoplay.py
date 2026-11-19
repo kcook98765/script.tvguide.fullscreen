@@ -29,6 +29,7 @@ import os
 import xbmc
 import xbmcgui, xbmcaddon
 import source as src
+from command_safety import alarm_name, is_builtin_data
 
 from strings import *
 
@@ -45,7 +46,7 @@ class Autoplay(object):
         self.icon = os.path.join(self.addonPath, 'icon.png')
 
     def createAlarmClockName(self, programTitle, startTime):
-        return 'tvguide-%s-%s' % (programTitle, startTime)
+        return alarm_name('autoplay', programTitle, startTime)
         
     def scheduleAutoplays(self):
         for program in self.database.getFullAutoplays():
@@ -56,6 +57,9 @@ class Autoplay(object):
         t = startTime - datetime.datetime.now()
         timeToAutoplay = ((t.days * 86400) + t.seconds) / 60
         if timeToAutoplay < 0:
+            return
+        if not is_builtin_data(channelId):
+            xbmc.log('[script.tvguide.fullscreen] Refused unsafe autoplay channel ID', xbmc.LOGERROR)
             return
         #timeToAutoplay = 1
         name = self.createAlarmClockName(programTitle, startTime)

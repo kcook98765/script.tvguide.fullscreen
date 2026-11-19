@@ -41,6 +41,7 @@ import base64
 import source as src
 from notification import Notification
 from autoplay import Autoplay
+from command_safety import alarm_name
 from strings import *
 from rpc import RPC
 import utils
@@ -405,15 +406,13 @@ class TVGuide(xbmcgui.WindowXML):
         self.action_index = 0
 
         self.osdEnabled = False
-        self.osdEnabled = ADDON.getSetting('enable.osd') == 'true' and ADDON.getSetting(
-            'alternative.playback') != 'true'
+        self.osdEnabled = ADDON.getSetting('enable.osd') == 'true'
         self.upNextEnabled = False
         self.upNextEnabled = ADDON.getSetting('enable.nextup') == 'true'
         self.upNextTime = int(ADDON.getSetting('nextup.time'))
         self.upNextShowTimeEnabled = False
         self.upNextShowTimeEnabled = ADDON.getSetting('enable.nextup.showTime') == 'true'
         self.upNextShowTime = int(ADDON.getSetting('nextup.showTime'))
-        self.alternativePlayback = ADDON.getSetting('alternative.playback') == 'true'
         self.osdChannel = None
         self.osdProgram = None
         self.lastOsdProgram = None
@@ -2041,8 +2040,7 @@ class TVGuide(xbmcgui.WindowXML):
             xbmc.executebuiltin('ActivateWindow(Videos,addons://sources/video/)')
 
         elif buttonClicked == PopupMenu.C_POPUP_PLAY_BEGINNING:
-            title = program.title.replace(" ", "%20").replace(",", "").replace(u"\u2013", "-")
-            title = unicode.encode(title, "ascii", "ignore")
+            title = program.title.replace(u"\u2013", "-")
             match = re.search('(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
@@ -2058,16 +2056,20 @@ class TVGuide(xbmcgui.WindowXML):
                 program.language = "en"
 
             catchup = ADDON.getSetting('catchup.text').lower()
+            if not re.match(r'\A[a-z0-9_.-]+\Z', catchup):
+                return
+            title, language, season, episode = [urllib.quote(unicode(value).encode('utf-8'), safe='')
+                for value in (title, program.language, program.season, program.episode)]
             if selection == 0:
-                xbmc.executebuiltin("RunPlugin(plugin://plugin.video.%s/movies/play_by_name/%s/%s)" % (
-                    catchup, title, program.language))
+                self.player.play(item="plugin://plugin.video.%s/movies/play_by_name/%s/%s" % (
+                    catchup, title, language))
             elif selection == 1:
                 if program.season and program.episode:
-                    xbmc.executebuiltin("RunPlugin(plugin://plugin.video.%s/tv/play_by_name/%s/%s/%s/%s)" % (
-                        catchup, title, program.season, program.episode, program.language))
+                    self.player.play(item="plugin://plugin.video.%s/tv/play_by_name/%s/%s/%s/%s" % (
+                        catchup, title, season, episode, language))
                 else:
-                    xbmc.executebuiltin("RunPlugin(plugin://plugin.video.%s/tv/play_by_name_only/%s/%s)" % (
-                        catchup, title, program.language))
+                    self.player.play(item="plugin://plugin.video.%s/tv/play_by_name_only/%s/%s" % (
+                        catchup, title, language))
         elif buttonClicked == PopupMenu.C_POPUP_SEARCH:
             self.programSearchSelect()
         elif buttonClicked == PopupMenu.C_POPUP_FAVOURITES:
@@ -2806,7 +2808,9 @@ class TVGuide(xbmcgui.WindowXML):
             return
         xbmcvfs.delete(filename)
         for name in alarms:
-            xbmc.executebuiltin('CancelAlarm(%s,True)' % name.encode('utf-8', 'replace'))
+            # Profile data may contain old/raw names or have been tampered with.
+            if re.match(r'\Atvguide-catchup-[0-9a-f]{64}\Z', name):
+                xbmc.executebuiltin('CancelAlarm(%s,True)' % name)
         programList = []
         catchup = ADDON.getSetting('catchup.text')
         channel = utils.Channel("catchup", catchup, '', "special://home/addons/plugin.video.%s/icon.png" % catchup.lower(), "catchup", True)
@@ -2821,6 +2825,9 @@ class TVGuide(xbmcgui.WindowXML):
             self.catchup_direct(channel)
 
     def catchup_meta(self,channel):
+        catchup = ADDON.getSetting('catchup.text').lower()
+        if not re.match(r'\A[a-z0-9_.-]+\Z', catchup):
+            return
         self.playing_catchup_channel = True
         programList = self.database.getCatchupListing(channel)
         if not programList:
@@ -2834,10 +2841,9 @@ class TVGuide(xbmcgui.WindowXML):
             program.endDate += offset
             t = program.startDate - now
             timeToAutoplay = ((t.days * 86400) + t.seconds) / 60
-            name = "%s-%s" % (program.channel.id,program.startDate)
+            name = alarm_name('catchup', program.channel.id, program.startDate)
 
-            title = program.title.replace(" ", "%20").replace(",", "").replace(u"\u2013", "-")
-            title = unicode.encode(title, "ascii", "ignore")
+            title = program.title.replace(u"\u2013", "-")
             match = re.search('(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
@@ -2852,16 +2858,17 @@ class TVGuide(xbmcgui.WindowXML):
             if not program.language:
                 program.language = "en"
 
-            catchup = ADDON.getSetting('catchup.text').lower()
+            title, language, season, episode = [urllib.quote(unicode(value).encode('utf-8'), safe='')
+                for value in (title, program.language, program.season, program.episode)]
             if selection == 0:
-                cmd = "RunPlugin(plugin://plugin.video.%s/movies/play_by_name/%s/%s)" % (catchup, title, program.language)
+                cmd = "RunPlugin(plugin://plugin.video.%s/movies/play_by_name/%s/%s)" % (catchup, title, language)
             elif selection == 1:
                 if program.season and program.episode:
                     cmd = "RunPlugin(plugin://plugin.video.%s/tv/play_by_name/%s/%s/%s/%s)" % (
-                        catchup, title, program.season, program.episode, program.language)
+                        catchup, title, season, episode, language)
                 else:
                     cmd = "RunPlugin(plugin://plugin.video.%s/tv/play_by_name_only/%s/%s)" % (
-                        catchup, title, program.language)
+                        catchup, title, language)
 
             f.write("%s\n" % name.encode('utf-8', 'replace'))
             if not first_cmd:
@@ -2923,7 +2930,7 @@ class TVGuide(xbmcgui.WindowXML):
         if ADDON.getSetting('catchup.channel') == 'true':
             self.currentChannel = channel
             self.currentProgram = self.database.getCurrentProgram(self.currentChannel)
-        xbmc.executebuiltin("PlayMedia(special://profile/addon_data/script.tvguide.fullscreen/catchup_channel.strm)")
+        self.player.play(item="special://profile/addon_data/script.tvguide.fullscreen/catchup_channel.strm")
 
     def playChannel(self, channel, program = None):
         self.playing_catchup_channel = False
@@ -2982,10 +2989,7 @@ class TVGuide(xbmcgui.WindowXML):
                     return True
                 elif url[0:9] == 'plugin://':
                     if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
-                    if self.alternativePlayback:
-                        xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url)
-                    else:
-                        self.player.play(item=url, windowed=self.osdEnabled)
+                    self.player.play(item=url, windowed=self.osdEnabled)
                 else:
                     if self.vpndefault: self.api.defaultVPN(True)
                     if ADDON.getSetting('m3u.read') == 'true':
@@ -3044,10 +3048,7 @@ class TVGuide(xbmcgui.WindowXML):
                     return
                 elif url[0:9] == 'plugin://':
                     if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
-                    if self.alternativePlayback:
-                        xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url)
-                    else:
-                        self.player.play(item=url, windowed=self.osdEnabled)
+                    self.player.play(item=url, windowed=self.osdEnabled)
                 else:
                     if self.vpndefault: self.api.defaultVPN(True)
                     if ADDON.getSetting('m3u.read') == 'true':

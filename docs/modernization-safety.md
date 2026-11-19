@@ -1,4 +1,113 @@
-# Task 1: source safety assessment
+# Source safety assessment — tasks 01 and 02
+
+## Task 02 correction (2026-11-19; awaiting independent review)
+
+Continues `fe5e72f9b0bb6ffe37ec5b7ac72eaaa99251bb7f` on the same branch and
+draft [PR #12](https://github.com/kcook98765/script.tvguide.fullscreen/pull/12),
+responding to the supervisor's **PARTIAL / changes requested** comment, refs #7 / #1.
+This is the command/data safety correction, **not** issue #2's Python 3 port.
+All sections headed Task 1 below are historical evidence at the earlier revision.
+
+* `notification.py` / `autoplay.py`: alarm names are now fixed namespaces plus
+  SHA-256 of title/time, including cancellation. The small pure `command_safety.py`
+  helper rejects empty values, commas, parentheses, either quote, backslashes and
+  ASCII controls in reminder title/localized descriptions/icon and autoplay channel
+  ID **before** building either nested command. Refusal logs contain no feed data.
+  This intentionally skips delimiter-bearing reminders/IDs (including ordinary
+  apostrophes/commas, and Windows icon paths containing backslashes); it does not
+  pretend arbitrary nested builtin quoting is safe. No new scheduler or framework.
+* `play.py` uses `xbmc.Player().play(item=url)`. Both ordinary and fallback GUI
+  plugin playback always use the existing Player data API. The obsolete alternative
+  RunPlugin mode/setting is removed; stale stored settings cannot restore it.
+* GUI play-beginning and meta catchup encode **each** title/language/season/episode
+  URL component as UTF-8 with `urllib.quote(..., safe='')`; configured plugin suffix
+  must match the entire `[a-z0-9_.-]+` string. No pre-encoding of spaces or lossy
+  ASCII conversion. Play-beginning and direct catchup use Player. Scheduled meta
+  catchup retains only a fixed RunPlugin template with encoded data and a digest
+  alarm name. Profile-saved cancellation names must exactly match
+  `tvguide-catchup-` plus 64 lowercase hex digits. Old/raw names are **not** replayed
+  through CancelAlarm, nor migrated; old installed alarms still require clean setup.
+* Related service startup/cache-refresh calls were traced: their reminder/autoplay
+  entrypoints reach these same guards. Service RunAddon/RunScript commands are
+  fixed literals, `stop.py` has a fixed PlayerControl command, and the GUI action
+  dispatcher still reads only installed bundled actions. `service.py` is unchanged.
+  This does not authorize any installed plugin/VPN/provider side effect.
+
+API/grammar basis checked against official **19.4-Matrix** source:
+[Player.h](https://github.com/xbmc/xbmc/blob/19.4-Matrix/xbmc/interfaces/legacy/Player.h)
+documents `play(item=...)` filename/URL/playlist data;
+[Util.cpp](https://github.com/xbmc/xbmc/blob/19.4-Matrix/xbmc/Util.cpp)
+`SplitExecFunction` / `SplitParams` parse parentheses, commas, double quotes and
+backslash escapes;
+[GUIBuiltins.cpp](https://github.com/xbmc/xbmc/blob/19.4-Matrix/xbmc/interfaces/builtins/GUIBuiltins.cpp)
+`AlarmClock` stores argument 1 as the later executable command. Hence validating
+only the displayed Notification or URL is insufficient: the **alarm name** could
+replace the executable argument. Percent-encoding is URL data encoding, not a
+general Kodi command escaper. Installed plugins receiving decoded URLs remain a
+separate trust boundary.
+
+### Task 02 actual managed discovery (read-only only)
+
+After loading MCP testing and current managed/role/contract references,
+`tvguide_lab_target_list({})` and `tvguide_lab_managed_status({})` both succeeded.
+The actual exposed session schema includes all **46** `tvguide_lab_*` tools;
+older aliases are not exposed. This supersedes Task 1's unavailable-alias report,
+but listed schemas are not proof that every mutation is authorized or usable.
+
+| Catalog release | Target ID | Observed state |
+| --- | --- | --- |
+| Matrix **19.4** | `84408fd1-cfe7-5359-851b-0d3523744f05` | provisioned, stopped |
+| Nexus **20.5** | `f304dbe9-abda-5dd1-b666-32668864cc2b` | provisioned, stopped |
+| Omega **21.3** | `908822fe-132a-5283-ac40-04e26d387db3` | provisioned, stopped |
+| Piers **22.0-rc.2** | `48fc9315-05ca-54b5-a7ee-2865a4c457e5` | provisioned, stopped |
+| Piers **22.0-rc.1** | `78041e72-ad35-51f1-b8c3-3eed0b50cf49` | unprovisioned, stopped; not an acceptance target |
+
+Four version slots report `authorized=true`, `native_ready=false`, no pending
+operation/request, Bridge `unknown` (`stored_identity_requires_observation`) and
+workspace authority `not_assessed`. These are **catalog/status observations**, not
+live native build, Bridge, inventory or feature acceptance. Exact profile/runtime
+identities and read-only results are retained privately. No Start, Stop, Reset,
+native launch/mutation, navigation, workspace creation/validation/deployment,
+execution, UI, screenshot, logs or production access. No workspace generation or
+mutation receipt was created. Inventory must be inspected before any later
+authorized deployment; a disabled add-on requires supported administrator enablement.
+Current launch-tool availability has not been exercised or qualified for this
+mixed Program/service manifest.
+
+### Task 02 focused evidence / remaining gates
+
+`/home/kyle/kodi-development/toolkit/.local/matrix/bin/python -I -B tests/check_command_data.py`
+passes inert captures extracted from actual `fe5e72f` templates: malicious alarm
+names substitute `RunScript(INERT_MARKER)` into the executable argument; raw URL
+commas split PlayMedia/RunPlugin arguments. No captured command is dispatched.
+Positive reminder/catchup captures retain the expected argument counts after
+validation/digesting/encoding; hostile delimiters cannot become additional command
+syntax. Only the **new pure helper** is loaded; legacy modules and Kodi stubs are
+never imported or initialized. AST wiring checks are not runtime callback tests.
+The existing source-only safety check and `git diff --check` also pass. Full output,
+including preexisting invalid-escape SyntaxWarnings, is in
+`.git/modernization-evidence/task02-*`, outside the runtime payload and commits.
+
+No four-lane Toolkit rerun: reuse Task 1's six-stage **FAIL/PASS/FAIL/PASS/SKIPPED/
+SKIPPED** record below, with all warnings and negative controls preserved. Five
+Python 2 syntax failures and Toolkit [#31](https://github.com/kcook98765/kodi-agent-toolkit/issues/31)
+remain; no fake `login`, manifest workaround, tool/config/dependency edit or port.
+Ancestor instruction reads remained policy-denied in this session; no bypass was
+used. Shared instructions and original skills were read. Local excluded
+`opencode.json` was neither read nor edited/committed.
+
+**Stop for independent #7 review.** The identified command-grammar paths are
+corrected in source, not natively accepted or a full hostile-input audit. Remaining
+launch gates: independent approval; Python 3/API/dependency work (#2/#3); later
+authorized known-clean installed tree/old-alarm handling, enabled inventory,
+exact profile/workspace generation and validation/deployment/launch authority;
+then fresh native feature observations on each approved version. The broader
+feed/SQL/path/resource/privacy/plugin risks in Task 1 remain open. No merge,
+release, tag, package or distribution publication is part of this correction.
+
+---
+
+# Task 1: historical source safety assessment
 
 Scope: parent #1 / safety #7, starting at
 `0e46733e9e5f7711f2381562cfbb98fd3b54b429`, branch
