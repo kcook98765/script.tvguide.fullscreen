@@ -5,8 +5,12 @@ merge `8b03cad38c9730449773458efc1a7dcdcbe68284` (tree equals reviewed `d47440d`
 Original `origin/master` remains `0e46733e9e5f7711f2381562cfbb98fd3b54b429`, an
 ancestor of this base. GPLv2 manifest, GPL-2.0-or-later source notices, attribution,
 Program + service and resources are preserved. No permanent feature removal is
-proposed. Independent review and later supervisor-coordinated main reconciliation
-remain separate; this branch does not incorporate the metadata/AutoPlay tasks.
+proposed. The original cache head `5951059527ce6c54dc0dce8de1ed62d9598b25f2`
+received independent source review without a requested implementation correction.
+Normal merge `ffea37ace89a60f3373fe8c8720871741dab8800` incorporates pinned reviewed
+main `6d1b9162289ccc20c3ba089302dc3a149150d0be` (PR19 metadata, retaining reviewed
+skin/PVR work). Final combined source review remains pending. No AutoPlay or
+schedule-ownership changes are duplicated here.
 
 ## Behavior restored and original data meaning
 
@@ -143,12 +147,48 @@ download was attempted. The historical validators actually exited1; a subsequent
 summary reader's exit0/completed status is not validator success. Matrix static
 19.5 is not native19.4; Piers remains bounded RC2, not stable/full qualification.
 
-**Native #8–#11: BLOCKED / UNRUN on all four versions**, under the existing
-[mixed Program+service blocker](https://github.com/kcook98765/kodi-lab/issues/112#issuecomment-7023719173).
-No Lab stages, lifecycle/selection/source/workspace/grant changes, deployment,
-enablement, launch/smoke, settings, input, UI/logs/screenshots or production access.
-Stopped/archived profiles and earlier runtime receipts remain untouched. This
-candidate is source-only restoration, not native filesystem/image/UI acceptance.
+### Reviewed-main integration evidence
+
+The current integration base is exactly `6d1b9162289ccc20c3ba089302dc3a149150d0be`;
+the merge preserves both parents without rebase or rewriting the reviewed cache
+commit. The helper, reset integration, cache tests and complete manifest remain
+**byte-identical** to `5951059`. The merged `gui.py` is exactly pinned main plus
+the three reviewed cache edits (import, construction, deletion display); all
+metadata callbacks and existing artwork/details behavior coexist unchanged.
+All other tracked paths equal pinned main, apart from the five Task12 paths.
+
+All nine combined focused scripts **exit0**: cache12, metadata11, skin12, PVR12,
+reminder6, fixture4, safety, command-data and Python3. Changed-runtime Python3.8
+AST and the preservation assertions also **exit0**; legacy warnings are retained.
+Private `integration-*` receipts in `.cache/task12/` preserve actual subprocess
+returncodes, stdout/stderr and byte-preservation assertions. The unchanged narrow
+Matrix type/API receipts and their expected exit1 negative control remain valid
+for their exact unchanged inputs; no broad six-stage rerun is claimed.
+
+### Native routing status — explicitly DEFERRED
+
+**Native #8–#11 remain UNRUN on Matrix19.4/Nexus20.5/Omega21.3/Piers22RC2.**
+The focused routing issue is now [Lab394](https://github.com/kcook98765/kodi-lab/issues/394),
+**DEFERRED per owner**; the closed broad Lab112 discussion is historical context,
+not the current focused issue or proof of whole-add-on failure. Task06's existing
+observations establish that full registered-source mixed-manifest intake and
+workspace validation **pass** for their frozen source/generation, not these new
+bytes or native operation. The source-predicted gap is a **qualified, consented
+cold FIRST ACTIVATION** contract. It is not a blanket byte-copy/deployment failure
+or evidence that Kodi cannot run the combined manifest. Fixed-video smoke
+ineligibility is only that narrow capability's limit. Declared script launch and
+actual service startup **and functional work** require separate evidence; an
+enabled Boolean, parse/validation result or script UI alone is not acceptance.
+
+Both `xbmc.python.script` (`addon.py`) and `xbmc.service` (`service.py`), their
+original responsibilities and complete resources remain mandatory across all
+four targets. No split/strip workaround or permanent feature removal is approved.
+There is **no continued investigation, activation attempt or workaround** in this
+task. No Lab calls, lifecycle/selection/source/workspace/grant changes, deployment,
+enablement, launch/smoke, settings, input, UI/logs/screenshots, infrastructure,
+Toolkit, configuration, production or release changes. Stopped/archived profiles
+and earlier runtime receipts remain untouched. Source-only restoration proceeds
+independently; native filesystem/image/UI/service acceptance remains deferred.
 
 ### Exact API basis (reusing Task04 scope)
 
