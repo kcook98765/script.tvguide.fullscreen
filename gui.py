@@ -49,6 +49,7 @@ import ActionEditor
 from vpnapi import VPNAPI
 
 import streaming
+from skin_runtime import select_skin
 
 DEBUG = False
 
@@ -126,11 +127,17 @@ CHANNELS_PER_PAGE = int(ADDON.getSetting('channels.per.page'))
 
 HALF_HOUR = datetime.timedelta(minutes=30)
 
-# Only reviewed bundled skins; ignore legacy profile/external skin settings.
-SKIN = ADDON.getSetting('skin')
-if SKIN not in ('Default', 'Dark', 'CatBar'):
-    SKIN = 'Default'
-SKIN_PATH = ADDON.getAddonInfo('path')
+SKIN_PATH, SKIN, SKIN_XML, _SKIN_SNAPSHOT = select_skin(ADDON)
+
+
+def skin_xml(filename):
+    return SKIN_XML.get(filename, filename)
+
+
+def skin_texture(filename):
+    if _SKIN_SNAPSHOT is not None:
+        return _SKIN_SNAPSHOT.textures.get(filename, filename)
+    return filename
 
 
 def log(what):
@@ -319,7 +326,7 @@ class TVGuide(xbmcgui.WindowXML):
     C_MAIN_ADDON_LABEL = 44026
 
     def __new__(cls):
-        return super(TVGuide, cls).__new__(cls, 'script-tvguide-main.xml', SKIN_PATH, SKIN)
+        return super(TVGuide, cls).__new__(cls, skin_xml('script-tvguide-main.xml'), SKIN_PATH, SKIN)
 
     def __init__(self):
         super(TVGuide, self).__init__()
@@ -3392,7 +3399,8 @@ class TVGuide(xbmcgui.WindowXML):
         showLogo = ADDON.getSetting('logos.enabled') == 'true'
         channel_index_format = "%%0%sd" % ADDON.getSetting('channel.index.digits')
         altChannelColumnBG = "tvg-alt-channel-column.png"
-        channelColumnBGCheck = "%sresources/skins/%s/media/%s" % (SKIN_PATH,SKIN,altChannelColumnBG)
+        channelColumnBGCheck = (_SKIN_SNAPSHOT.textures.get(altChannelColumnBG, '') if _SKIN_SNAPSHOT is not None else
+                               os.path.join(SKIN_PATH, 'resources', 'skins', SKIN, 'media', altChannelColumnBG))
         channelColumnBG = "tvg-program-nofocus.png"
         if xbmcvfs.exists( channelColumnBGCheck ):
             channelColumnBG = altChannelColumnBG
@@ -3431,11 +3439,11 @@ class TVGuide(xbmcgui.WindowXML):
                 control.setPosition(2,top)
                 try:
                     if self.player.isPlaying() and (self.currentChannel == channels[idx]):
-                        control.setImage("tvg-playing-nofocus.png")
+                        control.setImage(skin_texture("tvg-playing-nofocus.png"))
                     else:
-                        control.setImage(channelColumnBG)
+                        control.setImage(skin_texture(channelColumnBG))
                 except:
-                    control.setImage("tvg-program-nofocus.png")
+                    control.setImage(skin_texture("tvg-program-nofocus.png"))
             control = self.getControl(4010 + idx)
             if control:
                 control.setHeight(self.epgView.cellHeight-2)
@@ -3513,8 +3521,8 @@ class TVGuide(xbmcgui.WindowXML):
                     title,
                     focusedColor=focusColor,
                     textColor=noFocusColor,
-                    noFocusTexture=noFocusTexture,
-                    focusTexture=focusTexture,
+                    noFocusTexture=skin_texture(noFocusTexture),
+                    focusTexture=skin_texture(focusTexture),
                     font=font
                 )
 
@@ -3532,8 +3540,8 @@ class TVGuide(xbmcgui.WindowXML):
                 noProgramsMessage,
                 focusedColor=focusColor,
                 textColor=noFocusColor,
-                noFocusTexture=noFocusTexture,
-                focusTexture=focusTexture,
+                noFocusTexture=skin_texture(noFocusTexture),
+                focusTexture=skin_texture(focusTexture),
                 font=font
             )
 
@@ -3552,8 +3560,8 @@ class TVGuide(xbmcgui.WindowXML):
                     "",
                     focusedColor=focusColor,
                     textColor=noFocusColor,
-                    noFocusTexture=noFocusTexture,
-                    focusTexture=focusTexture,
+                    noFocusTexture=skin_texture(noFocusTexture),
+                    focusTexture=skin_texture(focusTexture),
                     font=font
                 )
                 channel = utils.Channel("", "", '', "" , "", True)
@@ -3605,7 +3613,7 @@ class TVGuide(xbmcgui.WindowXML):
 
         if self.timebar:
             self.removeControl(self.timebar)
-        self.timebar = xbmcgui.ControlImage (0, 0, -2, 0, "tvgf-timebar.png")
+        self.timebar = xbmcgui.ControlImage (0, 0, -2, 0, skin_texture("tvgf-timebar.png"))
         self.timebar.setHeight(top - self.epgView.top - 2)
         color = colors.color_name[remove_formatting(ADDON.getSetting('timebar.color'))]
         self.timebar.setColorDiffuse(color)
@@ -3673,11 +3681,11 @@ class TVGuide(xbmcgui.WindowXML):
                 control.setPosition(2,top)
                 try:
                     if self.currentChannel == channels[idx]:
-                        control.setImage("tvg-playing-nofocus.png")
+                        control.setImage(skin_texture("tvg-playing-nofocus.png"))
                     else:
-                        control.setImage("tvg-program-nofocus.png")
+                        control.setImage(skin_texture("tvg-program-nofocus.png"))
                 except:
-                    control.setImage("tvg-program-nofocus.png")
+                    control.setImage(skin_texture("tvg-program-nofocus.png"))
             control = self.getControl(14010 + idx)
             if control:
                 control.setHeight(self.quickEpgView.cellHeight-2)
@@ -3749,8 +3757,8 @@ class TVGuide(xbmcgui.WindowXML):
                     title,
                     focusedColor=focusColor,
                     textColor=noFocusColor,
-                    noFocusTexture=noFocusTexture,
-                    focusTexture=focusTexture
+                    noFocusTexture=skin_texture(noFocusTexture),
+                    focusTexture=skin_texture(focusTexture)
                 )
 
                 self.quickControlAndProgramList.append(ControlAndProgram(control, program))
@@ -3768,8 +3776,8 @@ class TVGuide(xbmcgui.WindowXML):
                 noProgramsMessage,
                 focusedColor=focusColor,
                 textColor=noFocusColor,
-                noFocusTexture=noFocusTexture,
-                focusTexture=focusTexture
+                noFocusTexture=skin_texture(noFocusTexture),
+                focusTexture=skin_texture(focusTexture)
             )
 
             program = src.Program(channel, "", '', None, None, None, '')
@@ -3805,7 +3813,7 @@ class TVGuide(xbmcgui.WindowXML):
 
         if self.quicktimebar:
             self.removeControl(self.quicktimebar)
-        self.quicktimebar = xbmcgui.ControlImage (0, 0, -2, 0, "tvgf-timebar.png")
+        self.quicktimebar = xbmcgui.ControlImage (0, 0, -2, 0, skin_texture("tvgf-timebar.png"))
         self.quicktimebar.setHeight(self.quickEpgView.bottom - self.quickEpgView.top - 2)
         color = colors.color_name[remove_formatting(ADDON.getSetting('timebar.color'))]
         self.quicktimebar.setColorDiffuse(color)
@@ -4388,7 +4396,7 @@ class TVGuide(xbmcgui.WindowXML):
     def setControlImage(self, controlId, image):
         control = self.getControl(controlId)
         if control:
-            control.setImage(image)
+            control.setImage(skin_texture(image))
 
     def setControlLabel(self, controlId, label):
         control = self.getControl(controlId)
@@ -4501,7 +4509,7 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
 
 
     def __new__(cls, database, program, showRemind, showAutoplay, showAutoplaywith, category, categories):
-        return super(PopupMenu, cls).__new__(cls, 'script-tvguide-menu.xml', SKIN_PATH, SKIN)
+        return super(PopupMenu, cls).__new__(cls, skin_xml('script-tvguide-menu.xml'), SKIN_PATH, SKIN)
 
     def __init__(self, database, program, showRemind, showAutoplay, showAutoplaywith, category, categories):
         """
@@ -5038,7 +5046,7 @@ class ChannelsMenu(xbmcgui.WindowXMLDialog):
     C_CHANNELS_LOGOS = 6006
 
     def __new__(cls, database):
-        return super(ChannelsMenu, cls).__new__(cls, 'script-tvguide-channels.xml', SKIN_PATH, SKIN)
+        return super(ChannelsMenu, cls).__new__(cls, skin_xml('script-tvguide-channels.xml'), SKIN_PATH, SKIN)
 
     def __init__(self, database):
         """
@@ -5336,7 +5344,7 @@ class StreamSetupDialog(xbmcgui.WindowXMLDialog):
     VISIBLE_BROWSE = 'browse'
 
     def __new__(cls, database, channel):
-        return super(StreamSetupDialog, cls).__new__(cls, 'script-tvguide-streamsetup.xml', SKIN_PATH, SKIN)
+        return super(StreamSetupDialog, cls).__new__(cls, skin_xml('script-tvguide-streamsetup.xml'), SKIN_PATH, SKIN)
 
     def __init__(self, database, channel):
         """
@@ -6096,7 +6104,7 @@ class ChooseStreamAddonDialog(xbmcgui.WindowXMLDialog):
     C_SELECTION_ADDON_LABEL = 4026
 
     def __new__(cls, addons, name, icon):
-        return super(ChooseStreamAddonDialog, cls).__new__(cls, 'script-tvguide-streamaddon.xml', SKIN_PATH, SKIN)
+        return super(ChooseStreamAddonDialog, cls).__new__(cls, skin_xml('script-tvguide-streamaddon.xml'), SKIN_PATH, SKIN)
 
     def __init__(self, addons, name, icon):
         super(ChooseStreamAddonDialog, self).__init__()
@@ -6155,7 +6163,7 @@ class ProgramListDialog(xbmcgui.WindowXMLDialog):
     C_PROGRAM_LIST_TITLE = 1001
 
     def __new__(cls,title,programs,sort_time=False):
-        return super(ProgramListDialog, cls).__new__(cls, 'script-tvguide-programlist.xml', SKIN_PATH, SKIN)
+        return super(ProgramListDialog, cls).__new__(cls, skin_xml('script-tvguide-programlist.xml'), SKIN_PATH, SKIN)
 
     def __init__(self,title,programs,sort_time=False):
         super(ProgramListDialog, self).__init__()
@@ -6314,7 +6322,7 @@ class VODTVDialog(xbmcgui.WindowXMLDialog):
     C_VOD_LIST = 90000
 
     def __new__(cls):
-        return super(VODTVDialog, cls).__new__(cls, 'script-tvguide-vod-tv.xml', SKIN_PATH, SKIN)
+        return super(VODTVDialog, cls).__new__(cls, skin_xml('script-tvguide-vod-tv.xml'), SKIN_PATH, SKIN)
 
     def __init__(self):
         super(VODTVDialog, self).__init__()
@@ -6345,7 +6353,7 @@ class CatMenu(xbmcgui.WindowXMLDialog):
         # return super(CatMenu, cls).__new__(cls, 'script-tvguide-categories.xml', ADDON.getAddonInfo('path'), SKIN)
         # Skin in user settings
 
-        return super(CatMenu, cls).__new__(cls, 'script-tvguide-categories.xml', SKIN_PATH, SKIN)
+        return super(CatMenu, cls).__new__(cls, skin_xml('script-tvguide-categories.xml'), SKIN_PATH, SKIN)
 
     def __init__(
         self,
