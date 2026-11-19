@@ -1019,10 +1019,10 @@ class TVGuide(xbmcgui.WindowXML):
                 self.showListing(program.channel)
         elif action.getId() in COMMAND_ACTIONS["STOP_AUTOPLAYWITH"]:
             self.stopWith()
-        elif action.getId() in COMMAND_ACTIONS["PLAY_AUTOPLAYWITH"]:
+        elif action.getId() in COMMAND_ACTIONS["PLAY_AUTOPLAYWITH"] or action.getId() == ACTION_RECORD:
             program = self._getProgramFromControl(controlInFocus)
             if program:
-                self.playWithChannel(program.channel)
+                self.playWithChannel(program.channel, program)
         elif action.getId() in COMMAND_ACTIONS["DELETE_PROGRAM_IMAGE"]:
             program = self._getProgramFromControl(controlInFocus)
             if program:
@@ -1040,7 +1040,7 @@ class TVGuide(xbmcgui.WindowXML):
                 autoplay = "AutoPlay"
             else:
                 autoplay = "Don't AutoPlay"
-            schedulers = [remind,autoplay]
+            schedulers = [remind,autoplay,'Record (Kodi PVR)…']
             what = d.select("Schedule", schedulers)
             if what > -1:
                 if what == 0:
@@ -1063,6 +1063,8 @@ class TVGuide(xbmcgui.WindowXML):
                         when = d.select("%s When" % schedulers[what], times)
                         if when > -1:
                             self.autoplay.addAutoplay(program, when)
+                elif what == 2:
+                    self.playWithChannel(program.channel, program)
             self.onRedrawEPG(self.channelIdx, self.viewStartDate)
         elif action.getId() in COMMAND_ACTIONS["PLAY_CHOOSE"]:
             program = self._getProgramFromControl(controlInFocus)
@@ -1891,10 +1893,11 @@ class TVGuide(xbmcgui.WindowXML):
             self._showContextMenu(programList[index])
 
     def showAutoplaywiths(self):
-        return
+        self.showFullAutoplaywiths()
 
     def showFullAutoplaywiths(self):
-        return
+        from pvr_recording import PVRRecording
+        PVRRecording(xbmc.executeJSONRPC, xbmcgui.Dialog()).run('timers')
 
     def _showContextMenu(self, program):
         self._hideControl(self.C_MAIN_MOUSE_CONTROLS)
@@ -1940,11 +1943,11 @@ class TVGuide(xbmcgui.WindowXML):
                 self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 
         elif buttonClicked == PopupMenu.C_POPUP_AUTOPLAYWITH:
-            return  # Obsolete recording control, including stale custom keymaps.
+            self.playWithChannel(program.channel, program)
 
         elif buttonClicked == PopupMenu.C_POPUP_LISTS:
             d = xbmcgui.Dialog()
-            list = d.select("Lists", ["Channel Listing","On Now", "On Next", "Search", "Reminders", "AutoPlays"])
+            list = d.select("Lists", ["Channel Listing","On Now", "On Next", "Search", "Reminders", "AutoPlays", "PVR timers / cancel"])
             if list < 0:
                 self.onRedrawEPG(self.channelIdx, self.viewStartDate)
             if list == 0:
@@ -3005,12 +3008,16 @@ class TVGuide(xbmcgui.WindowXML):
         return url is not None
 
     def playWithChannel(self, channel, program = None):
-        # Retained inert callback for old keymaps; external recording was removed.
-        return
+        from pvr_recording import PVRRecording
+        hint = channel.title if channel else ''
+        if program:
+            hint = '%s — %s (%s, guide local time)' % (hint, program.title, program.startDate)
+        PVRRecording(xbmc.executeJSONRPC, xbmcgui.Dialog()).run(guide_hint=hint)
 
 
     def stopWith(self):
-        return
+        from pvr_recording import PVRRecording
+        PVRRecording(xbmc.executeJSONRPC, xbmcgui.Dialog()).run('stop')
 
 
     def waitForPlayBackStopped(self,title):
@@ -4675,8 +4682,9 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
         if self.program.startDate:
             remindControl.setEnabled(True)
             autoplayControl.setEnabled(True)
-            autoplaywithControl.setEnabled(False)
-            autoplaywithControl.setVisible(False)
+            autoplaywithControl.setEnabled(True)
+            autoplaywithControl.setVisible(True)
+            autoplaywithControl.setLabel('Record (Kodi PVR)…')
             if self.showRemind:
                 remindControl.setLabel("Remind")
             else:

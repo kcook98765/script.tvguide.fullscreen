@@ -343,8 +343,9 @@ def getCommandActions():
         for c in new_commands:
             if c in commands:
                 commands[c] = new_commands[c]
-    # Persisted keymaps cannot restore removed external execution features.
-    for command in ('AUTOPLAYWITHS', 'PLAY_AUTOPLAYWITH', 'STOP_AUTOPLAYWITH', 'EXTENDED_INFO'):
+    # Recording aliases now open interactive PVR choices, never legacy commands.
+    # The unrelated obsolete external metadata execution path remains disabled.
+    for command in ('EXTENDED_INFO',):
         commands[command] = []
     return commands
 

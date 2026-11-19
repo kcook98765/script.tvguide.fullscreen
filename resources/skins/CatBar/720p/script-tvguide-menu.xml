@@ -417,7 +417,6 @@
         </control>
 
         <control type="button" id="4009">
-            <visible>false</visible>
             <description>autoplaywith</description>
             <posx>285</posx>
             <posy>290</posy>
@@ -433,7 +432,7 @@
             <font>font13</font>
             <textcolor>white</textcolor>
             <focusedcolor>black</focusedcolor>
-            <label>AutoPlayWith</label>
+            <label>Record (Kodi PVR)…</label>
         </control>
 
 
