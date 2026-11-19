@@ -1,17 +1,25 @@
 import sys
 import xbmc,xbmcaddon
-import sqlite3
+from autoplay_data import callback_identity
 
-ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
 
-channel = sys.argv[1]
-start = sys.argv[2]
+def main(argv):
+    try:
+        channel, start = callback_identity(argv)
+    except (ValueError, UnicodeError):
+        xbmc.log('[script.tvguide.fullscreen] Invalid autoplay data', xbmc.LOGERROR)
+        return
 
-if ADDON.getSetting('playing.channel') != channel:
-    quit()
-elif ADDON.getSetting('playing.start') != start:
-    quit()
-ADDON.setSetting('playing.channel','')
-ADDON.setSetting('playing.start','')
+    ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
+    if ADDON.getSetting('playing.channel') != channel:
+        return
+    elif ADDON.getSetting('playing.start') != start:
+        return
+    ADDON.setSetting('playing.channel','')
+    ADDON.setSetting('playing.start','')
 
-xbmc.executebuiltin('PlayerControl(Stop)')
+    xbmc.executebuiltin('PlayerControl(Stop)')
+
+
+if __name__ == '__main__':
+    main(sys.argv)
