@@ -27,22 +27,10 @@
 
 import sys
 import xbmc,xbmcaddon,xbmcvfs,xbmcgui
-import os
-import stat
 
 xbmcgui.Dialog().notification("TV Guide Fullscreen","loading...",sound=False)
 
 ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
-
-'''
-ffmpeg = ADDON.getSetting('autoplaywiths.ffmpeg')
-if ffmpeg:
-    try:
-        st = os.stat(ffmpeg)
-        os.chmod(ffmpeg, st.st_mode | stat.S_IEXEC)
-    except:
-        pass
-'''
 
 if len(sys.argv) > 1:
     category = sys.argv[1]

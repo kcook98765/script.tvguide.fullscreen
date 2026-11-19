@@ -60,8 +60,6 @@ class SdAPI(object):
             xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), 'Error trying to log into SchedulesDirect:', resp['message'])
             self.logged_in = False
         elif 'token' in resp:
-            xbmc.log("[%s] SD-Token received: %s" % (ADDON.getAddonInfo('id'), resp['token']),
-                     xbmc.LOGDEBUG)
             self._headers['token'] = resp['token']
             self.logged_in = True
 
@@ -77,9 +75,8 @@ class SdAPI(object):
     @staticmethod
     def _check_resp(resp):
         if resp.status_code == requests.codes.ok:
-            info = (resp.text[:1000] + '..') if len(resp.text) > 1000 else resp.text
-            xbmc.log("[%s] Reply from SD: %s - %s" %
-                     (ADDON.getAddonInfo('id'), resp.status_code, info), xbmc.LOGDEBUG)
+            xbmc.log("[%s] Reply from SD: %s" %
+                     (ADDON.getAddonInfo('id'), resp.status_code), xbmc.LOGDEBUG)
             return True
         else:
             message = ''
@@ -91,8 +88,8 @@ class SdAPI(object):
                 message = resp.text
 
             xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), 'SchedulesDirect server reply:', message)
-            xbmc.log("[%s] SD-Server response: %s - %s" %
-                     (ADDON.getAddonInfo('id'), resp.status_code, resp.text), xbmc.LOGDEBUG)
+            xbmc.log("[%s] SD-Server response: %s" %
+                     (ADDON.getAddonInfo('id'), resp.status_code), xbmc.LOGDEBUG)
             return False
 
     def _get(self, path):
@@ -118,8 +115,7 @@ class SdAPI(object):
         data = ""
         if post_data:
             data = json.dumps(post_data)
-        info = (data[:1000] + '..') if len(data) > 1000 else data
-        xbmc.log('[%s] POST request: %s - data: %s' % (ADDON.getAddonInfo('id'), url, info),
+        xbmc.log('[%s] POST request: %s' % (ADDON.getAddonInfo('id'), url),
                  xbmc.LOGDEBUG)
         resp = requests.post(url, headers=self._headers, data=data)
         if self._check_resp(resp):

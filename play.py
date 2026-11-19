@@ -34,4 +34,5 @@ if row:
                     if vpndefault: api.defaultVPN(True)
         except:
             pass
-    xbmc.executebuiltin('PlayMedia(%s)' % url)
+    # A media location is data, never a formatted Kodi builtin.
+    xbmc.Player().play(item=url)

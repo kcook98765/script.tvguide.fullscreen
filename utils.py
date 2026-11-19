@@ -117,8 +117,7 @@ class Program(object):
 
 def save_setting(key, value, is_list=False):
 
-    xbmc.log('[%s] Tyring to save setting: key "%s" / value "%s"' %
-             (ADDON.getAddonInfo('id'), key, str(value)), xbmc.LOGDEBUG)
+    # Settings include provider credentials; never log their values.
 
     file_path = xbmc.translatePath(
         os.path.join(ADDON.getAddonInfo('profile'), 'settings.xml'))

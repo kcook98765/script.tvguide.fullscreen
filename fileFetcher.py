@@ -147,10 +147,10 @@ class FileFetcher(object):
                 if ADDON.getSetting('gz') == 'true':
                     fileUrl = fileUrl + '.gz'
                 try:
-                    r = requests.get(fileUrl,auth=auth, stream=True, verify=False)
+                    r = requests.get(fileUrl,auth=auth, stream=True)
                     if r.status_code != requests.codes.ok:
                         if ADDON.getSetting('gz') == 'true':
-                            r = requests.get(self.fileUrl,auth=auth, stream=True, verify=False)
+                            r = requests.get(self.fileUrl,auth=auth, stream=True)
                             if r.status_code != requests.codes.ok:
                                 xbmc.log('[script.tvguide.fullscreen] no file: %s' % self.fileUrl, xbmc.LOGERROR)
                                 xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s" % self.fileUrl,xbmcgui.NOTIFICATION_ERROR)

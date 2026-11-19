@@ -298,7 +298,7 @@ COMMANDS = {
 "SEARCH": ["REMOTE_4", "ACTION_JUMP_SMS4"],
 "REMINDERS": ["REMOTE_5", "ACTION_JUMP_SMS5"],
 "AUTOPLAYS": ["REMOTE_6", "ACTION_JUMP_SMS6"],
-"AUTOPLAYWITHS": ["REMOTE_7", "ACTION_JUMP_SMS6"],
+"AUTOPLAYWITHS": [],
 "PLAY_NEXT_CHANNEL": ["ACTION_PAGE_UP"],
 "PLAY_PREV_CHANNEL": ["ACTION_PAGE_DOWN"],
 "PLAY_LAST_CHANNEL": ["REMOTE_0"],
@@ -309,10 +309,10 @@ COMMANDS = {
 "CATEGORIES": ["ACTION_MENU"],
 "SCHEDULERS_MENU": ["ACTION_CREATE_BOOKMARK"],
 "INFO": ["ACTION_SHOW_INFO"],
-"EXTENDED_INFO": ["ACTION_SHOW_INFO"],
+"EXTENDED_INFO": [],
 "DELETE_PROGRAM_IMAGE": ["ACTION_DELETE_ITEM"],
-"PLAY_AUTOPLAYWITH": ["REMOTE_8", "ACTION_JUMP_SMS8"],
-"STOP_AUTOPLAYWITH": ["REMOTE_9", "ACTION_JUMP_SMS9"],
+"PLAY_AUTOPLAYWITH": [],
+"STOP_AUTOPLAYWITH": [],
 "FULLSCREEN": ["ACTION_MOVE_RIGHT"],
 "CHANNEL_NUMBER": ["ACTION_SHIFT"],
 "GO_TO_FIRST_CHANNEL": ["ACTION_LAST_PAGE"],
@@ -343,6 +343,9 @@ def getCommandActions():
         for c in new_commands:
             if c in commands:
                 commands[c] = new_commands[c]
+    # Persisted keymaps cannot restore removed external execution features.
+    for command in ('AUTOPLAYWITHS', 'PLAY_AUTOPLAYWITH', 'STOP_AUTOPLAYWITH', 'EXTENDED_INFO'):
+        commands[command] = []
     return commands
 
 

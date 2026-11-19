@@ -31,19 +31,17 @@ import time
 import re
 import os
 import urllib
-import subprocess
 import xbmc
 import xbmcgui
 import xbmcvfs
 import colors
 import requests
-import pickle
 import json
 import base64
 import source as src
 from notification import Notification
 from autoplay import Autoplay
-from autoplaywith import Autoplaywith
+from command_safety import alarm_name
 from strings import *
 from rpc import RPC
 import utils
@@ -128,15 +126,11 @@ CHANNELS_PER_PAGE = int(ADDON.getSetting('channels.per.page'))
 
 HALF_HOUR = datetime.timedelta(minutes=30)
 
-if ADDON.getSetting('skin.source') == "0":
-    SKIN = ADDON.getSetting('skin')
-    SKIN_PATH = ADDON.getAddonInfo('path')
-elif ADDON.getSetting('skin.source') == "1":
-    SKIN = ADDON.getSetting('skin.user')
-    SKIN_PATH = xbmc.translatePath("special://profile/addon_data/script.tvguide.fullscreen/")
-elif ADDON.getSetting('skin.source') == "2":
-    SKIN = ADDON.getSetting('skin.user')
-    SKIN_PATH = ADDON.getSetting('skin.folder')
+# Only reviewed bundled skins; ignore legacy profile/external skin settings.
+SKIN = ADDON.getSetting('skin')
+if SKIN not in ('Default', 'Dark', 'CatBar'):
+    SKIN = 'Default'
+SKIN_PATH = ADDON.getAddonInfo('path')
 
 
 def log(what):
@@ -336,7 +330,6 @@ class TVGuide(xbmcgui.WindowXML):
         self.tryingToPlay = False
         self.notification = None
         self.autoplay = None
-        self.autoplaywith = None
         self.redrawingEPG = False
         self.redrawingQuickEPG = False
         self.isClosing = False
@@ -360,7 +353,6 @@ class TVGuide(xbmcgui.WindowXML):
         self.player = xbmc.Player()
         self.database = None
         self.tvdb_urls = {}
-        self.loadTVDBImages()
 
         self.mode = MODE_EPG
         self.channel_number_input = False
@@ -414,15 +406,13 @@ class TVGuide(xbmcgui.WindowXML):
         self.action_index = 0
 
         self.osdEnabled = False
-        self.osdEnabled = ADDON.getSetting('enable.osd') == 'true' and ADDON.getSetting(
-            'alternative.playback') != 'true'
+        self.osdEnabled = ADDON.getSetting('enable.osd') == 'true'
         self.upNextEnabled = False
         self.upNextEnabled = ADDON.getSetting('enable.nextup') == 'true'
         self.upNextTime = int(ADDON.getSetting('nextup.time'))
         self.upNextShowTimeEnabled = False
         self.upNextShowTimeEnabled = ADDON.getSetting('enable.nextup.showTime') == 'true'
         self.upNextShowTime = int(ADDON.getSetting('nextup.showTime'))
-        self.alternativePlayback = ADDON.getSetting('alternative.playback') == 'true'
         self.osdChannel = None
         self.osdProgram = None
         self.lastOsdProgram = None
@@ -435,20 +425,6 @@ class TVGuide(xbmcgui.WindowXML):
         self.quickViewStartDate = datetime.datetime.today()
         self.quickViewStartDate -= datetime.timedelta(minutes=self.quickViewStartDate.minute % 30,
                                                  seconds=self.quickViewStartDate.second)
-
-    def loadTVDBImages(self):
-        file_name = 'special://profile/addon_data/script.tvguide.fullscreen/tvdb.pickle'
-        if xbmcvfs.exists(file_name):
-            f = open(xbmc.translatePath(file_name),'rb')
-            if f:
-                try:
-                    self.tvdb_urls = pickle.load(f)
-                    if len(self.tvdb_urls) > 1000:
-                        k = self.tvdb_urls.keys()
-                        k.reverse()
-                        while len(self.tvdb_urls) > 1000:
-                            self.tvdb_urls.pop(k.pop(),None)
-                except: pass
 
     def getControl(self, controlId):
         if not controlId:
@@ -472,13 +448,6 @@ class TVGuide(xbmcgui.WindowXML):
                 if ADDON.getSetting('stop.on.exit') == "true":
                     self.player.stop()
                     self.clear_catchup()
-
-            f = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/tvdb.pickle','wb')
-            try:
-                pickle.dump(self.tvdb_urls,f)
-            except:
-                pass
-            f.close()
 
             file_name = 'special://profile/addon_data/script.tvguide.fullscreen/custom_stream_urls_autosave.ini'
             xbmcvfs.copy(file_name,file_name+".last")
@@ -1071,11 +1040,7 @@ class TVGuide(xbmcgui.WindowXML):
                 autoplay = "AutoPlay"
             else:
                 autoplay = "Don't AutoPlay"
-            if not program.autoplaywithScheduled:
-                autoplaywith = "Record" if (ADDON.getSetting('autoplaywiths.record') == 'true') else "AutoPlayWith"
-            else:
-                autoplaywith = "Don't Record" if (ADDON.getSetting('autoplaywiths.record') == 'true')  else "Don't AutoPlayWith"
-            schedulers = [remind,autoplay,autoplaywith]
+            schedulers = [remind,autoplay]
             what = d.select("Schedule", schedulers)
             if what > -1:
                 if what == 0:
@@ -1098,14 +1063,6 @@ class TVGuide(xbmcgui.WindowXML):
                         when = d.select("%s When" % schedulers[what], times)
                         if when > -1:
                             self.autoplay.addAutoplay(program, when)
-                elif what == 2:
-                    if program.autoplaywithScheduled:
-                        self.autoplaywith.removeAutoplaywith(program)
-                    else:
-                        times = ["once","always","new","daily"]
-                        when = d.select("%s When" % schedulers[what], times)
-                        if when > -1:
-                            self.autoplaywith.addAutoplaywith(program, when)
             self.onRedrawEPG(self.channelIdx, self.viewStartDate)
         elif action.getId() in COMMAND_ACTIONS["PLAY_CHOOSE"]:
             program = self._getProgramFromControl(controlInFocus)
@@ -1133,49 +1090,7 @@ class TVGuide(xbmcgui.WindowXML):
             if program:
                 self.play_catchup(program)
         elif action.getId() in COMMAND_ACTIONS["EXTENDED_INFO"]:
-            program = self._getProgramFromControl(controlInFocus)
-            title = program.title
-            match = re.search('(.*?)\([0-9]{4}\)$',title)
-            if match:
-                title = match.group(1).strip()
-                program.is_movie = "Movie"
-            if program.is_movie == "Movie":
-                selection = 0
-            elif program.season:
-                selection = 1
-            else:
-                selection = xbmcgui.Dialog().select("Choose media type",["Search as Movie", "Search as TV Show", "Search as Either"])
-            where = ["movie","tv","multi"]
-            url = base64.b64decode("aHR0cHM6Ly9hcGkudGhlbW92aWVkYi5vcmcvMy9zZWFyY2gvJXM/cXVlcnk9JXMmYXBpX2tleT1kNjk5OTJlYzgxMGQwZjQxNGQzZGU0YTIyOTRiODcwMCZpbmNsdWRlX2FkdWx0PWZhbHNlJnBhZ2U9MQ==") % (where[selection],title)
-            r = requests.get(url)
-            data = json.loads(r.content)
-            results = data.get('results')
-            id = ''
-            if results:
-                if len(results) > 1:
-                    names = ["%s (%s)" % (x.get('name') or x.get('title'),x.get('first_air_date') or x.get('release_date')) for x in results]
-                    what = xbmcgui.Dialog().select(title,names)
-                    if what > -1:
-                        id = results[what].get('id')
-                        result_type = results[what].get('media_result_type')
-                        if result_type not in ["movie","tv"]:
-                            if selection == 0:
-                                result_type = "movie"
-                            else:
-                                result_type = "tv"
-                        if result_type == 'movie':
-                            xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedinfo,name=%s,id=%s)' % (title,id))
-                        elif result_type == 'tv':
-                            xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedtvinfo,name=%s,id=%s)' % (program.title,id))
-                    else:
-                        xbmcgui.Dialog().notification("TV Guide Fullscreen", "Couldn't find: %s" % title)
-                else:
-                    if selection == 0:
-                        xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedinfo,name=%s)' % (title))
-                    elif selection == 1:
-                        xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedtvinfo,name=%s)' % (program.title))
-            else:
-                xbmcgui.Dialog().notification("TV Guide Fullscreen", "Couldn't find: %s" % title)
+            return  # Removed obsolete external script dispatch from guide metadata.
         elif action.getId() in COMMAND_ACTIONS["UP"]:
             self._up(currentFocus)
         elif action.getId() in COMMAND_ACTIONS["DOWN"]:
@@ -1441,8 +1356,7 @@ class TVGuide(xbmcgui.WindowXML):
             self.showVODTV()
             return
         elif controlId in [self.C_MAIN_MOUSE_MINE1]:
-            command = ADDON.getSetting('mine1')
-            xbmc.executebuiltin(command)
+            # Legacy custom builtins are deliberately no longer executed.
             return
         elif controlId in [self.C_MAIN_MOUSE_HOME, self.C_MAIN_MOUSE_HOME_BIG]:
             self.viewStartDate = datetime.datetime.today()
@@ -1977,29 +1891,10 @@ class TVGuide(xbmcgui.WindowXML):
             self._showContextMenu(programList[index])
 
     def showAutoplaywiths(self):
-        programList = self.database.getAutoplaywiths()
-        labels = []
-        for channelTitle, programTitle, start, end in programList:
-            day = self.formatDateTodayTomorrow(start)
-            start = start.strftime("%H:%M")
-            start = "%s %s" % (day,start)
-            label = "%s - %s - %s" % (channelTitle.encode("utf8"),start,programTitle.encode("utf8"))
-            labels.append(label)
-        title = "AutoPlayWiths"
-        d = xbmcgui.Dialog()
-        index = d.select(title,labels)
-        if index > -1:
-            program = programList[index]
-            self._showContextMenu(program)
+        return
 
     def showFullAutoplaywiths(self):
-        programList = self.database.getFullAutoplaywiths(int(ADDON.getSetting('listing.days')))
-        title = "Record" if (ADDON.getSetting('autoplaywiths.record') == 'true')  else "AutoPlayWiths"
-        d = ProgramListDialog(title, programList, ADDON.getSetting('listing.sort.time') == 'true')
-        d.doModal()
-        index = d.index
-        if index > -1:
-            self._showContextMenu(programList[index])
+        return
 
     def _showContextMenu(self, program):
         self._hideControl(self.C_MAIN_MOUSE_CONTROLS)
@@ -2045,19 +1940,11 @@ class TVGuide(xbmcgui.WindowXML):
                 self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 
         elif buttonClicked == PopupMenu.C_POPUP_AUTOPLAYWITH:
-            if program.autoplaywithScheduled:
-                self.autoplaywith.removeAutoplaywith(program)
-            else:
-                d = xbmcgui.Dialog()
-                play_type = d.select("Record" if (ADDON.getSetting('autoplaywiths.record') == 'true') else "AutoPlayWiths", ["once","always","new","daily"]) #TODO ,"same time","same day"
-                if play_type > -1:
-                    self.autoplaywith.addAutoplaywith(program, play_type)
-            if self.mode == MODE_EPG or ADDON.getSetting('redraw.epg') == 'true':
-                self.onRedrawEPG(self.channelIdx, self.viewStartDate)
+            return  # Obsolete recording control, including stale custom keymaps.
 
         elif buttonClicked == PopupMenu.C_POPUP_LISTS:
             d = xbmcgui.Dialog()
-            list = d.select("Lists", ["Channel Listing","On Now", "On Next", "Search", "Reminders", "AutoPlays", "Record" if (ADDON.getSetting('autoplaywiths.record') == 'true') else "AutoPlayWiths" ])
+            list = d.select("Lists", ["Channel Listing","On Now", "On Next", "Search", "Reminders", "AutoPlays"])
             if list < 0:
                 self.onRedrawEPG(self.channelIdx, self.viewStartDate)
             if list == 0:
@@ -2153,8 +2040,7 @@ class TVGuide(xbmcgui.WindowXML):
             xbmc.executebuiltin('ActivateWindow(Videos,addons://sources/video/)')
 
         elif buttonClicked == PopupMenu.C_POPUP_PLAY_BEGINNING:
-            title = program.title.replace(" ", "%20").replace(",", "").replace(u"\u2013", "-")
-            title = unicode.encode(title, "ascii", "ignore")
+            title = program.title.replace(u"\u2013", "-")
             match = re.search('(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
@@ -2170,26 +2056,22 @@ class TVGuide(xbmcgui.WindowXML):
                 program.language = "en"
 
             catchup = ADDON.getSetting('catchup.text').lower()
+            if not re.match(r'\A[a-z0-9_.-]+\Z', catchup):
+                return
+            title, language, season, episode = [urllib.quote(unicode(value).encode('utf-8'), safe='')
+                for value in (title, program.language, program.season, program.episode)]
             if selection == 0:
-                xbmc.executebuiltin("RunPlugin(plugin://plugin.video.%s/movies/play_by_name/%s/%s)" % (
-                    catchup, title, program.language))
+                self.player.play(item="plugin://plugin.video.%s/movies/play_by_name/%s/%s" % (
+                    catchup, title, language))
             elif selection == 1:
                 if program.season and program.episode:
-                    xbmc.executebuiltin("RunPlugin(plugin://plugin.video.%s/tv/play_by_name/%s/%s/%s/%s)" % (
-                        catchup, title, program.season, program.episode, program.language))
+                    self.player.play(item="plugin://plugin.video.%s/tv/play_by_name/%s/%s/%s/%s" % (
+                        catchup, title, season, episode, language))
                 else:
-                    xbmc.executebuiltin("RunPlugin(plugin://plugin.video.%s/tv/play_by_name_only/%s/%s)" % (
-                        catchup, title, program.language))
+                    self.player.play(item="plugin://plugin.video.%s/tv/play_by_name_only/%s/%s" % (
+                        catchup, title, language))
         elif buttonClicked == PopupMenu.C_POPUP_SEARCH:
-            if ADDON.getSetting('search.type') == 'MySearch':
-                script = "special://home/addons/script.tvguide.fullscreen/search.py"
-                if xbmcvfs.exists(script):
-                    if program.season:
-                        xbmc.executebuiltin('RunScript(%s,%s,%s,%s)' % (script, program.title, program.season, program.episode))
-                    else:
-                        xbmc.executebuiltin('RunScript(%s,%s)' % (script, program.title))
-            else:
-                xbmc.executebuiltin('ActivateWindow(10025,"plugin://plugin.program.super.favourites/?mode=0&keyword=%s",return)' % urllib.quote_plus(program.title))
+            self.programSearchSelect()
         elif buttonClicked == PopupMenu.C_POPUP_FAVOURITES:
             favourites = ADDON.getSetting('favourites')
             if favourites == 'Simple Favourites':
@@ -2201,48 +2083,7 @@ class TVGuide(xbmcgui.WindowXML):
             elif favourites == 'Favourites':
                 xbmc.executebuiltin("ActivateWindow(10134)")
         elif buttonClicked == PopupMenu.C_POPUP_EXTENDED:
-            title = program.title
-            match = re.search('(.*?)\([0-9]{4}\)$',title)
-            if match:
-                title = match.group(1).strip()
-                program.is_movie = "Movie"
-            if program.is_movie == "Movie":
-                selection = 0
-            elif program.season:
-                selection = 1
-            else:
-                selection = xbmcgui.Dialog().select("Choose media type",["Search as Movie", "Search as TV Show", "Search as Either"])
-            where = ["movie","tv","multi"]
-            url = "https://api.themoviedb.org/3/search/%s?query=%s&api_key=d69992ec810d0f414d3de4a2294b8700&include_adult=false&page=1" % (where[selection],title)
-            r = requests.get(url)
-            data = json.loads(r.content)
-            results = data.get('results')
-            id = ''
-            if results:
-                if len(results) > 1:
-                    names = ["%s (%s)" % (x.get('name') or x.get('title'),x.get('first_air_date') or x.get('release_date')) for x in results]
-                    what = xbmcgui.Dialog().select(title,names)
-                    if what > -1:
-                        id = results[what].get('id')
-                        ttype = results[what].get('media_ttype')
-                        if ttype not in ["movie","tv"]:
-                            if selection == 0:
-                                ttype = "movie"
-                            else:
-                                ttype = "tv"
-                        if ttype == 'movie':
-                            xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedinfo,name=%s,id=%s)' % (title,id))
-                        elif ttype == 'tv':
-                            xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedtvinfo,name=%s,id=%s)' % (program.title,id))
-                    else:
-                        xbmcgui.Dialog().notification("TV Guide Fullscreen", "Couldn't find: %s" % title)
-                else:
-                    if selection == 0:
-                        xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedinfo,name=%s)' % (title))
-                    elif selection == 1:
-                        xbmc.executebuiltin('RunScript(script.extendedinfo,info=extendedtvinfo,name=%s)' % (program.title))
-            else:
-                xbmcgui.Dialog().notification("TV Guide Fullscreen", "Couldn't find: %s" % title)
+            return
         elif buttonClicked == PopupMenu.C_POPUP_CATCHUP_ADDON:
             self.play_catchup(program)
 
@@ -2967,7 +2808,9 @@ class TVGuide(xbmcgui.WindowXML):
             return
         xbmcvfs.delete(filename)
         for name in alarms:
-            xbmc.executebuiltin('CancelAlarm(%s,True)' % name.encode('utf-8', 'replace'))
+            # Profile data may contain old/raw names or have been tampered with.
+            if re.match(r'\Atvguide-catchup-[0-9a-f]{64}\Z', name):
+                xbmc.executebuiltin('CancelAlarm(%s,True)' % name)
         programList = []
         catchup = ADDON.getSetting('catchup.text')
         channel = utils.Channel("catchup", catchup, '', "special://home/addons/plugin.video.%s/icon.png" % catchup.lower(), "catchup", True)
@@ -2982,6 +2825,9 @@ class TVGuide(xbmcgui.WindowXML):
             self.catchup_direct(channel)
 
     def catchup_meta(self,channel):
+        catchup = ADDON.getSetting('catchup.text').lower()
+        if not re.match(r'\A[a-z0-9_.-]+\Z', catchup):
+            return
         self.playing_catchup_channel = True
         programList = self.database.getCatchupListing(channel)
         if not programList:
@@ -2995,10 +2841,9 @@ class TVGuide(xbmcgui.WindowXML):
             program.endDate += offset
             t = program.startDate - now
             timeToAutoplay = ((t.days * 86400) + t.seconds) / 60
-            name = "%s-%s" % (program.channel.id,program.startDate)
+            name = alarm_name('catchup', program.channel.id, program.startDate)
 
-            title = program.title.replace(" ", "%20").replace(",", "").replace(u"\u2013", "-")
-            title = unicode.encode(title, "ascii", "ignore")
+            title = program.title.replace(u"\u2013", "-")
             match = re.search('(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
@@ -3013,16 +2858,17 @@ class TVGuide(xbmcgui.WindowXML):
             if not program.language:
                 program.language = "en"
 
-            catchup = ADDON.getSetting('catchup.text').lower()
+            title, language, season, episode = [urllib.quote(unicode(value).encode('utf-8'), safe='')
+                for value in (title, program.language, program.season, program.episode)]
             if selection == 0:
-                cmd = "RunPlugin(plugin://plugin.video.%s/movies/play_by_name/%s/%s)" % (catchup, title, program.language)
+                cmd = "RunPlugin(plugin://plugin.video.%s/movies/play_by_name/%s/%s)" % (catchup, title, language)
             elif selection == 1:
                 if program.season and program.episode:
                     cmd = "RunPlugin(plugin://plugin.video.%s/tv/play_by_name/%s/%s/%s/%s)" % (
-                        catchup, title, program.season, program.episode, program.language)
+                        catchup, title, season, episode, language)
                 else:
                     cmd = "RunPlugin(plugin://plugin.video.%s/tv/play_by_name_only/%s/%s)" % (
-                        catchup, title, program.language)
+                        catchup, title, language)
 
             f.write("%s\n" % name.encode('utf-8', 'replace'))
             if not first_cmd:
@@ -3084,7 +2930,7 @@ class TVGuide(xbmcgui.WindowXML):
         if ADDON.getSetting('catchup.channel') == 'true':
             self.currentChannel = channel
             self.currentProgram = self.database.getCurrentProgram(self.currentChannel)
-        xbmc.executebuiltin("PlayMedia(special://profile/addon_data/script.tvguide.fullscreen/catchup_channel.strm)")
+        self.player.play(item="special://profile/addon_data/script.tvguide.fullscreen/catchup_channel.strm")
 
     def playChannel(self, channel, program = None):
         self.playing_catchup_channel = False
@@ -3138,18 +2984,12 @@ class TVGuide(xbmcgui.WindowXML):
                     import urllib
                     title = urllib.quote(program.title)
                     url += "%s/%s/%s/%s" % (title, program.season, program.episode, program.language)
-                if url.startswith('@'):
-                    if self.vpnswitch: self.api.filterAndSwitch(url[1:], 0, self.vpndefault, True)
-                    xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url[1:])
-                elif url[0:14] == "ActivateWindow":
-                    xbmc.executebuiltin(url)
+                if url.startswith('@') or url.startswith('ActivateWindow'):
+                    # Imported mappings are media locations, not Kodi commands.
                     return True
                 elif url[0:9] == 'plugin://':
                     if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
-                    if self.alternativePlayback:
-                        xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url)
-                    else:
-                        self.player.play(item=url, windowed=self.osdEnabled)
+                    self.player.play(item=url, windowed=self.osdEnabled)
                 else:
                     if self.vpndefault: self.api.defaultVPN(True)
                     if ADDON.getSetting('m3u.read') == 'true':
@@ -3171,51 +3011,12 @@ class TVGuide(xbmcgui.WindowXML):
         return url is not None
 
     def playWithChannel(self, channel, program = None):
-        self.playing_catchup_channel = False
-        if ADDON.getSetting('epg.video.pip') == 'true':
-            self.setControlVisible(self.C_MAIN_IMAGE,False)
-        if self.currentChannel:
-            self.lastChannel = self.currentChannel
-        self.currentChannel = channel
-        self.currentProgram = self.database.getCurrentProgram(self.currentChannel)
-        if not self.currentProgram:
-            return
-        wasPlaying = self.player.isPlaying()
-        url = self.database.getStreamUrl(channel)
-        if url:
-            now = datetime.datetime.now()
-            timestamp = time.mktime(self.currentProgram.startDate.timetuple())
-
-            ffmpeg = ADDON.getSetting('autoplaywiths.ffmpeg')
-            if ffmpeg:
-                folder = ADDON.getSetting('autoplaywiths.folder')
-                script = "special://home/addons/script.tvguide.fullscreen/playwithchannel.py"
-                xbmc.executebuiltin('RunScript(%s,%s,%s)' % (script,channel.id,timestamp))
-
-            script = "special://profile/addon_data/script.tvguide.fullscreen/playwithchannel.py"
-            if xbmcvfs.exists(script):
-                xbmc.executebuiltin('RunScript(%s,%s,%s)' % (script,channel.id,timestamp))
-            core = ADDON.getSetting('autoplaywiths.player')
-            if core:
-                if url[0:9] == 'plugin://':
-                    if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
-                else:
-                    if self.vpndefault: self.api.defaultVPN(True)
-                xbmc.executebuiltin('PlayWith(%s)' % core)
-                xbmc.executebuiltin('PlayMedia(%s)' % url)
+        # Retained inert callback for old keymaps; external recording was removed.
+        return
 
 
     def stopWith(self):
-        ffmpeg = ADDON.getSetting('autoplaywiths.ffmpeg')
-        if ffmpeg:
-            folder = ADDON.getSetting('autoplaywiths.folder')
-            script = "special://home/addons/script.tvguide.fullscreen/stopwithchannel.py"
-            xbmc.executebuiltin('RunScript(%s)' % (script))
-
-        script = "special://profile/addon_data/script.tvguide.fullscreen/stopwithchannel.py"
-        if xbmcvfs.exists(script):
-            xbmc.executebuiltin('RunScript(%s)' % (script))
-        xbmc.Player().stop()
+        return
 
 
     def waitForPlayBackStopped(self,title):
@@ -3243,17 +3044,11 @@ class TVGuide(xbmcgui.WindowXML):
                 url = self.alt_urls.pop(0)
                 #dialog.notification('Trying', url, xbmcgui.NOTIFICATION_ERROR, 5000, sound=True)
                 #TODO meta
-                if url.startswith('@'):
-                    if self.vpnswitch: self.api.filterAndSwitch(url[1:], 0, self.vpndefault, True)
-                    xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url[1:])
-                elif url[0:14] == "ActivateWindow":
-                    xbmc.executebuiltin(url)
+                if url.startswith('@') or url.startswith('ActivateWindow'):
+                    return
                 elif url[0:9] == 'plugin://':
                     if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
-                    if self.alternativePlayback:
-                        xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url)
-                    else:
-                        self.player.play(item=url, windowed=self.osdEnabled)
+                    self.player.play(item=url, windowed=self.osdEnabled)
                 else:
                     if self.vpndefault: self.api.defaultVPN(True)
                     if ADDON.getSetting('m3u.read') == 'true':
@@ -4068,12 +3863,10 @@ class TVGuide(xbmcgui.WindowXML):
             #TODO test if schedules should go here
             self.notification = Notification(self.database, ADDON.getAddonInfo('path'))
             self.autoplay = Autoplay(self.database, ADDON.getAddonInfo('path'))
-            self.autoplaywith = Autoplaywith(self.database, ADDON.getAddonInfo('path'))
             self.database.exportChannelList()
             self.database.exportChannelIdList()
             self.notification.scheduleNotifications()
             self.autoplay.scheduleAutoplays()
-            self.autoplaywith.scheduleAutoplaywiths()
             self.loadChannelMappings()
             self.clear_catchup()
             channelList = self.database.getChannelList(onlyVisible=True,all=False)
@@ -4093,7 +3886,8 @@ class TVGuide(xbmcgui.WindowXML):
         f.close()
 
     def loadActions(self):
-        file_name = 'special://profile/addon_data/script.tvguide.fullscreen/actions.json'
+        # Profile actions.json used to accept arbitrary Kodi builtins.
+        file_name = os.path.join(ADDON.getAddonInfo('path'), 'resources', 'actions.json')
         f = xbmcvfs.File(file_name,"rb")
         data = f.read()
         f.close()
@@ -4885,7 +4679,8 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
         if self.program.startDate:
             remindControl.setEnabled(True)
             autoplayControl.setEnabled(True)
-            autoplaywithControl.setEnabled(True)
+            autoplaywithControl.setEnabled(False)
+            autoplaywithControl.setVisible(False)
             if self.showRemind:
                 remindControl.setLabel("Remind")
             else:
@@ -4894,10 +4689,6 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
                 autoplayControl.setLabel("AutoPlay")
             else:
                 autoplayControl.setLabel("Don't AutoPlay")
-            if self.showAutoplaywith:
-                autoplaywithControl.setLabel("Record" if (ADDON.getSetting('autoplaywiths.record') == 'true') else "AutoPlayWith" )
-            else:
-                autoplaywithControl.setLabel("Don't Record" if (ADDON.getSetting('autoplaywiths.record') == 'true')  else "Don't AutoPlayWith")
 
 
 
