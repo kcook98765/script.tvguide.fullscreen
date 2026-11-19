@@ -29,7 +29,8 @@ import os
 import xbmc
 import xbmcgui, xbmcaddon
 import source as src
-from command_safety import alarm_name, is_builtin_data
+from command_safety import alarm_name
+from autoplay_data import encode_identity
 
 from strings import *
 
@@ -58,20 +59,22 @@ class Autoplay(object):
         timeToAutoplay = ((t.days * 86400) + t.seconds) // 60
         if timeToAutoplay < 0:
             return
-        if not is_builtin_data(channelId):
-            xbmc.log('[script.tvguide.fullscreen] Refused unsafe autoplay channel ID', xbmc.LOGERROR)
+        try:
+            payload = encode_identity(channelId, str(startTime))
+        except (ValueError, UnicodeError):
+            xbmc.log('[script.tvguide.fullscreen] Invalid autoplay data', xbmc.LOGERROR)
             return
         #timeToAutoplay = 1
         name = self.createAlarmClockName(programTitle, startTime)
-        xbmc.executebuiltin('AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s,%s),%d,True)' %
-        (name, channelId, startTime, timeToAutoplay - int(ADDON.getSetting('autoplays.before'))))
+        xbmc.executebuiltin('AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s),%d,True)' %
+        (name, payload, timeToAutoplay - int(ADDON.getSetting('autoplays.before'))))
 
         t = endTime - datetime.datetime.now()
         timeToAutoplay = ((t.days * 86400) + t.seconds) // 60
         #timeToAutoplay = 0
         if ADDON.getSetting('autoplays.stop') == 'true':
-            xbmc.executebuiltin('AlarmClock(%s-stop,RunScript(special://home/addons/script.tvguide.fullscreen/stop.py,%s,%s),%d,True)' %
-            (name, channelId, startTime, timeToAutoplay + int(ADDON.getSetting('autoplays.after'))))
+            xbmc.executebuiltin('AlarmClock(%s-stop,RunScript(special://home/addons/script.tvguide.fullscreen/stop.py,%s),%d,True)' %
+            (name, payload, timeToAutoplay + int(ADDON.getSetting('autoplays.after'))))
 
 
     def _unscheduleAutoplay(self, programTitle, startTime):
@@ -84,8 +87,20 @@ class Autoplay(object):
         self._scheduleAutoplay(program.channel.id, program.title, program.startDate, program.endDate)
 
     def removeAutoplay(self, program):
+        before = self.database.getFullAutoplays()
         self.database.removeAutoplay(program)
+        remaining = {self.createAlarmClockName(p.title, p.startDate)
+                     for p in self.database.getFullAutoplays()}
+        for previous in before:
+            if self.createAlarmClockName(previous.title, previous.startDate) not in remaining:
+                self._unscheduleAutoplay(previous.title, previous.startDate)
         self._unscheduleAutoplay(program.title, program.startDate)
+
+    def clearAutoplays(self):
+        before = self.database.getFullAutoplays()
+        self.database.clearAllAutoplays()
+        for program in before:
+            self._unscheduleAutoplay(program.title, program.startDate)
 
 
 if __name__ == '__main__':
@@ -96,7 +111,7 @@ if __name__ == '__main__':
 
     def onInitialized(success):
         if success:
-            database.clearAllAutoplays()
+            Autoplay(database, ADDON.getAddonInfo('path')).clearAutoplays()
             database.close(onAutoplaysCleared)
             ADDON.setSetting('playing.channel','')
             ADDON.setSetting('playing.start','')
