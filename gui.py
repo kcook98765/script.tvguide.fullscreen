@@ -50,6 +50,7 @@ from vpnapi import VPNAPI
 
 import streaming
 from skin_runtime import select_skin
+from image_cache import ImageCache
 
 DEBUG = False
 
@@ -359,7 +360,7 @@ class TVGuide(xbmcgui.WindowXML):
 
         self.player = xbmc.Player()
         self.database = None
-        self.tvdb_urls = {}
+        self.tvdb_urls = ImageCache(xbmcvfs.translatePath(ADDON.getAddonInfo('profile')))
 
         self.mode = MODE_EPG
         self.channel_number_input = False
@@ -1034,7 +1035,7 @@ class TVGuide(xbmcgui.WindowXML):
             program = self._getProgramFromControl(controlInFocus)
             if program:
                 self.tvdb_urls[program.title] = ''
-                self.setControlImage(self.C_MAIN_IMAGE, self.tvdb_urls[program.title])
+                self.setControlImage(self.C_MAIN_IMAGE, '')
         elif action.getId() in COMMAND_ACTIONS["SCHEDULERS_MENU"]:
             program = self._getProgramFromControl(controlInFocus)
             d = xbmcgui.Dialog()
