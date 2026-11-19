@@ -338,7 +338,6 @@
         </control>
 
         <control type="button" id="4013">
-            <visible>false</visible>
             <description>Extended Info</description>
             <posx>285</posx>
             <posy>110</posy>
@@ -354,7 +353,7 @@
             <font>font13</font>
             <textcolor>white</textcolor>
             <focusedcolor>black</focusedcolor>
-            <label>Extended Info</label>
+            <label>TMDbHelper lookup…</label>
             <visible>true</visible>
         </control>
 
