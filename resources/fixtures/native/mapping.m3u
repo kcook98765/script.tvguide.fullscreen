@@ -1,0 +1,7 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="fixture.episode" group-title="Fixture",Fixture Episodes
+special://home/addons/script.tvguide.fullscreen/resources/fixtures/native/clip.mp4
+#EXTINF:-1 tvg-id="fixture.movie" group-title="Fixture",Fixture Movies
+special://home/addons/script.tvguide.fullscreen/resources/fixtures/native/clip.mp4
+#EXTINF:-1 tvg-id="fixture.unicode" group-title="Fixture",Fixture Café 日本語
+special://home/addons/script.tvguide.fullscreen/resources/fixtures/native/clip.mp4

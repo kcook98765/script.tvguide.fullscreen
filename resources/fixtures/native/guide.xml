@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tv generator-info-name="TVGF deterministic native fixtures">
+  <channel id="fixture.episode">
+    <display-name>Fixture Episodes</display-name>
+  </channel>
+  <channel id="fixture.movie">
+    <display-name>Fixture Movies</display-name>
+  </channel>
+  <channel id="fixture.unicode">
+    <display-name>Fixture Café 日本語</display-name>
+  </channel>
+  <programme start="20261119114500 +0000" stop="20261119120000 +0000" channel="fixture.episode">
+    <title lang="en">Doctor's diary</title>
+    <sub-title>Synthetic slot 0</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 0. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.0.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119120000 +0000" stop="20261119121500 +0000" channel="fixture.episode">
+    <title lang="en">He said "Hello"</title>
+    <sub-title>Synthetic slot 1</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 1. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.1.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119121500 +0000" stop="20261119123000 +0000" channel="fixture.episode">
+    <title lang="en">News, Weather &amp; Sport</title>
+    <sub-title>Synthetic slot 2</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 2. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.2.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119123000 +0000" stop="20261119124500 +0000" channel="fixture.episode">
+    <title lang="en">Film (1999)</title>
+    <sub-title>Synthetic slot 3</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 3. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.3.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119124500 +0000" stop="20261119130000 +0000" channel="fixture.episode">
+    <title lang="en">Café — 日本語 📺</title>
+    <sub-title>Synthetic slot 4</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 4. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.4.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119130000 +0000" stop="20261119131500 +0000" channel="fixture.episode">
+    <title lang="en">Quiet shapes: part 6</title>
+    <sub-title>Synthetic slot 5</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 5. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.5.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119131500 +0000" stop="20261119133000 +0000" channel="fixture.episode">
+    <title lang="en">Evening &amp; morning</title>
+    <sub-title>Synthetic slot 6</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 6. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.6.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119133000 +0000" stop="20261119134500 +0000" channel="fixture.episode">
+    <title lang="en">The final square</title>
+    <sub-title>Synthetic slot 7</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 1, slot 7. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Series</category>
+    <category>Fixture</category>
+    <episode-num system="xmltv_ns">0.7.</episode-num>
+    <new />
+  </programme>
+  <programme start="20261119114500 +0000" stop="20261119120000 +0000" channel="fixture.movie">
+    <title lang="en">Doctor's diary</title>
+    <sub-title>Synthetic slot 0</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 0. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119120000 +0000" stop="20261119121500 +0000" channel="fixture.movie">
+    <title lang="en">He said "Hello"</title>
+    <sub-title>Synthetic slot 1</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 1. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119121500 +0000" stop="20261119123000 +0000" channel="fixture.movie">
+    <title lang="en">News, Weather &amp; Sport</title>
+    <sub-title>Synthetic slot 2</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 2. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119123000 +0000" stop="20261119124500 +0000" channel="fixture.movie">
+    <title lang="en">Film (1999)</title>
+    <sub-title>Synthetic slot 3</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 3. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119124500 +0000" stop="20261119130000 +0000" channel="fixture.movie">
+    <title lang="en">Café — 日本語 📺</title>
+    <sub-title>Synthetic slot 4</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 4. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119130000 +0000" stop="20261119131500 +0000" channel="fixture.movie">
+    <title lang="en">Quiet shapes: part 6</title>
+    <sub-title>Synthetic slot 5</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 5. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119131500 +0000" stop="20261119133000 +0000" channel="fixture.movie">
+    <title lang="en">Evening &amp; morning</title>
+    <sub-title>Synthetic slot 6</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 6. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119133000 +0000" stop="20261119134500 +0000" channel="fixture.movie">
+    <title lang="en">The final square</title>
+    <sub-title>Synthetic slot 7</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 2, slot 7. Café, 日本語 &amp; benign punctuation.</desc>
+    <date>1999</date>
+    <category>Movie</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119114500 +0000" stop="20261119120000 +0000" channel="fixture.unicode">
+    <title lang="en">Doctor's diary</title>
+    <sub-title>Synthetic slot 0</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 0. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119120000 +0000" stop="20261119121500 +0000" channel="fixture.unicode">
+    <title lang="en">He said "Hello"</title>
+    <sub-title>Synthetic slot 1</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 1. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119121500 +0000" stop="20261119123000 +0000" channel="fixture.unicode">
+    <title lang="en">News, Weather &amp; Sport</title>
+    <sub-title>Synthetic slot 2</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 2. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119123000 +0000" stop="20261119124500 +0000" channel="fixture.unicode">
+    <title lang="en">Film (1999)</title>
+    <sub-title>Synthetic slot 3</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 3. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119124500 +0000" stop="20261119130000 +0000" channel="fixture.unicode">
+    <title lang="en">Café — 日本語 📺</title>
+    <sub-title>Synthetic slot 4</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 4. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119130000 +0000" stop="20261119131500 +0000" channel="fixture.unicode">
+    <title lang="en">Quiet shapes: part 6</title>
+    <sub-title>Synthetic slot 5</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 5. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119131500 +0000" stop="20261119133000 +0000" channel="fixture.unicode">
+    <title lang="en">Evening &amp; morning</title>
+    <sub-title>Synthetic slot 6</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 6. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+  <programme start="20261119133000 +0000" stop="20261119134500 +0000" channel="fixture.unicode">
+    <title lang="en">The final square</title>
+    <sub-title>Synthetic slot 7</sub-title>
+    <desc>Original fictional guide data; no broadcast or third-party media. Channel 3, slot 7. Café, 日本語 &amp; benign punctuation.</desc>
+    <category>Culture</category>
+    <category>Fixture</category>
+  </programme>
+</tv>
