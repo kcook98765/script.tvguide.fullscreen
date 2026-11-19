@@ -3,7 +3,7 @@
 version="0.0.445"
 provider-name="primaeval">
     <requires>
-        <import addon="xbmc.python" version="2.19.0"/>
+        <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.simplejson" version="3.3.0"/>
         <import addon="script.module.requests" version="2.9.1" />
         <import addon="script.module.dateutil" version="2.4.2" />
@@ -13,7 +13,7 @@ provider-name="primaeval">
     <extension point="xbmc.python.script" library="addon.py">
             <provides>executable</provides>
     </extension>
-    <extension point="xbmc.service" library="service.py" start="login"/>
+    <extension point="xbmc.service" library="service.py"/>
     <extension point="xbmc.addon.metadata">
         <description lang="en">Possibly the most powerful TV Guide in the world. ;) Thanks for the major contributions from: iainmacleod, im85288, RayW1986, bluezed, andy, Zomboided, tycoo, kjb86, Doctor-Eggs</description>
         <disclaimer lang="en">Based on the original TV Guide addon by twinther, FTV Guide and Midraal's fork.</disclaimer>

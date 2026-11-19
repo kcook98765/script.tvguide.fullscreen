@@ -25,6 +25,7 @@
 #
 
 import os
+import sys
 import xbmc
 import xbmcgui
 import xbmcaddon
@@ -33,7 +34,7 @@ import xbmcvfs
 def deleteDB():
     try:
         xbmc.log("[script.tvguide.fullscreen] Deleting database...", xbmc.LOGDEBUG)
-        dbPath = xbmc.translatePath(xbmcaddon.Addon(id = 'script.tvguide.fullscreen').getAddonInfo('profile'))
+        dbPath = xbmcvfs.translatePath(xbmcaddon.Addon(id = 'script.tvguide.fullscreen').getAddonInfo('profile'))
         dbPath = os.path.join(dbPath, 'source.db')
 
         delete_file(dbPath)
@@ -47,7 +48,7 @@ def deleteDB():
 
         return passed
 
-    except Exception, e:
+    except Exception as e:
         xbmc.log('[script.tvguide.fullscreen] Deleting database...EXCEPTION', xbmc.LOGDEBUG)
         return False
 
@@ -67,10 +68,10 @@ if __name__ == '__main__':
         if mode in [1,2]:
             if deleteDB():
                 d = xbmcgui.Dialog()
-                d.ok('TV Guide', 'The database has been successfully deleted.', 'It will be re-created next time you start the guide')
+                d.ok('TV Guide', 'The database has been successfully deleted.\nIt will be re-created next time you start the guide')
             else:
                 d = xbmcgui.Dialog()
-                d.ok('TV Guide', 'Failed to delete database.', 'Database may be locked,', 'please restart and try again')
+                d.ok('TV Guide', 'Failed to delete database.\nDatabase may be locked,\nplease restart and try again')
         if mode == 2:
             xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/addons.ini')
             xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/categories.ini')

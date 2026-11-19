@@ -29,7 +29,6 @@ import xbmcvfs
 import xbmcgui
 import xbmcaddon
 import os
-import urllib2
 import datetime,time
 import zlib
 import gzip
@@ -57,7 +56,7 @@ class FileFetcher(object):
     TYPE_DEFAULT = 1
     TYPE_REMOTE = 2
 
-    basePath = xbmc.translatePath(os.path.join('special://profile', 'addon_data', 'script.tvguide.fullscreen'))
+    basePath = xbmcvfs.translatePath(os.path.join('special://profile', 'addon_data', 'script.tvguide.fullscreen'))
     filePath = ''
     fileUrl = ''
     addon = None
@@ -134,7 +133,7 @@ class FileFetcher(object):
                     try:
                         r = requests.get(url,auth=auth)
                         if r.status_code == requests.codes.ok:
-                            new_md5 = r.text.encode('ascii', 'ignore')[:32]
+                            new_md5 = r.text[:32]
                     except Exception as detail:
                         xbmc.log('[script.tvguide.fullscreen] Missing md5: %s.md5 (%s)' % (self.fileUrl,detail), xbmc.LOGERROR)
                     #log((old_md5,new_md5))
@@ -190,8 +189,8 @@ class FileFetcher(object):
                 except:
                     return self.FETCH_NOT_NEEDED
             try:
-                magic = xbmcvfs.File(tmpFile,"rb").read(3)
-                if magic == "\x1f\x8b\x08":
+                magic = xbmcvfs.File(tmpFile,"rb").readBytes(3)
+                if magic == b"\x1f\x8b\x08":
                     g = gzip.open(tmpFile)
                     data = g.read()
                     xbmcvfs.File(self.filePath,"wb").write(data)
@@ -202,7 +201,7 @@ class FileFetcher(object):
                 return self.FETCH_NOT_NEEDED
             if new_md5 and (self.addon.getSetting('md5') == 'true'):
                 md5 = hashlib.md5()
-                md5.update(xbmcvfs.File(self.filePath,"rb").read())
+                md5.update(xbmcvfs.File(self.filePath,"rb").readBytes())
                 md5_file = md5.hexdigest()
                 if md5_file != new_md5:
                     xbmc.log('[script.tvguide.fullscreen] md5 mismatch: %s calculated:%s server:%s' % (self.fileUrl,md5_file,new_md5), xbmc.LOGERROR)

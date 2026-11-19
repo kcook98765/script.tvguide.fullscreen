@@ -7,7 +7,7 @@ from PIL import Image, ImageOps
 ADDON = xbmcaddon.Addon(id = 'script.tvguide.fullscreen')
 
 def autocrop_image(infile,outfile):
-    infile = xbmc.translatePath(infile)
+    infile = xbmcvfs.translatePath(infile)
     image = Image.open(infile)
     border = 0
     size = image.size
@@ -25,10 +25,10 @@ def autocrop_image(infile,outfile):
     cropped_image = Image.new("RGBA", (width, height), (0,0,0,0))
     cropped_image.paste(image, (border, border))
     #TODO find epg height
-    logo_height = 450 / int(ADDON.getSetting('channels.per.page'))
+    logo_height = 450 // int(ADDON.getSetting('channels.per.page'))
     logo_height = logo_height - 2
-    cropped_image = cropped_image.resize((int(logo_height*ratio), logo_height),Image.ANTIALIAS)
-    outfile = xbmc.translatePath(outfile)
+    cropped_image = cropped_image.resize((int(logo_height*ratio), logo_height),Image.LANCZOS)
+    outfile = xbmcvfs.translatePath(outfile)
     cropped_image.save(outfile)
 
 

@@ -77,6 +77,7 @@ def check():
     print('DETECTED baseline profile alarm-name argument split:', repr(capture))
 
     spec = importlib.util.spec_from_file_location('command_safety', ROOT / 'command_safety.py')
+    assert spec is not None and spec.loader is not None
     safe = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(safe)  # New pure helper only, never legacy modules.
     for value in [hostile, 'a,b', 'a(b)', 'a"b', "a'b", 'a\\b', 'a\nb', 'a\x00b', 'a\x7fb', '']:
@@ -100,7 +101,7 @@ def check():
 
     gui = source('gui.py')
     assert gui.count("for value in (title, program.language, program.season, program.episode)") == 2
-    assert gui.count("urllib.quote(unicode(value).encode('utf-8'), safe='')") == 2
+    assert gui.count("urllib.quote(str(value), safe='')") == 2
     assert gui.count("re.match(r'\\A[a-z0-9_.-]+\\Z', catchup)") == 2
     assert "re.match(r'\\Atvguide-catchup-[0-9a-f]{64}\\Z', name)" in gui
     assert "alarm_name('catchup', program.channel.id, program.startDate)" in gui
@@ -117,7 +118,10 @@ def check():
     assert 'executebuiltin' not in source('play.py')
     assert 'xbmc.Player().play(item=url)' in source('play.py')
     assert gui.count('self.player.play(item=url, windowed=self.osdEnabled)') >= 4
-    assert source('service.py') == source('service.py', True)
+    # Only the common Python3 syntax/logging port is allowed in this service.
+    expected_service = source('service.py', True).replace('xbmc.LOGNOTICE', 'xbmc.LOGINFO').replace(
+        'except Exception, ex:', 'except Exception as ex:')
+    assert source('service.py') == expected_service
     print('PASS hostile delimiter rejection, digest names, encoded catchup captures, Player/source wiring')
     print('No native execution, legacy imports, stub imports or full hostile-input audit')
 

@@ -21,7 +21,7 @@ import xbmc,xbmcgui,xbmcaddon,xbmcplugin,xbmcvfs
 import sys
 import re
 import requests
-import HTMLParser
+from html import unescape
 import json
 
 def log(x):
@@ -32,7 +32,7 @@ def get_url(url):
     headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
     try:
         r = requests.get(url,headers=headers)
-        html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+        html = unescape(r.content.decode('utf-8'))
         return html
     except:
         return ''
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     if select == 0:
         html = get_url("http://www.yo.tv")
         list_items = re.findall(r'<li><a href="http://(.*?)\.yo\.tv"  >(.*?)</a></li>',html,flags=(re.DOTALL | re.MULTILINE))
-        names = [i[1].encode("utf8") for i in list_items]
+        names = [i[1] for i in list_items]
         result = d.select("yo.tv Countries",names)
         if result != -1:
             #log(result)
@@ -112,5 +112,4 @@ if __name__ == '__main__':
             f = xbmcvfs.File(filename,'wb')
             json.dump(providers,f,indent=2)
             f.close()
-
 

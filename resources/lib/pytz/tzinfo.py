@@ -7,7 +7,7 @@ try:
 except NameError:
     from sets import Set as set
 
-import resources.lib.pytz
+import resources.lib.pytz as pytz
 from resources.lib.pytz.exceptions import AmbiguousTimeError, NonExistentTimeError
 
 __all__ = []

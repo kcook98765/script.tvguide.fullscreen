@@ -55,7 +55,7 @@ class Autoplay(object):
 
     def _scheduleAutoplay(self, channelId, programTitle, startTime, endTime):
         t = startTime - datetime.datetime.now()
-        timeToAutoplay = ((t.days * 86400) + t.seconds) / 60
+        timeToAutoplay = ((t.days * 86400) + t.seconds) // 60
         if timeToAutoplay < 0:
             return
         if not is_builtin_data(channelId):
@@ -64,20 +64,20 @@ class Autoplay(object):
         #timeToAutoplay = 1
         name = self.createAlarmClockName(programTitle, startTime)
         xbmc.executebuiltin('AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s,%s),%d,True)' %
-        (name.encode('utf-8', 'replace'), channelId.encode('utf-8'), startTime, timeToAutoplay - int(ADDON.getSetting('autoplays.before'))))
+        (name, channelId, startTime, timeToAutoplay - int(ADDON.getSetting('autoplays.before'))))
 
         t = endTime - datetime.datetime.now()
-        timeToAutoplay = ((t.days * 86400) + t.seconds) / 60
+        timeToAutoplay = ((t.days * 86400) + t.seconds) // 60
         #timeToAutoplay = 0
         if ADDON.getSetting('autoplays.stop') == 'true':
             xbmc.executebuiltin('AlarmClock(%s-stop,RunScript(special://home/addons/script.tvguide.fullscreen/stop.py,%s,%s),%d,True)' %
-            (name.encode('utf-8', 'replace'), channelId.encode('utf-8'), startTime, timeToAutoplay + int(ADDON.getSetting('autoplays.after'))))
+            (name, channelId, startTime, timeToAutoplay + int(ADDON.getSetting('autoplays.after'))))
 
 
     def _unscheduleAutoplay(self, programTitle, startTime):
         name = self.createAlarmClockName(programTitle, startTime)
-        xbmc.executebuiltin('CancelAlarm(%s-start,True)' % name.encode('utf-8', 'replace'))
-        xbmc.executebuiltin('CancelAlarm(%s-stop,True)' % name.encode('utf-8', 'replace'))
+        xbmc.executebuiltin('CancelAlarm(%s-start,True)' % name)
+        xbmc.executebuiltin('CancelAlarm(%s-stop,True)' % name)
 
     def addAutoplay(self, program,type):
         self.database.addAutoplay(program,type)
