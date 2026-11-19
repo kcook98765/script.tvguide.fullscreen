@@ -228,9 +228,16 @@ final payload was re-exported/rechecked. No loader logic changed; all six final
 stage statuses/counts are the same. A same-host second synthesis to private
 evidence produced the identical clip SHA-256; its full encoder output is saved.
 
-The JSON itself says `passed=false`, `exit_code=1`, despite the CLI process
-exiting 0; process completion is not validation success. All six raw stages
-and full diagnostics are retained. No 73-metadata/662-typing cleanup was attempted.
+Exit-status correction following independent review: the supervisor inspected
+the original OpenCode bash tool metadata for **both** combined
+export/stub-lanes/validate invocations; each recorded **`metadata.exit=1`**.
+This agrees with the structured validation result **`passed=false`,
+`exit_code=1`**. The subsequent `task03-check-report.py` summary reader exited
+0, not the validator. The earlier claim that the CLI exited 0 was incorrect;
+there is no demonstrated Toolkit exit-status defect. Completed tool status
+does not mean success. All six raw stages and full diagnostics are retained
+unchanged; no validation was rerun for this documentation correction.
+No 73-metadata/662-typing cleanup was attempted.
 The 651 count is current Nexus evidence after the merged reminder changes,
 not a claimed task07 type repair; task07 changes no runtime Python bytes.
 Checker problems remain 69 legacy language directories, metadata schema,
