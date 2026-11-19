@@ -79,8 +79,15 @@ import no legacy module or Kodi stub: safety controls use baseline source as
 inert data; the Python3 check executes only extracted pure entity/date/sqlite
 converters plus stdlib in-memory controls. It does not test AES, providers or UI.
 
-The four lanes retain all six stages. Syntax/manifest/paths/package can pass
-while mypy and official checker fail: no clean validation is claimed. Missing
+Final receipts cover runtime commit `884094a2a0c3b7c64b988742a97829f248326b98`:
+all three focused scripts exited **0** independently. In all four lanes,
+syntax/manifest/paths/package **PASS**; types **FAIL** with **662** diagnostics
+in Matrix/Nexus/Omega and **636** in Piers; official checker **FAIL** with **73**
+findings per lane. All six stages and warnings remain in the final JSON receipts.
+The supervisor independently reran the three scripts (all exit 0) and compared
+all four reports' runtime hashes to that commit (no mismatches). This docs-only
+completion reuses those unchanged-runtime receipts; no full checks were rerun.
+No clean validation or native acceptance is claimed. Missing
 bs4 and dateutil/pytz typing, legacy variable-reuse/nullable/dynamic XML-control
 typing and inherited WindowXML allocation signatures are not addressed by a
 whole-provider typing rewrite. The pre-existing inactive VOD callback references
