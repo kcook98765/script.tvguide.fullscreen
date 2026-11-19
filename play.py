@@ -1,5 +1,5 @@
 import sys
-import xbmc,xbmcaddon
+import xbmc,xbmcaddon,xbmcvfs
 import sqlite3
 from vpnapi import VPNAPI
 
@@ -8,7 +8,7 @@ ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
 channel = sys.argv[1]
 start = sys.argv[2]
 
-path = xbmc.translatePath('special://profile/addon_data/script.tvguide.fullscreen/source.db')
+path = xbmcvfs.translatePath('special://profile/addon_data/script.tvguide.fullscreen/source.db')
 try:
     conn = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
 except Exception as detail:

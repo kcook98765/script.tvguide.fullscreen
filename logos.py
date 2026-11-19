@@ -4,7 +4,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
-import urllib
+from urllib import parse as urllib
 import requests
 from rpc import RPC
 

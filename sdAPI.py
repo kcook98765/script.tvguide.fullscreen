@@ -57,7 +57,7 @@ class SdAPI(object):
         if 'code' in resp and int(resp['code']) != 0:
             xbmc.log("[%s] Error trying to log in: %s" % (ADDON.getAddonInfo('id'), resp['message']),
                      xbmc.LOGDEBUG)
-            xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), 'Error trying to log into SchedulesDirect:', resp['message'])
+            xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), 'Error trying to log into SchedulesDirect:\n' + resp['message'])
             self.logged_in = False
         elif 'token' in resp:
             self._headers['token'] = resp['token']
@@ -87,7 +87,7 @@ class SdAPI(object):
             except ValueError:
                 message = resp.text
 
-            xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), 'SchedulesDirect server reply:', message)
+            xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), 'SchedulesDirect server reply:\n' + message)
             xbmc.log("[%s] SD-Server response: %s" %
                      (ADDON.getAddonInfo('id'), resp.status_code), xbmc.LOGDEBUG)
             return False
@@ -146,7 +146,7 @@ class SdAPI(object):
     def get_countries(self):
         data = self._get('available/COUNTRIES')
         countries = []
-        for _, country_list in data.iteritems():
+        for _, country_list in data.items():
             for country in country_list:
                 countries.append(country)
         return countries
@@ -249,7 +249,7 @@ class SdAPI(object):
             batches = list(grouper(3000, prg_list))
             step = (75-10) / len(batches)
             for ctr, batch in enumerate(batches):
-                batch = filter(None, batch)
+                batch = list(filter(None, batch))
                 xbmc.log("[%s] Requesting batch %d with %d items" %
                          (ADDON.getAddonInfo('id'), ctr+1, len(batch)), xbmc.LOGDEBUG)
                 p_resp += self._post('programs', batch)

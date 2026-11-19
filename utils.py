@@ -19,14 +19,13 @@
 #
 import json
 import os
-from itertools import izip_longest
+from itertools import zip_longest
 
 import xbmc
 from strings import ADDON
 from xml.etree import ElementTree as eT
 import xml.etree.cElementTree as ceT
 import re
-import urllib
 import xbmcgui
 import xbmcvfs
 import requests
@@ -119,7 +118,7 @@ def save_setting(key, value, is_list=False):
 
     # Settings include provider credentials; never log their values.
 
-    file_path = xbmc.translatePath(
+    file_path = xbmcvfs.translatePath(
         os.path.join(ADDON.getAddonInfo('profile'), 'settings.xml'))
     if not os.path.exists(file_path):
         generate_settings_file(file_path)
@@ -142,7 +141,7 @@ def save_setting(key, value, is_list=False):
                     if value not in cur_values:
                         cur_values.append(value)
                 item.attrib['value'] = json.dumps(cur_values)
-                ADDON.setSetting(key, cur_values)
+                ADDON.setSetting(key, json.dumps(cur_values))
             else:
                 item.attrib['value'] = value
                 ADDON.setSetting(key, value)
@@ -153,7 +152,7 @@ def save_setting(key, value, is_list=False):
 
 
 def generate_settings_file(target_path):
-    source_path = xbmc.translatePath(
+    source_path = xbmcvfs.translatePath(
         os.path.join(ADDON.getAddonInfo('path'), 'resources', 'settings.xml'))
     root_target = ceT.Element("settings")
     tree_source = eT.parse(source_path)
@@ -166,7 +165,7 @@ def generate_settings_file(target_path):
                     value = setting.attrib['default']
                 ceT.SubElement(root_target, 'setting', id=setting.attrib['id'], value=value)
     tree_target = ceT.ElementTree(root_target)
-    f = open(target_path, 'w')
+    f = open(target_path, 'wb')
     tree_target.write(f)
     f.close()
 
@@ -183,7 +182,7 @@ def get_setting(key, is_list=False):
 def grouper(n, iterable, fillvalue=None):
     """ grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx """
     args = [iter(iterable)] * n
-    return izip_longest(fillvalue=fillvalue, *args)
+    return zip_longest(fillvalue=fillvalue, *args)
 
 #TODO this is wrong
 def get_logo(channel):
@@ -201,7 +200,7 @@ def get_logo(channel):
 
 
 def reset_playing():
-    path = xbmc.translatePath(ADDON.getAddonInfo('profile'))
+    path = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
     if not os.path.exists(path):
         os.mkdir(path)
     proc_file = os.path.join(path, 'proc')
@@ -226,15 +225,15 @@ def autocrop_image(image, border = 0):
     cropped_image = Image.new("RGBA", (width, height), (0,0,0,0))
     cropped_image.paste(image, (border, border))
     #TODO find epg height
-    logo_height = 450 / int(ADDON.getSetting('channels.per.page'))
+    logo_height = 450 // int(ADDON.getSetting('channels.per.page'))
     logo_height = logo_height - 2
     if ADDON.getSetting('program.channel.logo') == "false":
-        cropped_image = cropped_image.resize((int(logo_height*ratio), logo_height),Image.ANTIALIAS)
+        cropped_image = cropped_image.resize((int(logo_height*ratio), logo_height),Image.LANCZOS)
     return cropped_image
 
 def getLogo(title,ask=False,force=True):
-    infile = xbmc.translatePath("special://profile/addon_data/script.tvguide.fullscreen/logos/temp.png")
-    outfile = xbmc.translatePath("special://profile/addon_data/script.tvguide.fullscreen/logos/%s.png" % title)
+    infile = xbmcvfs.translatePath("special://profile/addon_data/script.tvguide.fullscreen/logos/temp.png")
+    outfile = xbmcvfs.translatePath("special://profile/addon_data/script.tvguide.fullscreen/logos/%s.png" % title)
     if not force and xbmcvfs.exists(outfile):
         return outfile
     xbmcvfs.mkdirs("special://profile/addon_data/script.tvguide.fullscreen/logos")

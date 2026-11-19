@@ -41,8 +41,8 @@ def login_popup(message=None):
     if message:
         additional = message
     ret = dialog.yesno('[COLOR red]EPG-Direct[/COLOR]',
-                       'EPG-Direct requires that you have an account at SchedulesDirect.',
-                       additional, '', 'Cancel', 'Login')
+                       'EPG-Direct requires that you have an account at SchedulesDirect.\n' + additional,
+                       nolabel='Cancel', yeslabel='Login')
     if ret:
         ret = enter_credentials()
     else:
@@ -93,8 +93,8 @@ def delete_lineup():
             sel_lineup = sel_lineup[0]
             yes_no = xbmcgui.Dialog().yesno(ADDON.getAddonInfo('name'),
                                             '[COLOR red]Deleting a lineup will also remove all '
-                                            'channels associated with it![/COLOR]',
-                                            'Do you want to continue?')
+                                             'channels associated with it![/COLOR]\n'
+                                             'Do you want to continue?')
             if yes_no:
                 xbmcgui.Dialog().notification(ADDON.getAddonInfo('name'), 'Deleting lineup...',
                                               os.path.join(PATH, 'icon.png'), 3000)
@@ -109,7 +109,7 @@ def select_lineup():
     status = 'You have %d / %d lineups' % (len(sd.lineups), sd.max_lineups)
     if sd.max_lineups - len(sd.lineups) < 1:
         xbmcgui.Dialog().ok(
-            ADDON.getAddonInfo('name'), status,
+            ADDON.getAddonInfo('name'), status + '\n' +
             'To add a new one you need to first remove one of your lineups')
         return
 
@@ -311,6 +311,6 @@ if __name__ == '__main__':
                             delete_lineup()
 
     except SourceException as se:
-        xbmcgui.Dialog().ok('ERROR', se.message,
+        xbmcgui.Dialog().ok('ERROR', str(se) + '\n' +
                             'Make sure your username and password are correct!')
     close()

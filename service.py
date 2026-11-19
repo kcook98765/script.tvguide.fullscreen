@@ -42,7 +42,7 @@ class Service(object):
 
     def onInit(self, success):
         if success:
-            xbmc.log("[script.tvguide.fullscreen] Background Update Starting...", xbmc.LOGNOTICE)
+            xbmc.log("[script.tvguide.fullscreen] Background Update Starting...", xbmc.LOGINFO)
             self.database.updateChannelAndProgramListCaches(self.onCachesUpdated)
         else:
             self.database.close()
@@ -55,7 +55,7 @@ class Service(object):
             n = autoplay.Autoplay(self.database, ADDON.getAddonInfo('path'))
             n.scheduleAutoplays()
         self.database.close(None)
-        xbmc.log("[script.tvguide.fullscreen] Background Update Finished", xbmc.LOGNOTICE)
+        xbmc.log("[script.tvguide.fullscreen] Background Update Finished", xbmc.LOGINFO)
         if ADDON.getSetting('background.notify') == 'true':
             d = xbmcgui.Dialog()
             d.notification("TV Guide Fullscreen", "Finished Updating")
@@ -128,5 +128,5 @@ if __name__ == '__main__':
 
     except source.SourceNotConfiguredException:
         pass  # ignore
-    except Exception, ex:
+    except Exception as ex:
         xbmc.log('[script.tvguide.fullscreen] Uncaught exception in service.py: %s' % str(ex), xbmc.LOGDEBUG)

@@ -53,7 +53,7 @@ class Notification(object):
             
     def _scheduleNotification(self, channelTitle, programTitle, startTime):
         t = startTime - datetime.datetime.now()
-        timeToNotification = ((t.days * 86400) + t.seconds) / 60
+        timeToNotification = ((t.days * 86400) + t.seconds) // 60
         if timeToNotification < 0:
             return
 
@@ -66,16 +66,16 @@ class Notification(object):
             xbmc.log('[script.tvguide.fullscreen] Refused unsafe reminder arguments', xbmc.LOGERROR)
             return
         xbmc.executebuiltin('AlarmClock(%s-5mins,Notification(%s,%s,10000,%s),%d,True)' %
-            (name.encode('utf-8', 'replace'), programTitle.encode('utf-8', 'replace'), description.encode('utf-8', 'replace'), self.icon, timeToNotification - 5))
+            (name, programTitle, description, self.icon, timeToNotification - 5))
 
         description = descriptionNow
         xbmc.executebuiltin('AlarmClock(%s-now,Notification(%s,%s,10000,%s),%d,True)' %
-                            (name.encode('utf-8', 'replace'), programTitle.encode('utf-8', 'replace'), description.encode('utf-8', 'replace'), self.icon, timeToNotification))
+                            (name, programTitle, description, self.icon, timeToNotification))
 
     def _unscheduleNotification(self, programTitle, startTime):
         name = self.createAlarmClockName(programTitle, startTime)
-        xbmc.executebuiltin('CancelAlarm(%s-5mins,True)' % name.encode('utf-8', 'replace'))
-        xbmc.executebuiltin('CancelAlarm(%s-now,True)' % name.encode('utf-8', 'replace'))
+        xbmc.executebuiltin('CancelAlarm(%s-5mins,True)' % name)
+        xbmc.executebuiltin('CancelAlarm(%s-now,True)' % name)
 
     def addNotification(self, program, type):
         self.database.addNotification(program, type)

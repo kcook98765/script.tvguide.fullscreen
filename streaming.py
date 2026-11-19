@@ -26,7 +26,8 @@
 #
 import xbmc,xbmcvfs
 from xml.etree import ElementTree
-import ConfigParser
+import configparser
+from threading import get_ident
 import os
 import re
 import xbmcaddon
@@ -35,19 +36,20 @@ import xbmcaddon
 class StreamsService(object):
     def __init__(self, addon):
         self.addon = addon
-        self.path = xbmc.translatePath(os.path.join('special://profile', 'addon_data', 'script.tvguide.fullscreen', 'addons.ini'))
-        self.addonsParser = ConfigParser.ConfigParser(dict_type=OrderedDict)
+        self.path = xbmcvfs.translatePath(os.path.join('special://profile', 'addon_data', 'script.tvguide.fullscreen', 'addons.ini'))
+        # Stream URLs contain literal percent escapes, not INI interpolation.
+        self.addonsParser = configparser.RawConfigParser(dict_type=OrderedDict, strict=False)
         self.addonsParser.optionxform = lambda option: option
         try:
-            self.addonsParser.read(self.path)
+            self.addonsParser.read(self.path, encoding='utf-8')
         except:
-            print 'unable to parse addons.ini'
+            print('unable to parse addons.ini')
 
     def loadFavourites(self):
         entries = list()
-        path = xbmc.translatePath(os.path.join('special://profile', 'favourites.xml'))
+        path = xbmcvfs.translatePath(os.path.join('special://profile', 'favourites.xml'))
         if os.path.exists(path):
-            f = open(path)
+            f = open(path, encoding='utf-8')
             xml = f.read()
             f.close()
 
@@ -80,7 +82,8 @@ class StreamsService(object):
 
     def setAddonStream(self, section, id, stream):
         self.addonsParser.set(section, id, stream)
-        self.addonsParser.write(xbmcvfs.File(self.path,"wb"))
+        with xbmcvfs.File(self.path, "w") as stream:
+            self.addonsParser.write(stream)
 
     def detectStream(self, channel, try_favourites=True):
         """
@@ -233,7 +236,7 @@ class OrderedDict(dict):
     def clear(self):
         'od.clear() -> None.  Remove all items from od.'
         try:
-            for node in self.__map.itervalues():
+            for node in self.__map.values():
                 del node[:]
             root = self.__root
             root[:] = [root, root, None]
@@ -350,7 +353,7 @@ class OrderedDict(dict):
 
     def __repr__(self, _repr_running={}):
         'od.__repr__() <==> repr(od)'
-        call_key = id(self), _get_ident()
+        call_key = id(self), get_ident()
         if call_key in _repr_running:
             return '...'
         _repr_running[call_key] = 1

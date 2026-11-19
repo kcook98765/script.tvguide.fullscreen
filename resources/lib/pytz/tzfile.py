@@ -3,10 +3,6 @@
 $Id: tzfile.py,v 1.8 2004/06/03 00:15:24 zenzen Exp $
 '''
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 from datetime import datetime, timedelta
 from struct import unpack, calcsize
 

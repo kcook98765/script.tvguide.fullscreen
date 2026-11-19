@@ -42,13 +42,14 @@ import xbmcgui
 import xbmcvfs
 import xbmcaddon
 import sqlite3
-import HTMLParser
+from html import unescape as html_unescape
 import xml.etree.ElementTree as ET
 import requests
 from itertools import chain
 from bs4 import BeautifulSoup
-from urlparse import urlparse
-import htmlentitydefs
+from urllib.parse import urlparse
+from urllib import parse as urllib
+from html import entities as htmlentitydefs
 
 import resources.lib.pytz as pytz
 from resources.lib.pytz import timezone
@@ -107,7 +108,7 @@ class Database(object):
         self.channelList = list()
         self.category = "Any"
 
-        profilePath = xbmc.translatePath(ADDON.getAddonInfo('profile'))
+        profilePath = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
         if not os.path.exists(profilePath):
             os.makedirs(profilePath)
         self.databasePath = os.path.join(profilePath, Database.SOURCE_DB)
@@ -123,7 +124,7 @@ class Database(object):
         if retVal == fetcher.FETCH_OK and not isIni:
             self.needReset = True
         elif retVal == fetcher.FETCH_ERROR:
-            xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), strings(FETCH_ERROR_LINE1), strings(FETCH_ERROR_LINE2))
+            xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), '\n'.join((strings(FETCH_ERROR_LINE1), strings(FETCH_ERROR_LINE2))))
         return path
 
     def loadOptional(self,force):
@@ -183,7 +184,7 @@ class Database(object):
         if ADDON.getSetting('addons.ini.enabled') == 'true':
             if self.addonsType == XMLTVSource.INI_TYPE_FILE:
                 customFile = str(ADDON.getSetting('addons.ini.file'))
-                data = xbmcvfs.File(customFile,'rb').read()
+                data = xbmcvfs.File(customFile,'rb').readBytes()
             else:
                 customFile = str(ADDON.getSetting('addons.ini.url'))
                 data = requests.get(customFile).content
@@ -194,7 +195,7 @@ class Database(object):
                     import pyaes,base64
                     enckey=enckey.encode("ascii")
                     missingbytes=16-len(enckey)
-                    enckey=enckey+(chr(0)*(missingbytes))
+                    enckey=enckey+(b'\0' * missingbytes)
                     encryptor = pyaes.new(enckey , pyaes.MODE_ECB, IV=None)
                     ddata=encryptor.encrypt(data)
                     ddata=base64.b64encode(ddata)
@@ -205,10 +206,10 @@ class Database(object):
                     import pyaes,base64
                     enckey=enckey.encode("ascii")
                     missingbytes=16-len(enckey)
-                    enckey=enckey+(chr(0)*(missingbytes))
+                    enckey=enckey+(b'\0' * missingbytes)
                     ddata=base64.b64decode(data)
                     decryptor = pyaes.new(enckey , pyaes.MODE_ECB, IV=None)
-                    data=decryptor.decrypt(ddata).split('\0')[0]
+                    data=decryptor.decrypt(ddata).split(b'\0')[0]
                 xbmcvfs.copy(addons_ini,addons_ini_local)
                 xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/addons.ini','wb').write(data)
 
@@ -263,7 +264,7 @@ class Database(object):
 
 
     def eventLoop(self):
-        print 'Database.eventLoop() >>>>>>>>>> starting...'
+        print('Database.eventLoop() >>>>>>>>>> starting...')
         while True:
             self.event.wait()
             self.event.clear()
@@ -273,7 +274,7 @@ class Database(object):
             command = event[0]
             callback = event[1]
 
-            print 'Database.eventLoop() >>>>>>>>>> processing command: ' + command.__name__
+            print('Database.eventLoop() >>>>>>>>>> processing command: ' + command.__name__)
 
             try:
                 result = command(*event[2:])
@@ -293,7 +294,7 @@ class Database(object):
                 xbmc.log('Database.eventLoop() >>>>>>>>>> exception! %s = %s' % (detail,command.__name__), xbmc.LOGERROR)
                 xbmc.executebuiltin("ActivateWindow(Home)")
 
-        print 'Database.eventLoop() >>>>>>>>>> exiting...'
+        print('Database.eventLoop() >>>>>>>>>> exiting...')
 
     def _invokeAndBlockForResult(self, method, *args):
         sqlite3.register_adapter(datetime.datetime, self.adapt_datetime)
@@ -355,8 +356,8 @@ class Database(object):
                     except OSError:
                         pass
                     self.alreadyTriedUnlinking = True
-                    xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), strings(DATABASE_SCHEMA_ERROR_1),
-                                        strings(DATABASE_SCHEMA_ERROR_2), strings(DATABASE_SCHEMA_ERROR_3))
+                    xbmcgui.Dialog().ok(ADDON.getAddonInfo('name'), '\n'.join((strings(DATABASE_SCHEMA_ERROR_1),
+                                        strings(DATABASE_SCHEMA_ERROR_2), strings(DATABASE_SCHEMA_ERROR_3))))
 
         return self.conn is not None
 
@@ -400,15 +401,13 @@ class Database(object):
         if settingsChanged or noRows:
             for key in SETTINGS_TO_CHECK:
                 value = addon.getSetting(key)
-                if value:
-                    value = value.decode('utf-8', 'ignore')
                 c.execute('INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)', [key, value])
                 if not c.rowcount:
                     c.execute('UPDATE settings SET value=? WHERE key=?', [value, key])
             self.conn.commit()
 
         c.close()
-        print 'Settings changed: ' + str(settingsChanged)
+        print('Settings changed: ' + str(settingsChanged))
         return settingsChanged
 
     def _isCacheExpired(self, date):
@@ -867,7 +866,7 @@ class Database(object):
         channels = [channel.title for channel in channelsList]
         f = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/channels.ini','wb')
         for channel in sorted(channels):
-            f.write("%s=nothing\n" % channel.decode("utf8").encode("utf8"))
+            f.write("%s=nothing\n" % channel)
         f.close()
 
     def exportChannelIdList(self):
@@ -875,7 +874,7 @@ class Database(object):
         channels = [(channel.id,channel.title) for channel in channelsList]
         f = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/channel_id_title.ini','wb')
         for channel in sorted(channels,key=lambda x: x[1].lower()):
-            f.write("%s=%s\n" % (channel[0].decode("utf8").encode("utf8"),channel[1].decode("utf8").encode("utf8")))
+            f.write("%s=%s\n" % (channel[0],channel[1]))
         f.close()
 
     def getChannelList(self, onlyVisible=True, all=False):
@@ -1316,7 +1315,7 @@ class Database(object):
                 c.execute('UPDATE OR REPLACE channels SET logo=? WHERE id=?' , (image, channel.id))
             c.execute("DELETE FROM custom_stream_url WHERE channel=?", [channel.id])
             c.execute("INSERT INTO custom_stream_url(channel, stream_url) VALUES(?, ?)",
-                      [channel.id, stream_url.decode('utf-8', 'ignore')])
+                      [channel.id, stream_url])
             self.conn.commit()
             c.close()
 
@@ -1330,7 +1329,7 @@ class Database(object):
             c = self.conn.cursor()
             #c.execute("DELETE FROM alt_custom_stream_url WHERE channel=?", [channel.id])
             c.execute("INSERT OR REPLACE INTO alt_custom_stream_url(channel, title, stream_url) VALUES(?, ?, ?)",
-                      [channel.id, title.decode('utf-8', 'ignore'), stream_url.decode('utf-8', 'ignore')])
+                      [channel.id, title, stream_url])
             self.conn.commit()
             c.close()
 
@@ -1345,7 +1344,7 @@ class Database(object):
             for (id,stream_url) in stream_urls:
                 c.execute("DELETE FROM custom_stream_url WHERE channel=?", [id])
                 c.execute("INSERT OR REPLACE INTO custom_stream_url(channel, stream_url) VALUES(?, ?)",
-                          [id, stream_url.decode('utf-8', 'ignore')])
+                          [id, stream_url])
             self.conn.commit()
             c.close()
 
@@ -1360,7 +1359,7 @@ class Database(object):
             for (id,title,stream_url) in stream_urls:
                 #c.execute("DELETE FROM alt_custom_stream_url WHERE channel=?", [id])
                 c.execute("INSERT OR REPLACE INTO alt_custom_stream_url(channel, title, stream_url) VALUES(?, ?, ?)",
-                          [id, title.decode('utf-8', 'ignore'), stream_url.decode('utf-8', 'ignore')])
+                          [id, title, stream_url])
             self.conn.commit()
             c.close()
 
@@ -1458,12 +1457,10 @@ class Database(object):
     def getStreamUrl(self, channel):
         customStreamUrl = self.getCustomStreamUrl(channel)
         if customStreamUrl:
-            customStreamUrl = customStreamUrl.encode('utf-8', 'ignore')
             return customStreamUrl
 
         elif channel.isPlayable():
-            streamUrl = channel.streamUrl.encode('utf-8', 'ignore')
-            return streamUrl
+            return channel.streamUrl
 
         return None
 
@@ -2004,15 +2001,15 @@ def unescape2(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(htmlentitydefs.name2codepoint[text[1:-1]])
                 if text == "&":
                     text = "&amp;"
             except KeyError:
@@ -2027,7 +2024,7 @@ def unescape2(text):
 
 
 class XMLTVSource(Source):
-    PLUGIN_DATA = xbmc.translatePath(os.path.join('special://profile', 'addon_data', 'script.tvguide.fullscreen'))
+    PLUGIN_DATA = xbmcvfs.translatePath(os.path.join('special://profile', 'addon_data', 'script.tvguide.fullscreen'))
     KEY = 'xmltv'
     INI_TYPE_FILE = 0
     INI_TYPE_URL = 1
@@ -2040,18 +2037,15 @@ class XMLTVSource(Source):
     CATEGORIES_TYPE_URL = 1
 
     def fix_xml(self, xmltvFile):
-        f = xbmcvfs.File(xmltvFile,'r')
-        data = f.read()
-        encoding = re.search('encoding="(.*?)"',data)
-        if encoding:
-            encoding = encoding.group(1)
-            data = data.decode(encoding)
+        f = xbmcvfs.File(xmltvFile,'rb')
+        data = bytes(f.readBytes())
+        declaration = re.search(br'encoding=[\'"](.*?)[\'"]', data)
+        encoding = declaration.group(1).decode('ascii') if declaration else 'utf-8'
+        data = data.decode(encoding)
         f.close()
         data = unescape2(data)
-        if encoding:
-            data = data.encode(encoding)
-        f = xbmcvfs.File(xmltvFile,'w')
-        f.write(data)
+        f = xbmcvfs.File(xmltvFile,'wb')
+        f.write(data.encode(encoding))
         f.close()
 
     def __init__(self, addon, force):
@@ -2158,7 +2152,7 @@ class XMLTVSource(Source):
         if retVal == fetcher.FETCH_OK and not isIni:
             self.needReset = True
         elif retVal == fetcher.FETCH_ERROR:
-            xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), strings(FETCH_ERROR_LINE1), strings(FETCH_ERROR_LINE2))
+            xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), '\n'.join((strings(FETCH_ERROR_LINE1), strings(FETCH_ERROR_LINE2))))
         return path
 
     def getDataFromExternal(self, date, ch_list, progress_callback=None):
@@ -2245,7 +2239,7 @@ class XMLTVSource(Source):
             throwaway = datetime.datetime.strptime('20110101','%Y%m%d') #BUG FIX http://stackoverflow.com/questions/16309650/python-importerror-for-strptime-in-spyder-for-windows-7
         except:
             pass
-        event, root = context.next()
+        event, root = next(context)
         elements_parsed = 0
 
         data = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/channel_id_shortcut.ini','rb').read()
@@ -2316,7 +2310,7 @@ class XMLTVSource(Source):
                             break
 
                     if episode_num is not None:
-                        episode_num = unicode.encode(unicode(episode_num), 'ascii','ignore')
+                        episode_num = episode_num.encode('ascii', 'ignore').decode('ascii')
                         if str.find(episode_num, ".") != -1:
                             splitted = str.split(episode_num, ".")
                             if splitted[0] != "":
@@ -2377,7 +2371,7 @@ class XMLTVSource(Source):
                             #elif xbmcvfs.exists(logoFile): #BUG case insensitive match but won't load image
                             #    logo = logoFile
                             else:
-                                logoFile = os.path.join(logoFolder, title.encode("utf8") + '.png')
+                                logoFile = os.path.join(logoFolder, title + '.png')
                                 #TODO use hash or db
                                 t = re.sub(r' ','',title.lower())
                                 t = re.escape(t)
@@ -2437,8 +2431,9 @@ class FileWrapper(object):
         self.vfsfile.close()
 
     def read(self, byteCount):
-        self.bytesRead += byteCount
-        return self.vfsfile.read(byteCount)
+        data = self.vfsfile.readBytes(byteCount)
+        self.bytesRead += len(data)
+        return bytes(data)
 
     def tell(self):
         return self.bytesRead
@@ -2497,7 +2492,7 @@ class TVGUKSource(Source):
             id = -1
             url = 'http://www.tvguide.co.uk/?catcolor=&systemid=%s&thistime=&thisday=&gridspan=&view=1&gw=' % id
             r = s.get(url,headers=headers)
-            html = r.content
+            html = r.text
             if not  html:
                 return
             html_file = 'special://profile/addon_data/script.tvguide.fullscreen/tvguide.co.uk.html'
@@ -2644,7 +2639,7 @@ class YoSource(Source):
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
         try:
             r = requests.get(url,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html_unescape(r.content.decode('utf-8'))
             return html
         except:
             return ''
@@ -2683,7 +2678,7 @@ class YoSource(Source):
             if headend:
                 r = s.get('http://%s.yo.tv/settings/headend/%s' % (country_id,headend),verify=False,stream=True,headers=headers)
             r = s.get('http://%s.yo.tv/' % country_id,verify=False,stream=True,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html_unescape(r.content.decode('utf-8'))
 
             channels = html.split('<li><a data-ajax="false"')
             channel_numbers = {}
@@ -2720,7 +2715,7 @@ class YoSource(Source):
                 if channel_number in visible_channels:
                     channel_url = 'http://%s.yo.tv/tv_guide/channel/%s/%s' % (country_id,channel_number,orig_channel_name)
                     r = s.get(channel_url,verify=False,stream=True,headers=headers)
-                    html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+                    html = html_unescape(r.content.decode('utf-8'))
                     now = datetime.datetime.now()
                     year = now.year
                     month = now.month
@@ -2862,7 +2857,7 @@ class YoNowSource(Source):
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
         try:
             r = requests.get(url,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html_unescape(r.content.decode('utf-8'))
             return html
         except:
             return ''
@@ -2905,7 +2900,7 @@ class YoNowSource(Source):
             if headend:
                 r = s.get('http://%s.yo.tv/settings/headend/%s' % (country,headend),verify=False,stream=True,headers=headers)
             r = s.get('http://%s.yo.tv/' % country,verify=False,stream=True,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html_unescape(r.content.decode('utf-8'))
             #log(html)
             channels = html.split('<li><a data-ajax="false"')
             channel_numbers = {}
@@ -3003,7 +2998,7 @@ class YoNowSource(Source):
 
 class DirectScheduleSource(Source):
     KEY = 'sdirect'
-    PLUGIN_DATA = xbmc.translatePath(ADDON.getAddonInfo('profile'))
+    PLUGIN_DATA = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
     INI_TYPE_DEFAULT = 0
     INI_TYPE_CUSTOM = 1
 
@@ -3041,8 +3036,8 @@ class DirectScheduleSource(Source):
         if retVal == fetcher.FETCH_OK and not isIni:
             self.needReset = True
         elif retVal == fetcher.FETCH_ERROR:
-            xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), strings(FETCH_ERROR_LINE1),
-                                strings(FETCH_ERROR_LINE2))
+            xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), '\n'.join((strings(FETCH_ERROR_LINE1),
+                                strings(FETCH_ERROR_LINE2))))
 
         return path
 
@@ -3131,7 +3126,7 @@ class BBCSource(Source):
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
         try:
             r = requests.get(url,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html_unescape(r.content.decode('utf-8'))
             return html
         except:
             return ''
@@ -3208,7 +3203,7 @@ class BBCSource(Source):
                 data = requests.get(u).content
                 root = ET.fromstring(data)
 
-                for p in root.getiterator('broadcast'):
+                for p in root.iter('broadcast'):
                     programme  = p.find('programme')
 
                     display_titles = programme.find('display_titles')
@@ -3334,9 +3329,9 @@ class FixturesSource(Source):
                 s = requests.Session()
                 #r = s.get("http://www.getyourfixtures.com/setCookie.php?offset=%s" % timezone)
                 r = s.get(url, cookies={"userTimeZoneGyf":urllib.quote_plus(timezone)})
-                data = r.content
+                data = r.text
             else:
-                data = requests.get(url).content
+                data = requests.get(url).text
             if not data:
                 return
 
