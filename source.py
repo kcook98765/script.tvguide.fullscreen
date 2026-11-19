@@ -1644,7 +1644,7 @@ class Database(object):
         programList = list()
         c = self.conn.cursor()
         #once
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND a.type = 0 AND p.title = a.program_title AND a.start_date = p.start_date")
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND c.source = p.source AND a.channel = p.channel AND a.source = p.source AND p.source = ? AND a.type = 0 AND p.title = a.program_title AND a.start_date = p.start_date", [self.source.KEY])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1652,9 +1652,8 @@ class Database(object):
                             imageLarge=row["image_large"],imageSmall=row["image_small"],
                             season=row["season"],episode=row["episode"],is_new=row["is_new"],is_movie=row["is_movie"],language=row["language"],notificationScheduled=True)
             programList.append(program)
-        #always
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND a.type = 1 AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ?", [start,end])
-        #c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND a.type = 1 AND p.title = a.program_title")
+        #always/new: XMLTV and guide markers use the literal "New" flag.
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND c.source = p.source AND a.channel = p.channel AND a.source = p.source AND p.source = ? AND a.type IN (1,2) AND (a.type = 1 OR p.is_new = 'New') AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ?", [self.source.KEY,start,end])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1663,7 +1662,7 @@ class Database(object):
                             season=row["season"],episode=row["episode"],is_new=row["is_new"],is_movie=row["is_movie"],language=row["language"],notificationScheduled=True)
             programList.append(program)
         #daily
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND a.type = 3 AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ? AND time(a.start_date,'unixepoch')=time(p.start_date,'unixepoch')", [start,end])
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND c.source = p.source AND a.channel = p.channel AND a.source = p.source AND p.source = ? AND a.type = 3 AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ? AND time(a.start_date,'unixepoch')=time(p.start_date,'unixepoch')", [self.source.KEY,start,end])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1672,9 +1671,8 @@ class Database(object):
                             season=row["season"],episode=row["episode"],is_new=row["is_new"],is_movie=row["is_movie"],language=row["language"],notificationScheduled=True)
             #log(row['title'])
             programList.append(program)
-        #regex
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND a.type = 4 AND p.title LIKE a.program_title AND p.end_date >= ? AND p.end_date <= ?", [start,end])
-        #c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND a.type = 1 AND p.title = a.program_title")
+        # Historical "regex" is source-wide SQL LIKE, deliberately not channel-bound.
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, notifications a WHERE c.id = p.channel AND c.source = p.source AND a.source = p.source AND p.source = ? AND a.type = 4 AND p.title LIKE a.program_title AND p.end_date >= ? AND p.end_date <= ?", [self.source.KEY,start,end])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1823,6 +1821,26 @@ class Database(object):
     def getFullAutoplays(self, daysLimit=5):
         return self._invokeAndBlockForResult(self._getFullAutoplays, daysLimit)
 
+    def getAutoplayAlarmIdentities(self):
+        return self._invokeAndBlockForResult(self._getAutoplayAlarmIdentities)
+
+    def _getAutoplayAlarmIdentities(self):
+        # Clear All deletes every source's rules. Cancellation must likewise use
+        # every matching stored event, not active-source / five-day reconstruction.
+        # No inferred titles, arbitrary Kodi alarms or persistent registry.
+        assert self.conn is not None  # This DB-thread operation requires initialize().
+        c = self.conn.cursor()
+        c.execute("SELECT DISTINCT p.channel, p.title, p.start_date, p.source "
+                  "FROM programs p JOIN autoplays a ON a.channel = p.channel "
+                  "AND a.source = p.source AND a.program_title = p.title "
+                  "WHERE (a.type = 0 AND a.start_date = p.start_date) OR a.type = 1 "
+                  "OR (a.type = 2 AND p.is_new = ?) "
+                  "OR (a.type = 3 AND time(a.start_date,'unixepoch') = time(p.start_date,'unixepoch'))",
+                  ['New'])
+        identities = c.fetchall()
+        c.close()
+        return identities
+
     def _getFullAutoplays(self, daysLimit):
         start = datetime.datetime.now()
         end = start + datetime.timedelta(days=daysLimit)
@@ -1831,7 +1849,7 @@ class Database(object):
         if not c:
             return
         #once
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, autoplays a WHERE c.id = p.channel AND a.type = 0 AND p.title = a.program_title AND a.start_date = p.start_date")
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, autoplays a WHERE c.id = p.channel AND c.source = p.source AND a.channel = p.channel AND a.source = p.source AND p.source = ? AND a.type = 0 AND p.title = a.program_title AND a.start_date = p.start_date", [self.source.KEY])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1839,8 +1857,8 @@ class Database(object):
                             imageLarge=row["image_large"],imageSmall=row["image_small"],
                             season=row["season"],episode=row["episode"],is_new=row["is_new"],is_movie=row["is_movie"],language=row["language"],autoplayScheduled=True)
             programList.append(program)
-        #always
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, autoplays a WHERE c.id = p.channel AND a.type = 1 AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ?", [start,end])
+        #always/new
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, autoplays a WHERE c.id = p.channel AND c.source = p.source AND a.channel = p.channel AND a.source = p.source AND p.source = ? AND a.type IN (1,2) AND (a.type = 1 OR p.is_new = 'New') AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ?", [self.source.KEY,start,end])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1849,7 +1867,7 @@ class Database(object):
                             season=row["season"],episode=row["episode"],is_new=row["is_new"],is_movie=row["is_movie"],language=row["language"],autoplayScheduled=True)
             programList.append(program)
         #daily
-        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, autoplays a WHERE c.id = p.channel AND a.type = 3 AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ? AND time(a.start_date,'unixepoch')=time(p.start_date,'unixepoch')", [start,end])
+        c.execute("SELECT DISTINCT c.id, c.title as channel_title,c.lineup,c.logo,c.stream_url,c.visible,c.weight, p.* FROM programs p, channels c, autoplays a WHERE c.id = p.channel AND c.source = p.source AND a.channel = p.channel AND a.source = p.source AND p.source = ? AND a.type = 3 AND p.title = a.program_title AND p.end_date >= ? AND p.end_date <= ? AND time(a.start_date,'unixepoch')=time(p.start_date,'unixepoch')", [self.source.KEY,start,end])
         for row in c:
             channel = Channel(row["id"], row["channel_title"], row['lineup'], row["logo"], row["stream_url"], row["visible"], row["weight"])
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],

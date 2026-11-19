@@ -46,8 +46,9 @@ class Autoplay(object):
         self.addonPath = addonPath
         self.icon = os.path.join(self.addonPath, 'icon.png')
 
-    def createAlarmClockName(self, programTitle, startTime):
-        return alarm_name('autoplay', programTitle, startTime)
+    def createAlarmClockName(self, programTitle, startTime, channelId, sourceKey=None):
+        return alarm_name('autoplay', programTitle, startTime,
+                          channelId, self.database.source.KEY if sourceKey is None else sourceKey)
         
     def scheduleAutoplays(self):
         for program in self.database.getFullAutoplays():
@@ -65,7 +66,12 @@ class Autoplay(object):
             xbmc.log('[script.tvguide.fullscreen] Invalid autoplay data', xbmc.LOGERROR)
             return
         #timeToAutoplay = 1
-        name = self.createAlarmClockName(programTitle, startTime)
+        # Replace only this known old hashed pair when a future event can be
+        # reconstructed. Past-start/possibly in-flight callbacks are left alone.
+        legacy = alarm_name('autoplay', programTitle, startTime)
+        xbmc.executebuiltin('CancelAlarm(%s-start,True)' % legacy)
+        xbmc.executebuiltin('CancelAlarm(%s-stop,True)' % legacy)
+        name = self.createAlarmClockName(programTitle, startTime, channelId)
         xbmc.executebuiltin('AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s),%d,True)' %
         (name, payload, timeToAutoplay - int(ADDON.getSetting('autoplays.before'))))
 
@@ -77,30 +83,32 @@ class Autoplay(object):
             (name, payload, timeToAutoplay + int(ADDON.getSetting('autoplays.after'))))
 
 
-    def _unscheduleAutoplay(self, programTitle, startTime):
-        name = self.createAlarmClockName(programTitle, startTime)
-        xbmc.executebuiltin('CancelAlarm(%s-start,True)' % name)
-        xbmc.executebuiltin('CancelAlarm(%s-stop,True)' % name)
+    def _unscheduleAutoplay(self, programTitle, startTime, channelId, sourceKey=None):
+        for name in (alarm_name('autoplay', programTitle, startTime),
+                     self.createAlarmClockName(programTitle, startTime, channelId, sourceKey)):
+            xbmc.executebuiltin('CancelAlarm(%s-start,True)' % name)
+            xbmc.executebuiltin('CancelAlarm(%s-stop,True)' % name)
 
     def addAutoplay(self, program,type):
         self.database.addAutoplay(program,type)
+        if type == 2 and program.is_new != 'New':
+            return
         self._scheduleAutoplay(program.channel.id, program.title, program.startDate, program.endDate)
 
     def removeAutoplay(self, program):
         before = self.database.getFullAutoplays()
         self.database.removeAutoplay(program)
-        remaining = {self.createAlarmClockName(p.title, p.startDate)
+        remaining = {self.createAlarmClockName(p.title, p.startDate, p.channel.id)
                      for p in self.database.getFullAutoplays()}
-        for previous in before:
-            if self.createAlarmClockName(previous.title, previous.startDate) not in remaining:
-                self._unscheduleAutoplay(previous.title, previous.startDate)
-        self._unscheduleAutoplay(program.title, program.startDate)
+        for previous in before + [program]:
+            if self.createAlarmClockName(previous.title, previous.startDate, previous.channel.id) not in remaining:
+                self._unscheduleAutoplay(previous.title, previous.startDate, previous.channel.id)
 
     def clearAutoplays(self):
-        before = self.database.getFullAutoplays()
+        before = self.database.getAutoplayAlarmIdentities()
         self.database.clearAllAutoplays()
-        for program in before:
-            self._unscheduleAutoplay(program.title, program.startDate)
+        for channelId, title, start, sourceKey in before:
+            self._unscheduleAutoplay(title, start, channelId, sourceKey)
 
 
 if __name__ == '__main__':
