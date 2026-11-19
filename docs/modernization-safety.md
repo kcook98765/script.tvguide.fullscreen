@@ -27,8 +27,11 @@ supervisor reported a supported campaign alias `tvguide_lab` with Full Developme
 that alias's tools were **not exposed in this session's tool schema** and could not
 be called here. This is a session/authority availability limit, not a Lab defect.
 The supervisor reports stopped Matrix **19.4**, Nexus 20.5, Omega 21.3 and Piers
-22.0-rc.2; these are not independently observed runtime receipts. Requested Matrix
-**19.5 is absent**: 19.4 cannot satisfy #8. No production target was inspected.
+22.0-rc.2; these are not independently observed runtime receipts. Historically,
+19.5 was requested but absent. The owner subsequently **authorized Matrix 19.4**
+as the acceptance target and the supervisor updated #1/#8: the version-mismatch
+blocker is resolved by that scope decision, with no 19.5 acquisition required.
+No production target was inspected.
 
 Task 1 authorizes no native mutation or launch: no Start/Stop/Reset, workspace
 creation/import/validation/deployment/execution, screenshots or native logs were
@@ -145,12 +148,17 @@ All four final runs reported the same six-stage result above. Each ran its own
 
 | Target | Toolkit-relative interpreter | Observed Kodistubs |
 | --- | --- | --- |
-| Matrix 19.5 | `.local/matrix/bin/python` | 19.0.3 |
+| Matrix 19.4 | `.local/matrix/bin/python` | 19.0.3 |
 | Nexus 20.5 | `.venv/bin/python` | 20.0.1 |
 | Omega 21.3 | `.local/omega/bin/python` | 21.0.0 |
 | Piers 22.0 RC2 | `.local/piers/bin/python` | 22.0.1rc1 |
 
 All reported CPython 3.12.3/Linux, mypy 2.4.0 and kodi-addon-checker 0.0.36.
+These static runs preceded the owner's Matrix 19.4 scope update; the Toolkit's
+`stub-lanes` catalog labels its Matrix runtime mapping 19.5. The actual evidence
+is Matrix-major static checking with Kodistubs 19.0.3, not a 19.4 native result or
+an assertion of patch-specific API coverage. No source/stub environment was
+silently switched to implement the owner decision.
 The focused check passed on 40 runtime Python files, retaining 11 preexisting
 invalid-escape SyntaxWarnings from parsing `gui.py`. Piers retains the explicit
 checker-3.0.1-versus-RC2-3.1.1 coverage warning. No checker index replay/cache
