@@ -43,8 +43,14 @@ def check():
     tree = ast.parse(gui)  # Parse only: no imports, Kodi stubs, or callbacks run.
     guide = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "TVGuide")
     methods = {n.name: n for n in guide.body if isinstance(n, ast.FunctionDef)}
-    for name in ("playWithChannel", "stopWith", "showAutoplaywiths", "showFullAutoplaywiths"):
-        assert len(methods[name].body) == 1 and isinstance(methods[name].body[0], ast.Return), name
+    for name in ("playWithChannel", "stopWith", "showFullAutoplaywiths"):
+        callback = ast.get_source_segment(gui, methods[name])
+        assert 'PVRRecording' in callback and '.run(' in callback, name
+        assert 'executebuiltin' not in callback and 'self.database' not in callback, name
+    pvr = (ROOT / 'pvr_recording.py').read_text()
+    assert 'import xbmc' not in pvr and 'executebuiltin' not in pvr
+    assert "self._accepted('PVR.Record', channel=channel['channelid'], record=True)" in pvr
+    assert "self._accepted('PVR.DeleteTimer', timerid=timer['timerid'])" in pvr
     loader = ast.get_source_segment(gui, methods["loadActions"])
     assert "getAddonInfo('path')" in loader and "special://profile" not in loader
     assert 'select_skin(ADDON)' in gui and '_SKIN_SNAPSHOT' in gui
@@ -66,8 +72,11 @@ def check():
     for path in (ROOT / "resources/skins").glob("*/720p/script-tvguide-menu.xml"):
         skin = ET.parse(path)
         for control in skin.iter("control"):
-            if control.get("id") in ("4009", "4013"):
+            if control.get("id") == "4013":
                 assert control.findtext("visible") == "false", str(path)
+            if control.get("id") == "4009":
+                assert control.findtext("visible") != "false", str(path)
+                assert control.findtext("label") == "Record (Kodi PVR)…", str(path)
     print("PASS focused source-only safety checks; runtime files scanned:", len(runtime))
     print("NOT a complete security proof, Python 3 validation, or native acceptance")
 

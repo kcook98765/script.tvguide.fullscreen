@@ -544,7 +544,6 @@
 				<label>$ADDON[script.tvguide.fullscreen 30307]</label>
 			</control>
 			<control type="button" id="4009">
-                <visible>false</visible>
 				<!-- AutoPlay With -->
 				<description>autoplaywith</description>
 				<left>426</left>
@@ -561,7 +560,7 @@
 				<font>font13</font>
 				<textcolor>white</textcolor>
 				<focusedcolor>white</focusedcolor>
-				<label>AutoPlayWith</label>
+				<label>Record (Kodi PVR)…</label>
 			</control>
 			<control type="label">
 				<!-- Choose Stream Text -->

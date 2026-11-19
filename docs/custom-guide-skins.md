@@ -104,8 +104,9 @@ particular new or changed onload/onclick/onfocus/onunload/ontextchange hooks,
 action strings in navigation, and `plugin://` list content cannot enter. The
 bundled guide's own fixed hooks, dynamic labels/artwork and existing VOD library
 providers remain trusted application behavior; this task does not claim the
-whole guide or installed Kodi skin is action-free or offline. No new expression,
-provider, arbitrary command, Python, include or resource file is enabled.
+whole guide or installed Kodi skin is action-free or offline. No user-supplied
+expression, provider, command, Python or include is enabled. Custom PNG resources
+pass the separate data-only gate below.
 
 Candidate XML is parsed as bounded UTF-8, without DTD/entities/processing
 instructions. Approved leaf data is merged into the trusted parsed tree and
@@ -174,11 +175,18 @@ selected-image precedence, validated user PNG precedence and unchanged inherited
 image lookup are checked separately. Newly supplied unresolved/URI/provider
 textures remain rejected. These are pure data/AST checks, not native rendering.
 
-Integration note: this isolated work stays on reviewed base `9d0c225` while
-task08/PR17 and task10 change the canonical source independently. Eventual
-integration must reconcile `check_safety.py`: preserve new PVR/metadata safety
-boundaries instead of reviving old inert-callback/hidden-menu assertions, and
-retain the snapshot/explicit-opt-in skin guards. No other branch is merged here.
+Integration: original implementation base remains `9d0c225`; resource correction
+is `e68a6e6d9755eefa08e4a8d2cbe805fb425ca39f`. A normal merge reconciles pinned
+reviewed PR17 main `c96189c7a7a9d5ad20f8946d280166be0aa15e69` in this isolated
+worktree. Its parents are `9d0c225` and reviewed PVR head
+`d712b23aa04732fb4c4f0d07e3b89b8a5f7350e9`; its tree equals that PVR head.
+Both PVR-safe callbacks/visible 4009 and snapshot/explicit-opt-in skin guards are
+preserved. Metadata 4013 remains disabled exactly as on this pinned main, not
+incidentally re-disabled by a skin change. Combined focused checks include the
+twelve PVR tests as well as the twelve skin tests, reminder/fixture and prior
+safety/command/Python3 scripts. Task10's metadata and task11's AutoPlay worktrees,
+refs, private evidence and canonical source/index are untouched. Their later
+integration must retain both safety boundaries; neither branch is merged here.
 
 **All native stages remain blocked/unperformed.** Preserve Program + background
 service. The installed Lab source-enable policy still excludes this mixed
