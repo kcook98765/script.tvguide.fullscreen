@@ -13,7 +13,8 @@ def autocrop_image(infile,outfile):
     size = image.size
     bb_image = image
     bbox = bb_image.getbbox()
-    if (size[0] == bbox[2]) and (size[1] == bbox[3]):
+    # A blank image has no bbox; crop(None) keeps its full canvas below.
+    if bbox is not None and (size[0] == bbox[2]) and (size[1] == bbox[3]):
         bb_image=bb_image.convert("RGB")
         bb_image = ImageOps.invert(bb_image)
         bbox = bb_image.getbbox()
