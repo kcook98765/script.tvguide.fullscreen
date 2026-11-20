@@ -30,6 +30,13 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
+from image_cache import ImageCache
+
+
+def clearImageCache():
+    profile = xbmcvfs.translatePath(xbmcaddon.Addon(id='script.tvguide.fullscreen').getAddonInfo('profile'))
+    if not ImageCache(profile).clear():
+        xbmc.log('[script.tvguide.fullscreen] Image match cache clear could not be saved', xbmc.LOGWARNING)
 
 def deleteDB():
     try:
@@ -79,16 +86,14 @@ if __name__ == '__main__':
             xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/mapping.ini')
             xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/icons.ini')
             xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/folders.list')
-            xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/tvdb.pickle')
-            xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/tvdb_banners.pickle')
+            clearImageCache()
             path = 'special://profile/addon_data/script.tvguide.fullscreen/'
             dirs, files = xbmcvfs.listdir(path)
             for f in files:
                 if (f.endswith('xml') or f.endswith('xmltv')) and f != "settings.xml":
                     xbmcvfs.delete(path+f)
         if mode == 3:
-            xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/tvdb.pickle')
-            xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/tvdb_banners.pickle')
+            clearImageCache()
         if mode in [2,4]:
             dirs, files = xbmcvfs.listdir('special://profile/addon_data/script.tvguide.fullscreen/logos')
             for f in files:
