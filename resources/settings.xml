@@ -114,6 +114,11 @@
     </category>
     <category label="Appearance">
         <setting id="skin" label="Bundled Skin" type="labelenum" values="Default|Dark|CatBar" default="Default"/>
+        <setting id="skin.custom.enabled" label="Use passive styling/layout overrides (opt in; guide below)" type="bool" default="false"/>
+        <setting id="skin.source" label="Skin Type" type="enum" values="Bundled|Profile|Local folder" default="0" visible="eq(-1,true)"/>
+        <setting id="skin.folder" label="Skin Folder (above resources/skins; local only)" type="folder" visible="eq(-2,true) + eq(-1,2)"/>
+        <setting id="skin.user" label="User Skin Name" type="text" default="" visible="eq(-3,true)"/>
+        <setting type="lsep" label="Guide (web): https://github.com/kcook98765/script.tvguide.fullscreen/blob/preserve/custom-skins/docs/custom-guide-skins.md"/>
         <setting id="epg.video.pip" label="Small EPG Video Preview Window" type="bool" default="false" />
         <setting type="sep"/>
         <setting id="program.image.scale" label="Scale Program Image" type="bool" default="true" />

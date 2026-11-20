@@ -108,9 +108,43 @@ neither does task03's older four-lane evidence. No new broad PASS is claimed.
 Common main still targets Matrix19.4/Nexus20.5/Omega21.3/Piers22RC2. Matrix tools
 are the qualified 19.5 major lane; Piers remains bounded prerelease evidence.
 All native task08–11 stages are **unrun**. Full Program+service intake/structural
-validation previously succeeded, but installed Lab enablement excludes mixed
-manifests and qualified pure services only on Omega; see
+validation previously succeeded, but the observed installed enablement excluded
+mixed manifests and qualified pure services only on Omega; historical evidence:
 [Lab112](https://github.com/kcook98765/kodi-lab/issues/112#issuecomment-7023719173).
+The latest owner decision is [Kodi Lab394 **DEFERRED**](https://github.com/kcook98765/kodi-lab/issues/394),
+not an invitation to retry the blocker or introduce a workaround.
 No native alarm parsing, playback, cancellation, service restart or UI acceptance
 is claimed. Recording/AutoPlayWith, mappings/external players and the other #14
 provisional gaps remain distinct; no permanent removal is proposed here.
+
+## Normal main integration for independent review
+
+After PR19's normal merge, live main was independently verified at
+`6d1b9162289ccc20c3ba089302dc3a149150d0be` and normally merged into this branch as
+`5fe91ea10e5a09c29f04a7be984b3ab9c6278434`, with **no conflicts**. Its parents are
+original reviewed `d210c1cd199b8c28cb57ec901da98f07ba9b8205` and that pinned main;
+the original commit remains unchanged in ancestry for Task13. No rebase or
+scheduler-scope changes were needed. This follow-up changes only these notes.
+
+All **nine** current pure-check scripts independently exit **0** on the integrated
+runtime: AutoPlay, command data, passive skins (12 tests), metadata/search
+(11 tests), fixtures, PVR, Python3, reminders and source safety. Narrow typing for
+the three AutoPlay modules still exits **0**; the API wrong-type negative control
+still exits **1** with four expected argument diagnostics. Python3.8 grammar checks
+cover the AutoPlay runtime and all nine scripts. Existing warnings remain in raw
+stderr; no six-stage/four-lane rerun or native compatibility claim is added.
+
+Private `task11-integration-summary.json` and corresponding stdout/stderr retain
+exact commands, subprocess exits, hashes and tested merge identity. Tree comparison
+confirms **921 main entries outside the seven task11 paths have identical blobs
+and modes**, including PVR, skins, metadata, safety and the full Program+service
+manifest/functions. All task11 runtime/test blobs equal original `d210c1c`;
+only this documentation differs after the merge. The final review identity is
+recorded separately in `task11-integration-HANDOFF.md`; no runtime rerun is implied
+by the documentation commit.
+
+[Issue21](https://github.com/kcook98765/script.tvguide.fullscreen/issues/21) is the
+separate Task13 channel/source selection, omitted new-only reconstruction and
+title/start collision scope. This PR does not duplicate those fixes or redefine
+intentional cross-channel regex reminders. PR20 remains draft pending independent
+review; no permanent feature removal is introduced.

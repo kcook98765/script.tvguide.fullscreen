@@ -338,7 +338,7 @@ class Recording(unittest.TestCase):
                      'xbmcvfs': SimpleNamespace(File=lambda *args: file)}
         exec(compile(ast.Module(body=[function], type_ignores=[]), '<keymap-adapter>', 'exec'), namespace)
         result = namespace['getCommandActions']()
-        self.assertEqual(result, dict(aliases, EXTENDED_INFO=[]))
+        self.assertEqual(result, aliases)  # Metadata alias now opens fixed provider choices.
 
 
 if __name__ == '__main__':

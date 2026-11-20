@@ -53,7 +53,10 @@ def check():
     assert "self._accepted('PVR.DeleteTimer', timerid=timer['timerid'])" in pvr
     loader = ast.get_source_segment(gui, methods["loadActions"])
     assert "getAddonInfo('path')" in loader and "special://profile" not in loader
-    assert "skin.source" not in gui and "skin.folder" not in gui and "skin.user" not in gui
+    assert 'select_skin(ADDON)' in gui and '_SKIN_SNAPSHOT' in gui
+    # External/profile settings may select DATA for the bounded snapshot only;
+    # gui never passes the selected source root to WindowXML.
+    assert "getSetting('skin.folder')" not in gui
     assert "RunScript" not in gui
     assert "executebuiltin(url)" not in gui and "getSetting('mine1')" not in gui
     service = (ROOT / "service.py").read_text()
@@ -64,12 +67,14 @@ def check():
     settings = ET.parse(ROOT / "resources/settings.xml")
     ids = {node.get("id", "") for node in settings.iter("setting")}
     assert not any(i.startswith("autoplaywiths.") for i in ids)
-    assert not ids.intersection({"mine1", "skin.source", "skin.folder", "skin.user", "search.type"})
+    assert not ids.intersection({"mine1", "search.type"})
+    assert settings.find(".//setting[@id='skin.custom.enabled']").get('default') == 'false'
     for path in (ROOT / "resources/skins").glob("*/720p/script-tvguide-menu.xml"):
         skin = ET.parse(path)
         for control in skin.iter("control"):
             if control.get("id") == "4013":
-                assert control.findtext("visible") == "false", str(path)
+                assert control.findtext("visible") != "false", str(path)
+                assert control.findtext("label") == "TMDbHelper lookup…", str(path)
             if control.get("id") == "4009":
                 assert control.findtext("visible") != "false", str(path)
                 assert control.findtext("label") == "Record (Kodi PVR)…", str(path)
