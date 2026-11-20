@@ -34,6 +34,7 @@ import zlib
 import gzip
 import requests
 import hashlib
+import uuid
 
 ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
 
@@ -62,8 +63,9 @@ class FileFetcher(object):
     addon = None
     fileType = TYPE_DEFAULT
 
-    def __init__(self, url, path, addon):
+    def __init__(self, url, path, addon, track_source=False):
         self.addon = addon
+        self.track_source = track_source
 
         if url.startswith("http://") or url.startswith("https://"):
             self.fileType = self.TYPE_REMOTE
@@ -81,11 +83,35 @@ class FileFetcher(object):
             os.makedirs(self.basePath)
 
     def fetchFile(self,force=False):
+        # Never clean up another foreground/service fetch's staging files.
+        tmpFile = os.path.join(self.basePath, self.fileName+'.'+uuid.uuid4().hex+'.tmp')
+        try:
+            return self._fetchFile(force, tmpFile)
+        except Exception:
+            xbmc.log('[script.tvguide.fullscreen] Failed to fetch cache file', xbmc.LOGERROR)
+            return self.FETCH_ERROR
+        finally:
+            for path in (tmpFile, tmpFile+'.decoded'):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+
+    def _fetchFile(self, force, tmpFile):
         retVal = self.FETCH_NOT_NEEDED
+        source_changed = False
+        if self.track_source:
+            # Store no URL/path credentials; an unbound legacy cache refreshes once.
+            source_id = hashlib.sha256(self.fileUrl.encode('utf-8')).hexdigest()
+            try:
+                with open(self.filePath+'.source', 'r') as marker:
+                    source_changed = marker.read() != source_id
+            except (OSError, UnicodeError):
+                source_changed = True
         fetch = False
         if not os.path.exists(self.filePath):  # always fetch if file doesn't exist!
             fetch = True
-        elif force == True:
+        elif force == True or source_changed:
             fetch = True
         else:
             interval = int(self.addon.getSetting('xmltv.interval'))
@@ -112,10 +138,9 @@ class FileFetcher(object):
                 user = self.addon.getSetting('user')
                 password = self.addon.getSetting('password')
                 auth = (user, password)
-            tmpFile = os.path.join(self.basePath, self.fileName+'.tmp')
             if self.fileType == self.TYPE_DEFAULT:
                 xbmc.log('[script.tvguide.fullscreen] file is in remote location: %s' % self.fileUrl, xbmc.LOGDEBUG)
-                if xbmcvfs.exists(self.filePath):
+                if not source_changed and xbmcvfs.exists(self.filePath):
                     st = xbmcvfs.Stat(self.fileUrl)
                     src_modified = st.st_mtime()
                     st = xbmcvfs.Stat(self.filePath)
@@ -124,6 +149,7 @@ class FileFetcher(object):
                         return self.FETCH_NOT_NEEDED
                 if not xbmcvfs.copy(self.fileUrl, tmpFile):
                     xbmc.log('[script.tvguide.fullscreen] Remote file couldn\'t be copied: %s' % self.fileUrl, xbmc.LOGERROR)
+                    return self.FETCH_ERROR
             else:
 
                 if self.addon.getSetting('md5') == 'true':
@@ -137,9 +163,8 @@ class FileFetcher(object):
                     except Exception as detail:
                         xbmc.log('[script.tvguide.fullscreen] Missing md5: %s.md5 (%s)' % (self.fileUrl,detail), xbmc.LOGERROR)
                     #log((old_md5,new_md5))
-                    if old_md5 and (old_md5 == new_md5) and (self.addon.getSetting('xmltv.refresh') == 'false'):
+                    if not source_changed and old_md5 and (old_md5 == new_md5) and (self.addon.getSetting('xmltv.refresh') == 'false'):
                         return self.FETCH_NOT_NEEDED
-                f = open(tmpFile, 'wb')
                 xbmc.log('[script.tvguide.fullscreen] file is on the internet: %s' % self.fileUrl, xbmc.LOGDEBUG)
                 total = 0
                 fileUrl = self.fileUrl
@@ -153,6 +178,7 @@ class FileFetcher(object):
                             if r.status_code != requests.codes.ok:
                                 xbmc.log('[script.tvguide.fullscreen] no file: %s' % self.fileUrl, xbmc.LOGERROR)
                                 xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s" % self.fileUrl,xbmcgui.NOTIFICATION_ERROR)
+                                return self.FETCH_ERROR
                         else:
                             xbmc.log('[script.tvguide.fullscreen] no file: %s' % fileUrl, xbmc.LOGERROR)
                             xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
@@ -170,44 +196,50 @@ class FileFetcher(object):
                 chunk_size = 16 * 1024
                 size = 0
                 oldtime = time.time()
-                for chunk in r.iter_content(chunk_size):
-                    f.write(chunk)
-                    size = size + chunk_size
-                    if total:
-                        percent = 100.0 * size / total
-                        now = time.time()
-                        diff = now - oldtime
-                        if diff > 1:
-                            d.update(int(percent))
-                            oldtime = now
-                f.close()
-                d.update(100, message="Done")
-                d.close()
-            if os.path.exists(self.filePath):
                 try:
-                    os.remove(self.filePath)
-                except:
-                    return self.FETCH_NOT_NEEDED
-            try:
-                magic = xbmcvfs.File(tmpFile,"rb").readBytes(3)
-                if magic == b"\x1f\x8b\x08":
-                    g = gzip.open(tmpFile)
-                    data = g.read()
-                    xbmcvfs.File(self.filePath,"wb").write(data)
-                else:
-                    xbmcvfs.copy(tmpFile, self.filePath)
-                xbmcvfs.delete(tmpFile)
-            except:
-                return self.FETCH_NOT_NEEDED
-            if new_md5 and (self.addon.getSetting('md5') == 'true'):
+                    with open(tmpFile, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size):
+                            f.write(chunk)
+                            size = size + chunk_size
+                            if total:
+                                percent = 100.0 * size / total
+                                now = time.time()
+                                diff = now - oldtime
+                                if diff > 1:
+                                    d.update(int(percent))
+                                    oldtime = now
+                    d.update(100, message="Done")
+                finally:
+                    d.close()
+            # Decode and check the staged bytes before replacing a usable cache.
+            with open(tmpFile, 'rb') as staged:
+                magic = staged.read(3)
+            if magic == b"\x1f\x8b\x08":
+                with gzip.open(tmpFile, 'rb') as compressed:
+                    data = compressed.read()
+                with open(tmpFile+'.decoded', 'wb') as decoded:
+                    decoded.write(data)
+                os.replace(tmpFile+'.decoded', tmpFile)
+            check_md5 = new_md5 and (self.addon.getSetting('md5') == 'true')
+            if check_md5:
                 md5 = hashlib.md5()
-                md5.update(xbmcvfs.File(self.filePath,"rb").readBytes())
+                with open(tmpFile, 'rb') as staged:
+                    md5.update(staged.read())
                 md5_file = md5.hexdigest()
                 if md5_file != new_md5:
                     xbmc.log('[script.tvguide.fullscreen] md5 mismatch: %s calculated:%s server:%s' % (self.fileUrl,md5_file,new_md5), xbmc.LOGERROR)
                     xbmcgui.Dialog().notification("TV Guide Fullscreen", "failed md5 check %s",xbmcgui.NOTIFICATION_ERROR)
-                else:
-                    xbmcvfs.File(self.filePath+".md5","wb").write(new_md5)
+                    return self.FETCH_ERROR
+            # Invalidate first: a marker-write failure must never bind new bytes
+            # to the previous source. Missing/partial markers safely force retry.
+            if self.track_source and os.path.exists(self.filePath+'.source'):
+                os.remove(self.filePath+'.source')
+            os.replace(tmpFile, self.filePath)
+            if self.track_source:
+                with open(self.filePath+'.source', 'w') as marker:
+                    marker.write(source_id)
+            if check_md5:
+                xbmcvfs.File(self.filePath+".md5","wb").write(new_md5)
             retVal = self.FETCH_OK
             xbmc.log('[script.tvguide.fullscreen] file %s was downloaded' % self.filePath, xbmc.LOGDEBUG)
         return retVal

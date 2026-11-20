@@ -2153,7 +2153,7 @@ class XMLTVSource(Source):
         #url = url.split('?')[0]
         #fileName = os.path.basename(url)
         path = os.path.join(XMLTVSource.PLUGIN_DATA, fileName)
-        fetcher = FileFetcher(url, path, addon)
+        fetcher = FileFetcher(url, path, addon, track_source=True)
         retVal = fetcher.fetchFile(force)
         if retVal == fetcher.FETCH_OK and not isIni:
             self.needReset = True
