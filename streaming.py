@@ -31,6 +31,7 @@ from threading import get_ident
 import os
 import re
 import xbmcaddon
+from settings_compat import is_meta_catchup
 
 
 class StreamsService(object):
@@ -95,7 +96,7 @@ class StreamsService(object):
         exact_matches = []
         sub_matches = []
         numword_matches = []
-        if self.addon.getSetting('catchup.type') == "0":
+        if is_meta_catchup(self.addon.getSetting('catchup.type')):
             catchup = self.addon.getSetting('catchup.text')
         else:
             catchup = self.addon.getSetting('catchup.direct')

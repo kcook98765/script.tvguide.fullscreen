@@ -276,27 +276,45 @@ class Mappings(unittest.TestCase):
             self.assertEqual(events, [])
 
     def test_actual_scheduled_guard_precedes_settings_vpn_and_player(self):
-        tree = ast.parse((ROOT / 'play.py').read_text())
-        block = next(n for n in tree.body if isinstance(n, ast.If) and isinstance(n.test, ast.Name)
-                     and n.test.id == 'row')
-        for value in (FOLDER, '@' + URI, 'RunScript(INERT)'):
-            cap = Capture()
-            scope = dict(row=(value,), sys=sys, route_mapping=self.adapter.route_mapping,
-                         xbmc=NS(executeJSONRPC=cap.execute, LOGWARNING=2,
-                                 log=lambda message, level: cap.messages.append(message)))
-            with self.assertRaises(SystemExit) as raised:
-                exec(compile(ast.Module(body=[block], type_ignores=[]), 'play.py', 'exec'), scope)
-            self.assertEqual(raised.exception.code, 1)
-            self.assertEqual(cap.calls, [])
-            self.assertEqual(len(cap.messages), 1)
-        cap, events, scope, ui, settings = self.ui(URI)
-        scope.update(row=(URI,), route_mapping=self.adapter.route_mapping,
-                     channel='demo', start='2000-01-01',
-                     xbmc=NS(executeJSONRPC=cap.execute, getCondVisibility=lambda key: False,
-                             Player=lambda: ui.player))
-        exec(compile(ast.Module(body=[block], type_ignores=[]), 'play.py', 'exec'), scope)
-        self.assertEqual(events, ['setting', 'setting', ('play', dict(item=URI))])
-        self.assertEqual(cap.calls, [])
+        # Reuse the reviewed source-only AutoPlay fixture: real in-memory SQLite,
+        # actual extracted main(argv), pure opaque decoder, inert effect captures.
+        # Importing this test module runs no tests or Kodi/legacy module imports.
+        spec = importlib.util.spec_from_file_location('autoplay_fixture', ROOT / 'tests/check_autoplay_data.py')
+        fixture_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixture_module)
+        fixture = fixture_module.AutoPlay('test_callbacks_exact_parameterized_lookup_media_and_ownership')
+        self.addCleanup(fixture.doCleanups)
+        play, unused_stop = fixture.callbacks()
+        channel, start = 'Café, station (HD)', '2000-01-01 12:00:00'
+        encoded = ['play.py', fixture_module.data.encode_identity(channel, start)]
+        legacy = ['play.py', channel, start]
+        for value in (FOLDER, '@' + URI, 'RunScript(INERT)', URI,
+                      'PlayMedia("' + URI + '")', 'Movie (Part 1) (2026).mp4'):
+            fixture.db.execute('DELETE FROM custom_stream_url')
+            fixture.db.execute('INSERT INTO custom_stream_url VALUES (?, ?)', (channel, value))
+            for argv in (encoded, legacy):
+                fixture.effects.clear()
+                before = dict(fixture.markers)
+                play(argv)
+                phases = [e[0] for e in fixture.effects]
+                self.assertEqual(phases[:4], ['addon', 'path', 'connect', 'close'])
+                if value in (FOLDER, '@' + URI, 'RunScript(INERT)'):
+                    self.assertEqual(phases, ['addon', 'path', 'connect', 'close', 'log'])
+                    self.assertEqual(fixture.markers, before)
+                else:
+                    expected_uri = URI if value.startswith('PlayMedia(') else value
+                    self.assertEqual(phases, ['addon', 'path', 'connect', 'close', 'setting', 'setting', 'vpn-check', 'play'])
+                    self.assertEqual(fixture.markers, {'playing.channel': channel, 'playing.start': start})
+                    self.assertIn(('play', dict(item=expected_uri)), fixture.effects)
+        # Invalid encoded payload and invalid legacy arity/data stop before Addon,
+        # path/connection, mapping routing, markers, VPN, RPC or Player effects.
+        for argv in (['play.py', 'v1_!'], ['play.py', 'station', 'start', 'extra'],
+                     ['play.py', '', start]):
+            fixture.effects.clear()
+            before = dict(fixture.markers)
+            play(argv)
+            self.assertEqual([e[0] for e in fixture.effects], ['log'])
+            self.assertEqual(fixture.markers, before)
 
     def test_python38_grammar_and_favourite_import_keeps_wrappers(self):
         for name in ('playback_mapping.py', 'gui.py', 'streaming.py', 'play.py'):

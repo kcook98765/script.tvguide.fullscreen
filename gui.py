@@ -36,6 +36,7 @@ import xbmcgui
 import xbmcvfs
 import colors
 import requests
+from settings_compat import is_meta_catchup
 import json
 import base64
 import source as src
@@ -50,6 +51,7 @@ from vpnapi import VPNAPI
 
 import streaming
 from skin_runtime import select_skin
+from image_cache import ImageCache
 
 DEBUG = False
 
@@ -359,7 +361,7 @@ class TVGuide(xbmcgui.WindowXML):
 
         self.player = xbmc.Player()
         self.database = None
-        self.tvdb_urls = {}
+        self.tvdb_urls = ImageCache(xbmcvfs.translatePath(ADDON.getAddonInfo('profile')))
 
         self.mode = MODE_EPG
         self.channel_number_input = False
@@ -1034,7 +1036,7 @@ class TVGuide(xbmcgui.WindowXML):
             program = self._getProgramFromControl(controlInFocus)
             if program:
                 self.tvdb_urls[program.title] = ''
-                self.setControlImage(self.C_MAIN_IMAGE, self.tvdb_urls[program.title])
+                self.setControlImage(self.C_MAIN_IMAGE, '')
         elif action.getId() in COMMAND_ACTIONS["SCHEDULERS_MENU"]:
             program = self._getProgramFromControl(controlInFocus)
             d = xbmcgui.Dialog()
@@ -2842,7 +2844,7 @@ class TVGuide(xbmcgui.WindowXML):
 
 
     def catchup(self,channel):
-        if ADDON.getSetting('catchup.type') == "0":
+        if is_meta_catchup(ADDON.getSetting('catchup.type')):
             self.catchup_meta(channel)
         else:
             self.catchup_direct(channel)

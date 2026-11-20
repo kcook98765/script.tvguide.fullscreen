@@ -6,6 +6,52 @@ No master-history rewrite, attribution/license change, manifest/entrypoint chang
 release, distribution or merge. Both Program script and service remain. Task14's
 canonical dirty checkout and all other task worktrees are untouched.
 
+## Pinned-main integration preparation
+
+Initial source review accepted the practical mapping direction at
+`5dbeab22c53576d4ba579575a1efa013e232b525`. Normally merged **only** pinned main
+`891151d2318f3178df61c77fa1da6482eaade2eb` into this private branch, preserving
+history without rebase/force. This includes reviewed dependencies/settings #24,
+cache #22, scoped scheduling #23 and ordinary AutoPlay #20. This is preparation
+for independent **final** review, not acceptance/merge into main or a source freeze.
+Other reviewed PRs #27/#25/#26 and Task15 metadata are outside this reconciliation;
+a later separately supervised small main merge may be needed. Do not follow moving
+main automatically or edit another worktree/canonical checkout.
+
+The only conflict was `play.py`. The resolution retains main's entire reviewed
+`main(argv)` opaque decoder, two-argument legacy data support, early invalid-payload
+return, parameterized SELECT, failed-connect return and `finally: conn.close()`.
+The only callback addition is the existing media-only mapping guard **after** the
+connection closes and **before** markers, VPN check or Player. Rejection warns and
+returns from the callback, without folder/action RPC or UI and without a playback
+success marker. It no longer uses the pinned old top-level `sys.exit` callback.
+
+Actual callback tests reuse the source-only AutoPlay fixture (real in-memory
+SQLite, pure decoder and inert extracted-function effect captures; no Kodi runtime
+emulator/imports). Both encoded and legacy valid inputs exercise accepted media
+and rejected folders/actions; malformed identity/arity/data returns before Addon,
+path/database, mapping, marker, VPN, RPC or Player effects. AutoPlay's prior
+command-looking-mapping-as-Player expectations were deliberately updated to the
+media-only contract; its decoder, scheduling/ownership and malformed-data tests
+remain otherwise intact.
+
+Bounded source-only checks pass: typed mappings **12**, AutoPlay **6**, scoped
+schedule ownership **7**, image cache **12**, plus command-data, source-safety and
+dependency/settings scripts. All run with the explicit Matrix tool interpreter
+and minimal PATH/LANG environment. Existing warnings and baseline negative-control
+diagnostics are retained; no broad six-stage/four-lane validation was run.
+
+Private scope proof asserts exactly **seven** paths differ from pinned main:
+`gui.py`, `play.py`, `streaming.py`, `playback_mapping.py`, this document and the
+two focused mapping/AutoPlay tests. Every other tracked main file is byte-identical,
+including manifest/settings, settings_compat, source/database/scoped schedules,
+PVR, skins and cache. The adapter is byte-identical to independently reviewed
+`5dbeab2`; primary/fallback/preview/selection/favourite-import and PVR callback ASTs
+are unchanged. Removing exactly the helper import + media-only guard from the
+resolved `play.py` yields pinned main's complete AST. No old callback overwrites
+main's decoder or connection handling. Settings imports/semantics in GUI/streaming
+and the incoming ImageCache wiring are retained.
+
 ## Inventory before changes
 
 Compared original `0e46733e9e5f7711f2381562cfbb98fd3b54b429`, the safety removal
@@ -24,11 +70,10 @@ Compared original `0e46733e9e5f7711f2381562cfbb98fd3b54b429`, the safety removal
 
 Task17 owns action-bar commands, Task16 external players, Task14 settings/requires,
 Task13 scheduler ownership, Task12 cache, Task15 metadata/languages. None are
-reimplemented here. **PR20 is now merged on current main**: later supervised
-integration must retain its reviewed `main(argv)` decoder/legacy-argument handling
-and place this task's small mapping guard *before* bookkeeping/VPN/player inside
-that callback. Do not copy this pinned base's older top-level `play.py` over main.
-No current-main reconciliation or merge is attempted before draft review.
+reimplemented here. **PR20's reviewed `main(argv)` decoder/legacy-argument handling
+is now retained by the pinned-main reconciliation above**, with this task's small
+guard before bookkeeping/VPN/player. Never replace it with the initial pinned
+base's old top-level callback.
 
 ## Four exact-tag primary API / receiver research
 
@@ -140,6 +185,12 @@ is introduced here.
   RunPlugin/RunAddon/RunScript command text, optional PlayMedia flags, additional
   commands, unknown/malformed or non-Paramified legacy forms remain unsupported. These
   are explicit compatibility gaps for #14, **not permanent feature dispositions**.
+* Named external-player/recorder/profile-script restoration is **not** implemented
+  by this mapping PR; separate external-player work must be reconciled/reviewed
+  independently. Ordinary media retains Kodi Player/default selection and VPN
+  behavior. Neither named-player settings nor external-player choice may bypass
+  the temporary `@`/unsupported-command boundary. This is a scoped difference,
+  not a permanent removal/disposition of external-player features.
 * Primary routing is before Player.stop, catchup clearing, playing-channel state,
   PiP and guide hiding. Selection cancellation/rejection returns False; only
   **None (missing mapping)** triggers playOrChoose auto-detection. Folder success
@@ -152,7 +203,8 @@ is introduced here.
   Response loss/malformed response/RPC error/denial is **unconfirmed**, no automatic
   retry (the window could already have opened). No URI/response is echoed in errors.
 * Scheduled `play.py` permits PLAY only; folder UI and actions are rejected/logged
-  before channel/start bookkeeping, VPN or Player, with unsuccessful exit. This
+  before channel/start bookkeeping, VPN or Player, with an early callback return
+  and no playback success marker (not a process-exit-status claim). This
   corrects reviewed-main's verbatim command-as-media behavior; it does not redesign
   scheduling. Original code never implemented GUI-style scheduled folder actions.
 
@@ -173,7 +225,7 @@ scheduled guard and Python 3.8 grammar. Initial regression failed on the pinned
 silent-success branch before implementation. A subsequent fixture-development
 failure (missing mock VISIBLE_ADDONS) is retained in private evidence, not hidden.
 
-Final focused suite: **12 tests PASS**; existing command-data and source-only
+Initial focused suite: **12 tests PASS**; existing command-data and source-only
 safety checks also pass, retaining their baseline negative-control diagnostics.
 Final test environment is `env -i PATH=/usr/bin:/bin LANG=C.UTF-8` only; no HOME,
 home or CODEX_HOME is repurposed. Earlier pre-review test invocations used an
@@ -197,4 +249,5 @@ above is separate from static signatures. Toolkit/config/cache are untouched.
 **Lab394 DEFERRED:** no Lab calls, catalog/native probes, Start/Stop/Reset,
 workspaces, deployments, executions, UI/screenshots/logs, workarounds or production
 access. No runtime identity/generation/receipt exists for this task. Stop at draft
-PR for independent review; later current-main integration is coordinated separately.
+PR for independent final review of the pinned-main preparation above. Any later
+source-freeze reconciliation remains separately supervised. No merge into main.
