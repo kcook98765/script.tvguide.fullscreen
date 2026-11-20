@@ -18,8 +18,9 @@ reminders and background service remain in source. Focused restorations cover
 punctuation-safe reminders/AutoPlay, scoped event identities, optional PVR timers,
 passive guide styling, TMDbHelper lookup and a persistent JSON image-match cache.
 These are not blanket replacements for every legacy integration. Action-bar,
-service-safety, package/translation and typed-mapping work is still under draft
-review at this snapshot.
+service-safety, package/translation and typed-mapping work was under draft
+review at this source snapshot. Package/translation PR27 has since merged on
+newer main; see the inventory's live-state note. None is native acceptance.
 
 See the **[current feature inventory and qualification status](docs/modernization-status.md)**
 for merged versus draft work, practical limits and the four-version native gate.

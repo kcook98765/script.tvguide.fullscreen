@@ -25,12 +25,16 @@ or proposed here. Only downloaded-code/arbitrary-command mechanisms are approved
 | Key editor, bundled actions, custom action bar/MINE | Key editor/bundled actions **retained**; profile customization **temporarily constrained** | Draft [#25][p25] restores hide/order/label/image choices via a closed action catalog; **not merged**, not arbitrary custom commands/MINE execution. No new editor or raw fallback. |
 | Providers, logos/backgrounds, VPN, backup/import/export/reset, settings | **Retained, unverified**; common dependency floors/legacy defaults merged [#24][p24] | [Dependency/settings evidence](dependencies-settings.md) is availability/source evidence, not provider/network/credential, binary installation or persistence acceptance. TLS verification is retained; no secret logging or downloaded Python restoration. |
 | Background updates, autostart, reminder/AutoPlay reconstruction | Script **and service declarations/functions retained**, unverified | Draft [#26][p26] removes unsafe startup journal/lock deletion and repairs saved scheduling/abort handling; **not merged**. Source safety changes are not proof of actual background work. |
-| Package metadata, artwork declarations, translations | Existing source retained; readiness **partial** | Draft [#27][p27] preserves **69 catalogs / 2,492 entries** while improving metadata/resource IDs/icon. Candidate checker result **73 → 3 errors**, warnings retained; **not a merged-source or clean qualification result**. |
+| Package metadata, artwork declarations, translations | Existing source retained at this pinned base; readiness **partial** | [#27][p27] preserves **69 catalogs / 2,492 entries** while improving metadata/resource IDs/icon; now merged on newer main (below), not included in this base. Earlier candidate checker result **73 → 3 errors**, warnings retained, is **not final merged-source or clean qualification**. |
 | Proposed permanent feature removals | **None** | Only downloaded-code/arbitrary-command mechanisms are approved removed ([#12][p12]); all other differences above remain restoration/acceptance work or require an explicit owner decision. |
 
-GitHub at this snapshot: **merged #12, #13, #15, #16, #17, #18, #19, #20,
-#22, #23, #24**; **draft/unmerged #25–#28**. Draft descriptions contain their
-focused usage/evidence links; they do not describe already integrated features.
+Included merges at this source snapshot: **#12, #13, #15, #16, #17, #18, #19,
+#20, #22, #23, #24**. **Live-state update:** PR27 subsequently merged as
+`0843fe00af052d20612d6c20d17f1d7a1963e8b2` (reviewed head `dd8a78e`);
+**#25, #26 and #28 remain draft/unmerged**. This documentation branch keeps its
+authorized `891151d` source base; newer main has not been reconciled or qualified
+here. Draft descriptions contain focused usage/evidence links, not integrated
+features. Reconcile this provisional inventory after the remaining integrations.
 Task16 and Task20 are source-unchanged findings, not extra implementation PRs.
 
 ## Qualification, not a release claim
