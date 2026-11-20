@@ -3443,7 +3443,7 @@ class TVGuide(xbmcgui.WindowXML):
             channelColumnBG = altChannelColumnBG
         for idx in range(0, CHANNELS_PER_PAGE):
             if idx >= len(channels):
-                self.setControlImage(4110 + idx, ' ')
+                self.setControlImage(4110 + idx, '')
                 self.setControlLabel(4010 + idx, ' ')
                 self.setControlLabel(4410 + idx, ' ')
                 if ADDON.getSetting('dummy.channels') == 'true':
@@ -3465,7 +3465,7 @@ class TVGuide(xbmcgui.WindowXML):
                 if (channel.logo is not None and showLogo == True):
                     self.setControlImage(4110 + idx, channel.logo)
                 else:
-                    self.setControlImage(4110 + idx, ' ')
+                    self.setControlImage(4110 + idx, '')
             control = self.getControl(4010 + idx)
             height = self.epgView.cellHeight
             top = self.epgView.cellHeight * idx
@@ -3697,7 +3697,7 @@ class TVGuide(xbmcgui.WindowXML):
         showLogo = ADDON.getSetting('logos.enabled') == 'true'
         for idx in range(0, 3):
             if idx >= len(channels):
-                self.setControlImage(14110 + idx, ' ')
+                self.setControlImage(14110 + idx, '')
                 self.setControlLabel(14010 + idx, ' ')
                 self.setControlVisible(14210 + idx,False)
             else:
@@ -3707,7 +3707,7 @@ class TVGuide(xbmcgui.WindowXML):
                 if (channel.logo is not None and showLogo == True):
                     self.setControlImage(14110 + idx, channel.logo)
                 else:
-                    self.setControlImage(14110 + idx, ' ')
+                    self.setControlImage(14110 + idx, '')
             control = self.getControl(14010 + idx)
             height = self.quickEpgView.cellHeight
             top = self.quickEpgView.cellHeight * idx
