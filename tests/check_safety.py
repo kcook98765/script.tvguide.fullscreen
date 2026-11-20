@@ -52,7 +52,11 @@ def check():
     assert "self._accepted('PVR.Record', channel=channel['channelid'], record=True)" in pvr
     assert "self._accepted('PVR.DeleteTimer', timerid=timer['timerid'])" in pvr
     loader = ast.get_source_segment(gui, methods["loadActions"])
-    assert "getAddonInfo('path')" in loader and "special://profile" not in loader
+    assert 'action_bar.load(' in loader and 'json.loads' not in loader
+    click = ast.get_source_segment(gui, methods['onClick'])
+    assert 'action_bar.command_at(self.actions, pos)' in click
+    assert 'executebuiltin(self.actions' not in click
+    # Behavior/injection controls for this boundary live in check_action_bar.py.
     assert 'select_skin(ADDON)' in gui and '_SKIN_SNAPSHOT' in gui
     # External/profile settings may select DATA for the bounded snapshot only;
     # gui never passes the selected source root to WindowXML.

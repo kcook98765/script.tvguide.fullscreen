@@ -18,6 +18,7 @@
 #  http://www.gnu.org/copyleft/gpl.html
 #
 import xbmcvfs,xbmcgui
+import action_bar
 
-xbmcvfs.copy('special://home/addons/script.tvguide.fullscreen/resources/actions.json','special://profile/addon_data/script.tvguide.fullscreen/actions.json')
-xbmcgui.Dialog().notification("TV Guide Fullscreen","Action Bar Reset")
+saved = action_bar.save(xbmcvfs.translatePath(action_bar.PROFILE), action_bar.defaults())
+xbmcgui.Dialog().notification("TV Guide Fullscreen", "Action Bar Reset" if saved else "Action Bar Reset failed")

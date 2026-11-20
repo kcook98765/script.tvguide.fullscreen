@@ -1,6 +1,6 @@
 """Focused pure/AST captures, not Kodi execution or legacy/stub imports.
 
-Only autoplay_data/command_safety are imported. Reviewed class/functions are
+Only autoplay_data/command_safety/playback_mapping are imported. Reviewed class/functions are
 extracted without their module imports, globals initialization or __main__.
 All commands and Player calls below are inert captures, not a Kodi emulator.
 """
@@ -30,6 +30,7 @@ def pure(name):
 
 
 data, safe = pure('autoplay_data'), pure('command_safety')
+mapping = pure('playback_mapping')
 
 
 def extracted(path, name, env):
@@ -95,11 +96,13 @@ class AutoPlay(unittest.TestCase):
             effects.append(('connect', args, kwargs))
             return SimpleNamespace(cursor=conn.cursor, close=lambda: effects.append(('close',)))
 
-        env = dict(callback_identity=data.callback_identity,
-                   xbmc=SimpleNamespace(LOGERROR=4, log=lambda *args: effects.append(('log', args)),
+        env = dict(callback_identity=data.callback_identity, route_mapping=mapping.route_mapping,
+                   xbmc=SimpleNamespace(LOGERROR=4, LOGWARNING=2,
+                                        log=lambda *args: effects.append(('log', args)),
+                                        executeJSONRPC=lambda raw: effects.append(('rpc', raw)),
                                         Player=lambda: SimpleNamespace(play=lambda **kw: effects.append(('play', kw))),
                                         executebuiltin=lambda value: effects.append(('builtin', value)),
-                                        getCondVisibility=lambda cond: False),
+                                        getCondVisibility=lambda cond: (effects.append(('vpn-check', cond)), False)[1]),
                    xbmcaddon=SimpleNamespace(Addon=lambda **kw: (effects.append(('addon',)), addon)[1]),
                    xbmcvfs=SimpleNamespace(translatePath=lambda path: (effects.append(('path', path)), path)[1]),
                    sqlite3=SimpleNamespace(connect=connect, PARSE_DECLTYPES=sqlite3.PARSE_DECLTYPES))
@@ -178,15 +181,23 @@ class AutoPlay(unittest.TestCase):
         self.effects.clear()
         play(['play.py', data.encode_identity('unmapped', start)])
         self.assertFalse(any(e[0] in ('setting', 'builtin', 'play') for e in self.effects))
-        # Raw command-looking mappings are only Player data, never interpreted.
-        for mapping in ['@RunScript(INERT_MARKER)', 'ActivateWindow(INERT_MARKER)',
-                        'RunScript(INERT_MARKER)']:
+        # Scheduled mappings are media-only: no folder UI or action dispatch,
+        # and no playback-marker/VPN/player effects for either input contract.
+        for value in ['@plugin://demo/action', '@RunScript(INERT_MARKER)',
+                      'ActivateWindow(10025,plugin://demo/folder,return)',
+                      'ActivateWindow(10001,plugin://demo/folder,return)',
+                      'ActivateWindow(INERT_MARKER)', 'RunScript(INERT_MARKER)']:
             self.db.execute('DELETE FROM custom_stream_url')
-            self.db.execute('INSERT INTO custom_stream_url VALUES (?, ?)', ('Station', mapping))
-            self.effects.clear()
-            play(['play.py', data.encode_identity('Station', start)])
-            self.assertIn(('play', {'item': mapping}), self.effects)
-            self.assertFalse(any(e[0] == 'builtin' for e in self.effects))
+            self.db.execute('INSERT INTO custom_stream_url VALUES (?, ?)', ('Station', value))
+            for argv in (['play.py', data.encode_identity('Station', start)],
+                         ['play.py', 'Station', start]):
+                before = dict(self.markers)
+                self.effects.clear()
+                play(argv)
+                self.assertEqual([e[0] for e in self.effects],
+                                 ['addon', 'path', 'connect', 'close', 'log'])
+                self.assertEqual(self.markers, before)
+                self.assertNotIn(value, str(self.effects[-1]))
 
     def test_actual_emitted_arguments_reach_fixed_callbacks_as_data(self):
         n = self.scheduler()

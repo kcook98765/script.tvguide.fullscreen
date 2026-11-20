@@ -4,6 +4,7 @@ Only the new, stdlib-only command_safety helper is loaded. No Kodi/stub imports.
 The tiny parser below covers unquoted examples, NOT Kodi's full grammar.
 """
 import ast
+import copy
 from functools import lru_cache
 import importlib.util
 from pathlib import Path
@@ -126,10 +127,50 @@ def check():
     assert 'executebuiltin' not in source('play.py')
     assert 'xbmc.Player().play(item=url)' in source('play.py')
     assert gui.count('self.player.play(item=url, windowed=self.osdEnabled)') >= 4
-    # Only the common Python3 syntax/logging port is allowed in this service.
+    # Task18 changes startup cleanup/schedule parsing only. Keep original callback
+    # behavior and every fixed command byte, not the old unsafe file deletions.
     expected_service = source('service.py', True).replace('xbmc.LOGNOTICE', 'xbmc.LOGINFO').replace(
         'except Exception, ex:', 'except Exception as ex:')
-    assert source('service.py') == expected_service
+    expected_tree = ast.parse(expected_service)
+    current_tree = tree('service.py')
+    def unchanged_service(module, legacy):
+        module = copy.deepcopy(module)
+        module.body = [n for n in module.body if not (isinstance(n, ast.FunctionDef) and n.name == '_time_left')]
+        for node in module.body:
+            if isinstance(node, ast.Import):
+                node.names = [n for n in node.names if n.name != 'xbmcvfs']
+        main = next(n for n in module.body if isinstance(n, ast.If))
+        if legacy:
+            # Only the two startup deletes and their marker assignment go away.
+            main.body = [n for n in main.body if not (
+                (isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)
+                 and isinstance(n.value.func, ast.Attribute) and n.value.func.attr == 'delete')
+                or (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'lock' for t in n.targets)))]
+        loop = next(n for n in ast.walk(main) if isinstance(n, ast.While))
+        if legacy:
+            loop.body = loop.body[2:]  # Old schedule arithmetic + negative clamp.
+        else:
+            assert isinstance(loop.body[0], ast.Assign)
+            assert loop.body[0].value.func.id == '_time_left'
+            loop.body = loop.body[1:]
+            abort = ast.parse('if monitor.abortRequested():\n    break').body[0]
+            assert ast.dump(loop.body[2]) == ast.dump(abort)
+            del loop.body[2]
+        return ast.dump(module)
+    # Entire unreviewed module/control flow still has to match the original port,
+    # including autostart/startup/folder gates, timestamp writes and exceptions.
+    assert unchanged_service(current_tree, False) == unchanged_service(expected_tree, True)
+    service_class = lambda module: next(n for n in module.body if isinstance(n, ast.ClassDef) and n.name == 'Service')
+    assert ast.dump(service_class(current_tree)) == ast.dump(service_class(expected_tree))
+    def fixed_commands(module):
+        calls = [n for n in ast.walk(module) if isinstance(n, ast.Call)
+                 and isinstance(n.func, ast.Attribute) and n.func.attr == 'executebuiltin']
+        assert all(len(n.args) == 1 and isinstance(n.args[0], ast.Constant)
+                   and isinstance(n.args[0].value, str) and not n.keywords for n in calls)
+        return sorted(n.args[0].value for n in calls)
+    assert fixed_commands(current_tree) == fixed_commands(expected_tree)
+    assert not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                   and n.func.attr == 'delete' for n in ast.walk(current_tree))
     print('PASS hostile delimiter rejection, digest names, encoded catchup captures, Player/source wiring')
     print('No native execution, legacy imports, stub imports or full hostile-input audit')
 

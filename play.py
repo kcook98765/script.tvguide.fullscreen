@@ -2,6 +2,7 @@ import sys
 import xbmc,xbmcaddon,xbmcvfs
 import sqlite3
 from vpnapi import VPNAPI
+from playback_mapping import route_mapping
 from autoplay_data import callback_identity
 
 
@@ -27,7 +28,12 @@ def main(argv):
     finally:
         conn.close()
     if row:
-        url = row[0]
+        url, accepted = route_mapping(row[0], xbmc.executeJSONRPC,
+            lambda message: xbmc.log('TV Guide playback mapping: ' + message, xbmc.LOGWARNING),
+            allow_folder=False)
+        if url is None:
+            # No folder UI or action execution from a scheduled background callback.
+            return
         ADDON.setSetting('playing.channel',channel)
         ADDON.setSetting('playing.start',start)
         if xbmc.getCondVisibility("System.HasAddon(service.vpn.manager)"):
