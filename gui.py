@@ -1616,7 +1616,8 @@ class TVGuide(xbmcgui.WindowXML):
         if action == ACTION_RIGHT:
             self.showNext()
         elif action == ACTION_LEFT:
-            self.showListing(programList[index].channel)
+            if 0 <= index < len(programList):
+                self.showListing(programList[index].channel)
         elif action == KEY_CONTEXT_MENU:
             if index > -1:
                 self._showContextMenu(programList[index])
@@ -1642,7 +1643,8 @@ class TVGuide(xbmcgui.WindowXML):
         if action == ACTION_LEFT:
             self.showNow()
         elif action == ACTION_RIGHT:
-            self.showListing(programList[index].channel)
+            if 0 <= index < len(programList):
+                self.showListing(programList[index].channel)
         elif action == KEY_CONTEXT_MENU:
             if index > -1:
                 self._showContextMenu(programList[index])
@@ -1734,7 +1736,8 @@ class TVGuide(xbmcgui.WindowXML):
         if action == ACTION_RIGHT:
             self.showNext()
         elif action == ACTION_LEFT:
-            self.showListing(programList[index].channel)
+            if 0 <= index < len(programList):
+                self.showListing(programList[index].channel)
         elif action == KEY_CONTEXT_MENU:
             if index > -1:
                 self._showContextMenu(programList[index])
@@ -1792,7 +1795,8 @@ class TVGuide(xbmcgui.WindowXML):
         if action == ACTION_RIGHT:
             self.showNext()
         elif action == ACTION_LEFT:
-            self.showListing(programList[index].channel)
+            if 0 <= index < len(programList):
+                self.showListing(programList[index].channel)
         elif action == KEY_CONTEXT_MENU:
             if index > -1:
                 self._showContextMenu(programList[index])
@@ -1833,7 +1837,8 @@ class TVGuide(xbmcgui.WindowXML):
         if action == ACTION_RIGHT:
             self.showNext()
         elif action == ACTION_LEFT:
-            self.showListing(programList[index].channel)
+            if 0 <= index < len(programList):
+                self.showListing(programList[index].channel)
         elif action == KEY_CONTEXT_MENU:
             if index > -1:
                 self._showContextMenu(programList[index])
@@ -1863,7 +1868,8 @@ class TVGuide(xbmcgui.WindowXML):
         if action == ACTION_RIGHT:
             self.showNext()
         elif action == ACTION_LEFT:
-            self.showListing(programList[index].channel)
+            if 0 <= index < len(programList):
+                self.showListing(programList[index].channel)
         elif action == KEY_CONTEXT_MENU:
             if index > -1:
                 self._showContextMenu(programList[index])
