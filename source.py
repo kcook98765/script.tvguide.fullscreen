@@ -47,6 +47,7 @@ import xml.etree.ElementTree as ET
 import requests
 from itertools import chain
 from bs4 import BeautifulSoup
+from settings_compat import is_meta_catchup
 from urllib.parse import urlparse
 from urllib import parse as urllib
 from html import entities as htmlentitydefs
@@ -512,7 +513,7 @@ class Database(object):
 
             if getData == True:
                 xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/category_count.ini')
-                if ADDON.getSetting('catchup.type') == "0":
+                if is_meta_catchup(ADDON.getSetting('catchup.type')):
                     catchup = ADDON.getSetting('catchup.text')
                 else:
                     catchup = ADDON.getSetting('catchup.direct')

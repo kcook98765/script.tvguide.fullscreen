@@ -36,6 +36,7 @@ import xbmcgui
 import xbmcvfs
 import colors
 import requests
+from settings_compat import is_meta_catchup
 import json
 import base64
 import source as src
@@ -2837,7 +2838,7 @@ class TVGuide(xbmcgui.WindowXML):
 
 
     def catchup(self,channel):
-        if ADDON.getSetting('catchup.type') == "0":
+        if is_meta_catchup(ADDON.getSetting('catchup.type')):
             self.catchup_meta(channel)
         else:
             self.catchup_direct(channel)
