@@ -1065,7 +1065,8 @@ class Database(object):
                 if re.search(search,cc.title,flags=re.I):
                     ids.append(cc.id)
         if not ids:
-            return
+            c.close()
+            return programList
         ids_string = '\',\''.join(ids)
         c.execute('SELECT * FROM programs WHERE channel IN (\'' + ids_string + '\') AND source=? AND start_date<=? AND end_date>=? ',
                   [self.source.KEY, now, now])
