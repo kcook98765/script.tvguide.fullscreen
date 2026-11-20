@@ -1,8 +1,11 @@
 # Intended reminder and ordinary AutoPlay event ownership (#21)
 
-Task13 is stacked on **PR20**, exact base
-`d210c1cd199b8c28cb57ec901da98f07ba9b8205` (`preserve/autoplay-data`).
-This is a focused source/database correction, **not native acceptance**.
+Task13 is a focused source/database correction for final review against main,
+**not native acceptance**. Its original implementation/evidence base is exact
+PR20 commit `d210c1cd199b8c28cb57ec901da98f07ba9b8205`.
+PR20 was normally merged as `7b130e1aa17a147e02db49e6bf2ad3f5abc350f7`;
+that pinned main was then normally merged into the private Task13 branch,
+without rewriting either history. The earlier stacked dependency is resolved.
 Refs #21, #14, #4, #6, #7, #1; all remain open.
 
 ## Observed before / after, not a native reproduction
@@ -129,7 +132,7 @@ four-lane gate. Original six-stage failures/warnings and prior negative controls
 remain; no metadata/typing cleanup is in scope. Cached offline URL checks remain
 unverified. Full static validation is **not a pass** (see review receipts).
 
-Final receipts: `task13-final-summary.json`, `task13-final-syntax38.json`,
+Pre-integration receipts: `task13-final-summary.json`, `task13-final-syntax38.json`,
 `task13-validation-baseline-matrix-six-stages.stdout`,
 `task13-validation-final2-matrix-six-stages.stdout`, and
 `task13-validation-final2-review.json`. Seven focused ownership tests, six
@@ -140,7 +143,7 @@ Matrix helper/callback typing pass. Initial test-harness failures and a temporar
 new optional-connection diagnostic are retained; the new DB operation now
 asserts its initialized connection precondition rather than ignoring typing.
 
-| Matrix runtime-only snapshot stage | Exact PR20 baseline | Final Task13 |
+| Matrix runtime-only snapshot stage | Exact PR20 baseline | Reviewed pre-integration Task13 |
 | --- | --- | --- |
 | Syntax / manifest / paths / package | PASS / PASS / PASS / PASS | Same |
 | Full-addon types | FAIL, exit1, 652 errors | FAIL, exit1, 652 errors |
@@ -157,6 +160,33 @@ Cache manifest SHA256 is
 `6ee4ed59f94aafd48469336f06e8ffb7286786e3d1e7607dcbb6e75f956c5f9f`
 (2026-10-20); no refresh/download was performed. These snapshots are local
 validation inputs, not released/installed ZIPs or new native evidence.
+
+## Main reconciliation for final source review
+
+Initial independent review accepted the focused source direction at
+`0a8a78289518f2cdae1ddef0617456b8b05046c3`. A normal, conflict-free merge of
+pinned main `7b130e1aa17a147e02db49e6bf2ad3f5abc350f7` produced
+`abc79d038955f9f501851cbf5c4fe3a3ea975537`, with those two commits as its
+ordered parents. No rebase, force push or other worktree/ref changes.
+
+`task13-main-preservation.json` records Git blob/mode identities: **all 922
+files outside the eight Task13 files exactly match pinned main**. This includes
+the combined PVR, skins and metadata source/resources/tests. The four runtime
+files (`source.py`, `notification.py`, `autoplay.py`, `command_safety.py`) remain
+byte-identical to the independently reviewed Task13 head and retained validation
+snapshot. The data helpers, fixed callbacks, manifest and both declared entry
+points are likewise unchanged. This is preservation evidence, not a native pass.
+
+`task13-main-check-summary.json` records actual subprocess returncode0 for the
+pinned-baseline reproduction and all ten combined pure scripts: ownership,
+reminders, AutoPlay data, PVR, custom skins, metadata search, command data,
+safety, Python3 and native-fixture **source** checks. Raw stdout/stderr, existing
+warnings and Python3.8 syntax evidence (`task13-main-syntax38.json`) are retained.
+No full static comparison was rerun for the integrated tree. The earlier narrow
+API/type and expected-negative evidence is reused only because its runtime
+helpers/callbacks are unchanged; it does not qualify the newly combined tree or
+resolve existing broad failures. Final independent review and any merge remain
+separate; no PR merge has been performed.
 
 **All four native stages remain DEFERRED/UNRUN for this task.** The owner has
 deferred the [Lab394 infrastructure dependency](https://github.com/kcook98765/kodi-lab/issues/394).
