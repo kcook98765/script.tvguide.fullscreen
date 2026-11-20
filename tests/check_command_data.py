@@ -89,8 +89,11 @@ def check():
         text = source(path)
         assert "alarm_name('%s', programTitle, startTime)" % kind in text
         if kind == 'autoplay':
-            assert 'if not ' in text and 'is_builtin_data(' in text
-            assert text.index('is_builtin_data(', text.index('def _schedule')) < text.index("xbmc.executebuiltin('AlarmClock")
+            assert 'is_builtin_data' not in text
+            assert 'payload = encode_identity(channelId, str(startTime))' in text
+            assert text.index('encode_identity(', text.index('def _schedule')) < text.index("xbmc.executebuiltin('AlarmClock")
+            for template in templates(path, 'AlarmClock('):
+                assert template.count('%s') == 2  # digest name + one opaque argument
         else:
             assert 'is_builtin_data' not in text and ',Notification(' not in text
             assert "alarm_command(name, token, '5mins', timeToNotification - 5)" in text

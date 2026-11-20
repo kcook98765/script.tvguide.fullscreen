@@ -36,6 +36,7 @@ import xbmcgui
 import xbmcvfs
 import colors
 import requests
+from settings_compat import is_meta_catchup
 import json
 import base64
 import source as src
@@ -46,10 +47,12 @@ from strings import *
 from rpc import RPC
 import utils
 import ActionEditor
+import action_bar
 from vpnapi import VPNAPI
 
 import streaming
 from skin_runtime import select_skin
+from image_cache import ImageCache
 
 DEBUG = False
 
@@ -359,7 +362,7 @@ class TVGuide(xbmcgui.WindowXML):
 
         self.player = xbmc.Player()
         self.database = None
-        self.tvdb_urls = {}
+        self.tvdb_urls = ImageCache(xbmcvfs.translatePath(ADDON.getAddonInfo('profile')))
 
         self.mode = MODE_EPG
         self.channel_number_input = False
@@ -1034,7 +1037,7 @@ class TVGuide(xbmcgui.WindowXML):
             program = self._getProgramFromControl(controlInFocus)
             if program:
                 self.tvdb_urls[program.title] = ''
-                self.setControlImage(self.C_MAIN_IMAGE, self.tvdb_urls[program.title])
+                self.setControlImage(self.C_MAIN_IMAGE, '')
         elif action.getId() in COMMAND_ACTIONS["SCHEDULERS_MENU"]:
             program = self._getProgramFromControl(controlInFocus)
             d = xbmcgui.Dialog()
@@ -1316,8 +1319,11 @@ class TVGuide(xbmcgui.WindowXML):
         if controlId == self.C_MAIN_ACTIONS:
             cList = self.getControl(self.C_MAIN_ACTIONS)
             pos = cList.getSelectedPosition()
-            self.action_index = pos
-            xbmc.executebuiltin(self.actions[pos][1])
+            command = action_bar.command_at(self.actions, pos)
+            if command:
+                self.action_index = pos
+                xbmc.executebuiltin(command)
+            return
         if controlId == self.C_MAIN_CATEGORY:
             cList = self.getControl(self.C_MAIN_CATEGORY)
             item = cList.getSelectedItem()
@@ -2836,7 +2842,7 @@ class TVGuide(xbmcgui.WindowXML):
 
 
     def catchup(self,channel):
-        if ADDON.getSetting('catchup.type') == "0":
+        if is_meta_catchup(ADDON.getSetting('catchup.type')):
             self.catchup_meta(channel)
         else:
             self.catchup_direct(channel)
@@ -3900,22 +3906,15 @@ class TVGuide(xbmcgui.WindowXML):
             self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 
     def saveActions(self):
-        file_name = 'special://profile/addon_data/script.tvguide.fullscreen/actions.json'
-        f = xbmcvfs.File(file_name,"wb")
-        data = json.dumps(self.actions,indent=2)
-        f.write(data)
-        f.close()
+        saved = action_bar.save(xbmcvfs.translatePath(action_bar.PROFILE), self.actions)
+        if not saved:
+            xbmcgui.Dialog().notification('TV Guide Fullscreen', 'Action bar save failed')
+        return saved
 
     def loadActions(self):
-        # Profile actions.json used to accept arbitrary Kodi builtins.
-        file_name = os.path.join(ADDON.getAddonInfo('path'), 'resources', 'actions.json')
-        f = xbmcvfs.File(file_name,"rb")
-        data = f.read()
-        f.close()
-        if data:
-            self.actions = json.loads(data)
-        else:
-            self.actions = []
+        self.actions, warning = action_bar.load(xbmcvfs.translatePath(action_bar.PROFILE))
+        if warning:
+            xbmc.log(warning, xbmc.LOGWARNING)
 
 
     def loadChannelMappings(self):

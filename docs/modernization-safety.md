@@ -181,7 +181,7 @@ reviewed with `git show 0e46733:<path>` without executing anything.
 | `addon.py:30-45` | Removed unused imports and dormant executable-bit/ffmpeg block. |
 | `gui.py:439-451,476-481` | Removed profile `pickle.load` and pickle writes entirely. Image cache remains in memory; old pickle files are never read/migrated and are not deleted from any user profile. |
 | `gui.py:131-139` | Removed profile/external skin roots. Allow only bundled `Default`, `Dark`, `CatBar`, with fallback; removed external skin settings. No remote skin Python downloader was found in the checked-in runtime. |
-| `gui.py:1443-1445,4095-4103` | Removed MINE custom builtin execution; load action-bar commands only from the installed bundled `resources/actions.json`, not profile JSON. Old settings cannot restore the execution path. |
+| `gui.py:1443-1445,4095-4103` (initial safety baseline) | Removed MINE custom builtin execution. Task17 restores profile action-bar choices only through the code-owned closed catalog, never raw profile commands; see [action-bar customization](action-bar.md). Old settings cannot restore arbitrary execution. |
 | `search.py:74-116`, `resources/favourites.xml` | Deleted external search/builtin-template dispatcher and obsolete bundled templates. Popup Search now uses internal guide search. |
 | `gui.py:1135-1178,2203-2245` | Removed external ExtendedInfo RunScript dispatch and its obsolete shared API-key requests; popup controls hidden and keymaps cannot re-enable it. |
 | `gui.py:3141-3146,3246-3250` | Removed `@` RunPlugin command mappings and direct imported `ActivateWindow` execution, including fallback route. Ordinary media/plugin playback retained. |

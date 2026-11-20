@@ -1,5 +1,73 @@
 # Task18 — service startup safety and bounded schedule repair
 
+## Integration continuation — final source review pending
+
+Initial independent source review accepted
+`f4b7921cb1fc48b52d9d7ec96110c1304171e931` on
+[PR26](https://github.com/kcook98765/script.tvguide.fullscreen/pull/26).
+The continuation normally merges **exactly** the accepted action-bar parent
+`78c92f089c47bbe15c90ed864df080080915c30d`, not a moving main. PR25 was still
+open with that exact head at pre-merge verification. This is the authorized
+reviewed-content stack, not a reimplementation of its action-bar, dependency,
+package, cache, AutoPlay or scheduling-ownership work.
+Before the Task18 merge commit, PR25 completed normal merge as
+`95611614c15414ff04bd95f09f448cc25154b0ae`; its tree and accepted `78c92f`'s
+tree both equal `1ebedbdee7630096b11c1eef42b90857c250588b` (verified through
+Git/GitHub commit metadata). The chosen Task18 merge parent remains exact `78c92f`.
+
+The merge was conflict-free. `service.py` and `tests/check_service_safety.py`
+remain byte-identical to accepted `f4b7921`. The inherited command-data guards
+combine automatically with the accepted Task18 guard block: opaque AutoPlay
+payloads, original unsafe-source/delimiter controls, callback equality, legacy
+service control-flow comparison, fixed commands and deletion prohibition remain.
+No guards were weakened and no further runtime code was edited.
+
+### Whole-tree preservation proof
+
+Git content/mode comparisons against parent `78c92f` exclude only these four
+Task18-owned paths: `service.py`, `tests/check_service_safety.py`,
+`tests/check_command_data.py`, `docs/service-safety.md`. The remaining tracked
+working tree **and index** have an empty diff and exit 0. Thus the complete
+script+service manifest, common dependency floors, settings/defaults/helper,
+all translations, action-bar implementation, cache, source/database and selector
+work, GPL/credit and every other inherited file are unchanged from that parent.
+This is stronger than checking a selected manifest or translation sample.
+The private `integration-*` evidence records the exact comparison commands.
+
+### Integrated focused evidence
+
+All eleven scripts exit 0 with a PATH-only environment and `-I -B`:
+
+| Check | Result |
+| --- | --- |
+| Service safety | 5 tests; accepted test file unchanged |
+| Command/data, safety, dependencies/settings, Python-port checks | All four pass, original negative controls retained |
+| Action bar / image cache / scheduling ownership | 4 / 12 / 7 tests |
+| AutoPlay / reminders | 6 / 6 tests |
+| Package metadata | 5 tests; 2,492 entries across 69 catalogs preserved |
+
+The existing Matrix interpreter runs the ten stdlib/pure-capture scripts;
+package metadata uses the existing Omega interpreter for its installed polib/PIL
+dependencies. Neither invokes Toolkit CLI/stubs, installs anything, nor changes
+an environment. All 45 unittest cases pass, alongside the four script checks;
+full warnings and negative controls remain in private Git admin evidence.
+`git diff --check` and staged checks pass. These are source/data/inert-capture
+results, not native scheduling or recovery acceptance.
+
+The stale-marker manual-maintenance, non-atomic lock/crash, separate existing
+database-error unlink and DB concurrency/recovery limits below remain explicit
+and unresolved. No cleanup/recovery machinery was added. No typed mappings or
+other feature implementation was imported by guessing a newer parent.
+**Lab394 remains DEFERRED; all native stages remain unrun.** No Lab, real
+profile, Toolkit CLI/config, production, lifecycle, deployment, smoke, navigation,
+logs, packaging, release or distribution operation occurred. No HOME/home/
+CODEX_HOME repurposing. No rebase, force push, canonical/other-worktree edit or
+other branch ref update. Tracking stays open; issue #14 is comment-only and its
+final body belongs to Task21. Stop at draft PR26 for final independent review;
+do not merge it.
+
+## Initial accepted implementation record
+
 Refs #2 / #3 / #7 / #14 / #1. Source-only, pending independent review.
 Base: `6d1b9162289ccc20c3ba089302dc3a149150d0be`;
 branch: `fix/service-startup-safety`. No release/distribution authorization.
