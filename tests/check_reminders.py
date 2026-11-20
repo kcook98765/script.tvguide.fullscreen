@@ -166,7 +166,8 @@ class Reminders(unittest.TestCase):
 
         calls = []
         env = dict(datetime=SimpleNamespace(datetime=Clock), alarm_name=safe.alarm_name,
-                   alarm_command=data.alarm_command, xbmc=SimpleNamespace(executebuiltin=calls.append),
+                   alarm_command=data.alarm_command, event_key=data.event_key,
+                   xbmc=SimpleNamespace(executebuiltin=calls.append),
                    strings=lambda phase, channel: '%s: %s' % (phase, channel),
                    NOTIFICATION_5_MINS='Soon', NOTIFICATION_NOW='Now',
                    time=SimpleNamespace(time=lambda: clock.timestamp()))
@@ -178,12 +179,13 @@ class Reminders(unittest.TestCase):
         program = SimpleNamespace(title=title, channel=SimpleNamespace(title=channel, id='not-display-id'), startDate=start)
         programs = [program]
         n.database = SimpleNamespace(getFullNotifications=lambda: list(programs),
+                                     source=SimpleNamespace(KEY='fixture'),
                                      addNotification=lambda p, t: programs.append(p),
                                      removeNotification=lambda p: programs.__setitem__(
                                          slice(None), [item for item in programs if item.title != p.title]),
                                      clearAllNotifications=programs.clear)
         n.scheduleNotifications()
-        name = n.createAlarmClockName(title, start)
+        name = n.createAlarmClockName(title, start, program.channel.id)
         record = self.store._read(data.event_key(name))
         token = record['token']
         self.assertEqual(record['5mins'], 'Soon: ' + channel)
@@ -195,9 +197,9 @@ class Reminders(unittest.TestCase):
         n.addNotification(survivor, 0)
         n.removeNotification(program)
         self.assertEqual(calls[-2:], ['CancelAlarm(%s-5mins,True)' % name, 'CancelAlarm(%s-now,True)' % name])
-        recurring_name = n.createAlarmClockName(recurring.title, recurring.startDate)
+        recurring_name = n.createAlarmClockName(recurring.title, recurring.startDate, recurring.channel.id)
         self.assertIn('CancelAlarm(%s-now,True)' % recurring_name, calls)
-        self.assertEqual(self.store.names(), [n.createAlarmClockName(survivor.title, survivor.startDate)])
+        self.assertEqual(self.store.names(), [n.createAlarmClockName(survivor.title, survivor.startDate, survivor.channel.id)])
         self.assertIsNone(self.store.take(token, 'now', start.timestamp()))
         calls.clear()
         n.addNotification(program, 0)
@@ -205,11 +207,11 @@ class Reminders(unittest.TestCase):
         self.assertEqual(programs, [])
         self.assertEqual(self.store.names(), [])
         calls.clear()
-        n._scheduleNotification(channel, title, clock + datetime.timedelta(minutes=2))
+        n._scheduleNotification(channel, title, clock + datetime.timedelta(minutes=2), program.channel.id)
         self.assertEqual(len(calls), 1)
         self.assertIn(',now),2,True)', calls[0])
         calls.clear()
-        n._scheduleNotification(channel, title, clock - datetime.timedelta(seconds=1))
+        n._scheduleNotification(channel, title, clock - datetime.timedelta(seconds=1), program.channel.id)
         self.assertEqual(calls, [])
 
     def test_fixed_callback_wiring(self):
