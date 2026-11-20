@@ -1534,6 +1534,12 @@ class TVGuide(xbmcgui.WindowXML):
         if not program.channel.id:
             return
         if self.player.isPlaying() and self.currentChannel and (program.channel.id == self.currentChannel.id) and ((ADDON.getSetting('play.always.choose') == "false") or (ADDON.getSetting('play.alt.choose') == 'false')):
+            from playback_mapping import parse_mapping, Kind, MappingError
+            try:
+                media_mapping = parse_mapping(self.database.getStreamUrl(program.channel)).kind == Kind.PLAY
+            except MappingError:
+                media_mapping = False
+            if media_mapping:
                 self._hideEpg()
                 self._hideQuickEpg()
                 return
@@ -1547,7 +1553,7 @@ class TVGuide(xbmcgui.WindowXML):
             self.focusPoint.y = 0
             self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 
-        if (ADDON.getSetting('play.always.choose') == "true") or not self.playChannel(program.channel, program):
+        if (ADDON.getSetting('play.always.choose') == "true") or self.playChannel(program.channel, program) is None:
             result = self.streamingService.detectStream(program.channel)
             if not result:
                 # could not detect stream, show stream setup
@@ -2956,9 +2962,8 @@ class TVGuide(xbmcgui.WindowXML):
         self.player.play(item="special://profile/addon_data/script.tvguide.fullscreen/catchup_channel.strm")
 
     def playChannel(self, channel, program = None):
-        self.playing_catchup_channel = False
-        if ADDON.getSetting('epg.video.pip') == 'true':
-            self.setControlVisible(self.C_MAIN_IMAGE,True)
+        # None means no mapping; False means cancelled/rejected (do not auto-detect).
+        from playback_mapping import route_mapping
         url = self.database.getStreamUrl(channel)
         alt_url = self.database.getAltStreamUrl(channel)
         self.alt_urls = [x[0] for x in alt_url]
@@ -2980,11 +2985,21 @@ class TVGuide(xbmcgui.WindowXML):
                 names.append("%s - %s" % (plugin,u[1]))
             names[0] = "%s" % names[0]
             result = d.select("%s" % channel.title, names)
-            if result > -1:
+            if type(result) is int and 0 <= result < len(alt_urls):
                 url = alt_urls[result]
                 self.alt_urls.remove(url)
             else:
-                return True
+                return False
+        if not url:
+            return None
+        if not url.startswith('catchup'):
+            url, accepted = route_mapping(url, xbmc.executeJSONRPC,
+                lambda message: xbmcgui.Dialog().ok('TV Guide — playback mapping', message))
+            if url is None:
+                return accepted
+        self.playing_catchup_channel = False
+        if ADDON.getSetting('epg.video.pip') == 'true':
+            self.setControlVisible(self.C_MAIN_IMAGE,True)
         if self.currentChannel:
             self.lastChannel = self.currentChannel
             s = json.dumps([self.lastChannel.id, self.lastChannel.title, self.lastChannel.lineup, self.lastChannel.logo, self.lastChannel.streamUrl, self.lastChannel.visible, self.lastChannel.weight])
@@ -3005,10 +3020,7 @@ class TVGuide(xbmcgui.WindowXML):
                 if url.startswith("plugin://plugin.video.%s/tv/play_by_name" % ADDON.getSetting('catchup.text').lower()) and program is not None:
                     title = urllib.quote(program.title)
                     url += "%s/%s/%s/%s" % (title, program.season, program.episode, program.language)
-                if url.startswith('@') or url.startswith('ActivateWindow'):
-                    # Imported mappings are media locations, not Kodi commands.
-                    return True
-                elif url[0:9] == 'plugin://':
+                if url[0:9] == 'plugin://':
                     if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
                     self.player.play(item=url, windowed=self.osdEnabled)
                 else:
@@ -3029,7 +3041,7 @@ class TVGuide(xbmcgui.WindowXML):
                 threading.Timer(1, self.waitForPlayBackStopped, [channel.title]).start()
             self.osdProgram = self.database.getCurrentProgram(self.currentChannel)
 
-        return url is not None
+        return True
 
     def playWithChannel(self, channel, program = None):
         from pvr_recording import PVRRecording
@@ -3069,9 +3081,17 @@ class TVGuide(xbmcgui.WindowXML):
                 url = self.alt_urls.pop(0)
                 #dialog.notification('Trying', url, xbmcgui.NOTIFICATION_ERROR, 5000, sound=True)
                 #TODO meta
-                if url.startswith('@') or url.startswith('ActivateWindow'):
-                    return
-                elif url[0:9] == 'plugin://':
+                from playback_mapping import route_mapping
+                url, accepted = route_mapping(url, xbmc.executeJSONRPC,
+                    lambda message: xbmcgui.Dialog().ok('TV Guide — playback mapping', message))
+                if url is None:
+                    self.tryingToPlay = False
+                    if not accepted:
+                        if not self.osdActive:
+                            self._hideOsd()
+                        self.onRedrawEPG(self.channelIdx, self.viewStartDate)
+                    return accepted
+                if url[0:9] == 'plugin://':
                     if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
                     self.player.play(item=url, windowed=self.osdEnabled)
                 else:
@@ -5743,14 +5763,6 @@ class StreamSetupDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
         elif controlId in [self.C_STREAM_ADDONS_PREVIEW, self.C_STREAM_BROWSE_PREVIEW, self.C_STREAM_FAVOURITES_PREVIEW, self.C_STREAM_STRM_PREVIEW]:
-            if self.player.isPlaying():
-                self.player.stop()
-                self.getControl(self.C_STREAM_ADDONS_PREVIEW).setLabel(strings(PREVIEW_STREAM))
-                self.getControl(self.C_STREAM_BROWSE_PREVIEW).setLabel(strings(PREVIEW_STREAM))
-                self.getControl(self.C_STREAM_FAVOURITES_PREVIEW).setLabel(strings(PREVIEW_STREAM))
-                self.getControl(self.C_STREAM_STRM_PREVIEW).setLabel(strings(PREVIEW_STREAM))
-                return
-
             stream = None
             visible = self.getControl(self.C_STREAM_VISIBILITY_MARKER).getLabel()
             if visible == self.VISIBLE_ADDONS:
@@ -5772,6 +5784,18 @@ class StreamSetupDialog(xbmcgui.WindowXMLDialog):
                 stream = self.strmFile
 
             if stream is not None:
+                from playback_mapping import route_mapping
+                stream, accepted = route_mapping(stream, xbmc.executeJSONRPC,
+                    lambda message: xbmcgui.Dialog().ok('TV Guide — playback mapping', message))
+                if stream is None:
+                    return accepted
+                if self.player.isPlaying():
+                    self.player.stop()
+                    self.getControl(self.C_STREAM_ADDONS_PREVIEW).setLabel(strings(PREVIEW_STREAM))
+                    self.getControl(self.C_STREAM_BROWSE_PREVIEW).setLabel(strings(PREVIEW_STREAM))
+                    self.getControl(self.C_STREAM_FAVOURITES_PREVIEW).setLabel(strings(PREVIEW_STREAM))
+                    self.getControl(self.C_STREAM_STRM_PREVIEW).setLabel(strings(PREVIEW_STREAM))
+                    return
                 self.player.play(item=stream, windowed=True)
                 if self.player.isPlaying():
                     self.getControl(self.C_STREAM_ADDONS_PREVIEW).setLabel(strings(STOP_PREVIEW))
