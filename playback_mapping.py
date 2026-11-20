@@ -66,8 +66,16 @@ def parse_mapping(value):
     # Unknown/malformed Kodi-looking text is not a media filename. URI data
     # (including quotes, commas, parentheses, Unicode and percent escapes) stays
     # byte-for-byte text; it is not split or decoded into command strings.
-    if re.match(r'\s*(?:XBMC\.)?[A-Za-z][\w.]*\s*\(', value, re.I):
-        raise MappingError('Unsupported legacy command mapping. No command was executed.')
+    command = re.match(r'\s*(?:XBMC\.)?([A-Za-z][\w.]*)\s*\(', value, re.I)
+    if command:
+        # A filename such as Movie (2026).mp4 is data, not a complete command
+        # expression. Never exempt malformed known wrappers merely because
+        # their trailing garbage looks like a filename suffix.
+        known = command.group(1).lower() in (
+            'activatewindow', 'playmedia', 'runplugin', 'runaddon', 'runscript')
+        filename_suffix = re.fullmatch(r'[^()]*\([^()]*\)\.[A-Za-z0-9]+', value)
+        if known or not filename_suffix:
+            raise MappingError('Unsupported legacy command mapping. No command was executed.')
     return Mapping(Kind.PLAY, value)
 
 

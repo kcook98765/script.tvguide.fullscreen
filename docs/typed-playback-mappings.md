@@ -126,7 +126,13 @@ is introduced here.
   playback retains punctuation unchanged. Refusal requires actual command shape
   (`name(`, including incomplete or unknown commands), not a name prefix:
   `PlayMediaConcert.mp4`, `RunPlugin Demo.mp4` and `RunAddon.mp4` remain media data.
-  Truly command-shaped relative filenames need an absolute media path. No generic parser.
+  A relative filename with one parenthesized portion followed directly by a
+  filename-extension suffix, such as `Movie (2026).mp4` or `Concert(HD).mkv`, is
+  also unchanged Player data, not a full command expression. This tiny recognizer
+  does not admit compound command expressions followed by a filename suffix.
+  Malformed known ActivateWindow/PlayMedia/RunPlugin/RunAddon/RunScript wrappers
+  remain rejected even with such a suffix. Unknown full command expressions and
+  extra-argument controls remain rejected. No generic parser or command execution.
 * `@plugin://` is typed RUN_ADDON but **temporarily blocked** with explanation;
   original strings, producers and toggles remain for later safe receiver work.
   It is never coerced into Player.play or folder navigation. Other windows,

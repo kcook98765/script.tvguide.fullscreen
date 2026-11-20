@@ -82,7 +82,8 @@ class Mappings(unittest.TestCase):
     def test_play_and_exact_old_formats_preserve_data(self):
         for uri in (URI, 'https://example.invalid/日本語,a(b)?q="x"&s=%22',
                     '/media/News (2026), "a".mp4', r'C:\Media\News (2026).mp4',
-                    'PlayMediaConcert.mp4', 'RunPlugin Demo.mp4', 'RunAddon.mp4'):
+                    'PlayMediaConcert.mp4', 'RunPlugin Demo.mp4', 'RunAddon.mp4',
+                    'Movie (2026).mp4', 'Concert(HD).mkv'):
             cap = Capture()
             self.assertEqual(self.route(uri, cap), (uri, False))
             self.assertEqual(cap.calls, [])
@@ -147,6 +148,9 @@ class Mappings(unittest.TestCase):
                  'ActivateWindow(10025,plugin://plugin.video.demo/a,b,return)',
                  FOLDER + ',RunScript(INERT)', 'ActivateWindow(',
                  'PlayMedia("x",resume)', 'PlayMedia("")', 'XBMC.RunScript(INERT)',
+                 'UnknownCommand(INERT)', 'UnknownCommand(INERT),RunScript(INERT)',
+                 'UnknownCommand(INERT),RunScript(INERT).mkv',
+                 'PlayMedia("x",resume).mp4', 'ActivateWindow(10025,x,return).mkv',
                  None, '', URI + '\n', '@@' + URI]
         for value in cases:
             with self.subTest(value=value):
