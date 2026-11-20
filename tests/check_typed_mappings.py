@@ -83,7 +83,8 @@ class Mappings(unittest.TestCase):
         for uri in (URI, 'https://example.invalid/日本語,a(b)?q="x"&s=%22',
                     '/media/News (2026), "a".mp4', r'C:\Media\News (2026).mp4',
                     'PlayMediaConcert.mp4', 'RunPlugin Demo.mp4', 'RunAddon.mp4',
-                    'Movie (2026).mp4', 'Concert(HD).mkv'):
+                    'Movie (2026).mp4', 'Concert(HD).mkv',
+                    'Movie (Part 1) (2026).mp4', 'Concert(HD).director.mkv'):
             cap = Capture()
             self.assertEqual(self.route(uri, cap), (uri, False))
             self.assertEqual(cap.calls, [])

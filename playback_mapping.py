@@ -73,8 +73,9 @@ def parse_mapping(value):
         # their trailing garbage looks like a filename suffix.
         known = command.group(1).lower() in (
             'activatewindow', 'playmedia', 'runplugin', 'runaddon', 'runscript')
-        filename_suffix = re.fullmatch(r'[^()]*\([^()]*\)\.[A-Za-z0-9]+', value)
-        if known or not filename_suffix:
+        filename_suffix = re.search(r'\.[A-Za-z0-9]+$', value)
+        compound = re.search(r'\)\s*,\s*(?:XBMC\.)?[A-Za-z][\w.]*\s*\(', value, re.I)
+        if known or compound or not filename_suffix:
             raise MappingError('Unsupported legacy command mapping. No command was executed.')
     return Mapping(Kind.PLAY, value)
 
