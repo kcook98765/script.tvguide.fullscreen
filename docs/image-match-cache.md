@@ -9,8 +9,11 @@ proposed. The original cache head `5951059527ce6c54dc0dce8de1ed62d9598b25f2`
 received independent source review without a requested implementation correction.
 Normal merge `ffea37ace89a60f3373fe8c8720871741dab8800` incorporates pinned reviewed
 main `6d1b9162289ccc20c3ba089302dc3a149150d0be` (PR19 metadata, retaining reviewed
-skin/PVR work). Final combined source review remains pending. No AutoPlay or
-schedule-ownership changes are duplicated here.
+skin/PVR work). A subsequent normal merge
+`3bc6a084f49fb83c6c5c726e5e0a1bc193af828e` incorporates reviewed scheduler main
+`a9e916e2e02f4125234cc7fd54d8ab4e2b5b7994` (PR20/PR23). Final combined source
+review remains pending. AutoPlay/schedule-ownership changes come only from that
+reviewed main; no independent scheduler changes are duplicated here.
 
 ## Behavior restored and original data meaning
 
@@ -149,7 +152,7 @@ summary reader's exit0/completed status is not validator success. Matrix static
 
 ### Reviewed-main integration evidence
 
-The current integration base is exactly `6d1b9162289ccc20c3ba089302dc3a149150d0be`;
+The first integration base was exactly `6d1b9162289ccc20c3ba089302dc3a149150d0be`;
 the merge preserves both parents without rebase or rewriting the reviewed cache
 commit. The helper, reset integration, cache tests and complete manifest remain
 **byte-identical** to `5951059`. The merged `gui.py` is exactly pinned main plus
@@ -164,6 +167,35 @@ Private `integration-*` receipts in `.cache/task12/` preserve actual subprocess
 returncodes, stdout/stderr and byte-preservation assertions. The unchanged narrow
 Matrix type/API receipts and their expected exit1 negative control remain valid
 for their exact unchanged inputs; no broad six-stage rerun is claimed.
+
+### Final scheduler-main integration evidence
+
+Remote main was verified at exactly `a9e916e2e02f4125234cc7fd54d8ab4e2b5b7994`
+before merging. Normal merge `3bc6a084f49fb83c6c5c726e5e0a1bc193af828e` preserves
+both the prior Task12 head `873f00187e246dfb981191fbbbf7d22401d881cb` and pinned
+main as parents. No conflict resolution, import rearrangement or runtime edit was
+needed. **Helper, reset integration, cache tests and manifest remain byte-identical
+to independently reviewed `5951059`; the complete GUI is byte-identical to
+`873f001` and equals current main plus exactly the original three cache edits.**
+
+The complete main-relative delta remains only the five Task12 paths:
+`image_cache.py`, `gui.py`, `ResetDatabase.py`, `tests/check_image_cache.py`, and
+this document. All other main files are unchanged. Additional explicit byte/hash
+checks preserve `play.py`/`stop.py` decoded callbacks, `autoplay_data.py`, scoped
+`autoplay.py`/`notification.py`/`command_safety.py`, `source.py` selection/clear
+joins, reminder helpers, both entrypoints, metadata/PVR/skin helpers and manifest.
+This combines reviewed implementations; it does not broaden their documented
+ownership, callback, recurring-selection or in-flight cancellation guarantees.
+
+**Eleven focused scripts exit0**: cache12, schedule-ownership7, AutoPlay6,
+reminders6, metadata11, skins12, PVR12, fixtures4, safety, command-data and Python3.
+Python3.8 AST, main-relative path/byte preservation and diff checks also exit0.
+`.cache/task12/scheduler-integration-*` stores commands, raw stdout/stderr, actual
+subprocess returncodes and SHA-256 assertions; previous evidence is retained.
+Test commands use isolated Python with PATH-only child environments and ordinary
+disposable temp directories: HOME/home/CODEX_HOME are not repurposed. No broad
+six-stage rerun or new native qualification is claimed; unchanged narrow cache
+type/API receipts, negative controls and historical broad failures remain.
 
 ### Native routing status — explicitly DEFERRED
 
