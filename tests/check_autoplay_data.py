@@ -64,6 +64,9 @@ class AutoPlay(unittest.TestCase):
         self.n = cls.__new__(cls)
         self.programs, self.added = [], []
         self.n.database = SimpleNamespace(
+            source=SimpleNamespace(KEY='fixture'),
+            getAutoplayAlarmIdentities=lambda: [(p.channel.id, p.title, p.startDate, 'fixture')
+                                               for p in self.programs],
             getFullAutoplays=lambda: list(self.programs),
             addAutoplay=lambda p, t: (self.programs.append(p), self.added.append((p, t))),
             removeAutoplay=lambda p: self.programs.__setitem__(slice(None), [
@@ -108,13 +111,13 @@ class AutoPlay(unittest.TestCase):
             self.calls.clear()
             p = self.program(channel=value)
             n.addAutoplay(p, 0)
-            name = n.createAlarmClockName(p.title, p.startDate)
+            name = n.createAlarmClockName(p.title, p.startDate, p.channel.id)
             token = data.encode_identity(value, str(p.startDate))
             self.assertEqual(data.decode_identity(token), (value, str(p.startDate)))
-            self.assertEqual(self.calls, [
+            self.assertEqual([c for c in self.calls if c.startswith('AlarmClock(')], [
                 'AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s),8,True)' % (name, token),
                 'AlarmClock(%s-stop,RunScript(special://home/addons/script.tvguide.fullscreen/stop.py,%s),43,True)' % (name, token)])
-            for command in self.calls:
+            for command in [c for c in self.calls if c.startswith('AlarmClock(')]:
                 self.assertRegex(command, r'\AAlarmClock\(tvguide-autoplay-[0-9a-f]{64}-(start|stop),'
                                  r'RunScript\(special://home/addons/script\.tvguide\.fullscreen/'
                                  r'(play|stop)\.py,v1_[A-Za-z0-9_-]+\),[0-9]+,True\)\Z')
@@ -132,11 +135,11 @@ class AutoPlay(unittest.TestCase):
         self.settings['autoplays.stop'] = 'false'
         self.calls.clear()
         n.scheduleAutoplays()
-        self.assertEqual(self.calls, reconstructed[:1])
+        self.assertEqual(self.calls, reconstructed[:3])
         # Preserve old floor rounding, negative padding and past-start skip.
         self.calls.clear()
         n._scheduleAutoplay('Station', 'Soon', self.clock + datetime.timedelta(seconds=30), p.endDate)
-        self.assertTrue(self.calls[0].endswith(',-2,True)'))
+        self.assertTrue(self.calls[-1].endswith(',-2,True)'))
         self.calls.clear()
         n._scheduleAutoplay('Station', 'Past', self.clock - datetime.timedelta(seconds=1), p.endDate)
         self.assertEqual(self.calls, [])
@@ -193,7 +196,7 @@ class AutoPlay(unittest.TestCase):
             p = self.program(channel=value)
             self.calls.clear()
             n._scheduleAutoplay(value, p.title, p.startDate, p.endDate)
-            for command in self.calls:
+            for command in [c for c in self.calls if c.startswith('AlarmClock(')]:
                 match = re.fullmatch(r'AlarmClock\(tvguide-autoplay-[0-9a-f]{64}-(?:start|stop),'
                                      r'RunScript\(special://home/addons/script\.tvguide\.fullscreen/'
                                      r'(play|stop)\.py,(v1_[A-Za-z0-9_-]+)\),[0-9]+,True\)', command)
@@ -246,24 +249,28 @@ class AutoPlay(unittest.TestCase):
         self.assertEqual(self.programs, [other])
         for program in (p, repeat):
             for phase in ('start', 'stop'):
-                self.assertIn('CancelAlarm(%s-%s,True)' % (n.createAlarmClockName(program.title, program.startDate), phase), self.calls)
+                self.assertIn('CancelAlarm(%s-%s,True)' % (n.createAlarmClockName(program.title, program.startDate, program.channel.id), phase), self.calls)
         self.calls.clear()
         n.clearAutoplays()
         self.assertEqual(self.programs, [])
         self.assertEqual(self.calls, ['CancelAlarm(%s-%s,True)' %
-                                     (n.createAlarmClockName(other.title, other.startDate), phase)
+                                     (name, phase) for name in
+                                     (safe.alarm_name('autoplay', other.title, other.startDate),
+                                      n.createAlarmClockName(other.title, other.startDate, other.channel.id))
                                      for phase in ('start', 'stop')])
         self.calls.clear()
         n.scheduleAutoplays()
         self.assertEqual(self.calls, [])
 
     def test_db_rows_and_retained_selection_service_gui_contracts(self):
-        # Keep the actual recurrence selection, not a reimplementation of it.
+        # Task13 deliberately corrects selectors; all other DB/service contracts
+        # from task11 stay unchanged. Real selector acceptance is in ownership tests.
         baseline = ast.parse(subprocess.check_output(['git', 'show', BASE + ':source.py'], cwd=ROOT))
         source = ast.parse((ROOT / 'source.py').read_text())
-        def selection(tree):
-            return next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == '_getFullAutoplays')
-        self.assertEqual(ast.dump(selection(source)), ast.dump(selection(baseline)))
+        for name in ('_addAutoplay', '_removeAutoplay', '_clearAllAutoplays', '_getFullAutoplaywiths'):
+            def selection(tree):
+                return next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == name)
+            self.assertEqual(ast.dump(selection(source)), ast.dump(selection(baseline)))
         gui = (ROOT / 'gui.py').read_text()
         self.assertIn('times = ["once","always","new","daily"]', gui)
         self.assertIn('self.autoplay.addAutoplay(program, when)', gui)
