@@ -987,7 +987,7 @@ class TVGuide(xbmcgui.WindowXML):
         currentFocus = self.focusPoint
         try:
             controlInFocus = self.getFocus()
-            if controlInFocus in [elem.control for elem in self.controlAndProgramList]:
+            if any(self._sameControl(controlInFocus, elem.control) for elem in self.controlAndProgramList):
                 (left, top) = controlInFocus.getPosition()
                 currentFocus = Point()
                 currentFocus.x = left + (controlInFocus.getWidth() // 2)
@@ -1239,7 +1239,7 @@ class TVGuide(xbmcgui.WindowXML):
         currentFocus = self.quickFocusPoint
         try:
             controlInFocus = self.getFocus()
-            if controlInFocus in [elem.control for elem in self.quickControlAndProgramList]:
+            if any(self._sameControl(controlInFocus, elem.control) for elem in self.quickControlAndProgramList):
                 (left, top) = controlInFocus.getPosition()
                 currentFocus = Point()
                 currentFocus.x = left + (controlInFocus.getWidth() // 2)
@@ -2151,7 +2151,7 @@ class TVGuide(xbmcgui.WindowXML):
         if not control:
             return
         debug('setFocus %d' % control.getId())
-        if control in [elem.control for elem in self.controlAndProgramList]:
+        if any(self._sameControl(control, elem.control) for elem in self.controlAndProgramList):
             debug('Focus before %s' % self.focusPoint)
             (left, top) = control.getPosition()
             if left > self.focusPoint.x or left + control.getWidth() < self.focusPoint.x:
@@ -2162,7 +2162,7 @@ class TVGuide(xbmcgui.WindowXML):
         super(TVGuide, self).setFocus(control)
 
     def setQuickFocus(self, control):
-        if control in [elem.control for elem in self.quickControlAndProgramList]:
+        if any(self._sameControl(control, elem.control) for elem in self.quickControlAndProgramList):
             (left, top) = control.getPosition()
             if left > self.quickFocusPoint.x or left + control.getWidth() < self.quickFocusPoint.x:
                 self.quickFocusPoint.x = left
@@ -4318,15 +4318,27 @@ class TVGuide(xbmcgui.WindowXML):
 
         return None
 
+    def _sameControl(self, first, second):
+        # getControl/getFocus can return distinct Python wrappers for one native
+        # control. IDs are local to this window; zero means not attached.
+        if first is None or second is None:
+            return False
+        try:
+            first_id = first.getId()
+            second_id = second.getId()
+        except (AttributeError, RuntimeError):
+            return False
+        return first_id is not None and first_id > 0 and first_id == second_id
+
     def _getProgramFromControl(self, control):
         for elem in self.controlAndProgramList:
-            if elem.control == control:
+            if self._sameControl(elem.control, control):
                 return elem.program
         return None
 
     def _getQuickProgramFromControl(self, control):
         for elem in self.quickControlAndProgramList:
-            if elem.control == control:
+            if self._sameControl(elem.control, control):
                 return elem.program
         return None
 
