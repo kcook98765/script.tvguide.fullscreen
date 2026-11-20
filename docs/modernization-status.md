@@ -1,9 +1,9 @@
 # Current fork feature and qualification status
 
-Settled runtime source: **`5e83b888e3b82dd621da6b1576f6daea0d06747c`**,
-tree `432a21d9f1ef4a99be782492880b678a5dbf8e55`. All focused runtime PRs through
-#28 are merged. **Source presence/review is not native acceptance or full legacy
-parity.** Overall acceptance: [#1][overall]; preservation and original research:
+Settled runtime source: **`84b171b15562609d1af0db30c6059af21d71e763`**,
+tree `0eda7048376fac5e5965fc5e62f26eb739f1ad2f`. The focused runtime work and
+blank-logo repair are merged. **Source presence/review is not native acceptance
+or full legacy parity.** Overall acceptance: [#1][overall]; preservation and original research:
 [#14][preservation]; dependencies/settings: [#3][dependencies]. Older focused
 docs retain review-time evidence; this table describes the current merged source.
 
@@ -21,7 +21,7 @@ docs retain review-time evidence; this table describes the current merged source
 | Artwork, delete-image suppression, persistent image matches | Art paths **retained/unverified**; persistence **replaced, partial** | [Bounded JSON cache](image-match-cache.md): **no pickle migration**. Legacy lookup-service health and interprocess last-writer-wins behavior remain unresolved. |
 | Media/plugin mappings, alternates, ini/M3U/TSV/subscriptions, catchup/play-beginning | Ordinary paths **retained**; stream/folder dispatch **partially replaced** | [Typed playback and safe video/Programs folders](typed-playback-mappings.md) are not RunPlugin-equivalent **`@` actions**, which remain temporarily blocked. Scheduled AutoPlay is media-only; receiver/catchup contracts still need native acceptance. |
 | Key editor, bundled actions, custom action bar/MINE | Key editor **retained**; action customization **partially replaced** | [Closed action catalog](action-bar.md) supports hide/order/label/image choices, not arbitrary custom commands or MINE execution. |
-| Providers, settings, logos/backgrounds, VPN, backup/import/export/reset | **Retained, unverified natively** | [Dependencies/defaults](dependencies-settings.md) establish source/catalog availability, not installation, provider/network or settings persistence. TLS verification remains; no secret logging or downloaded Python restoration. |
+| Providers, settings, logos/backgrounds, VPN, backup/import/export/reset | **Retained, unverified natively** | [Dependencies/defaults](dependencies-settings.md) are source/catalog evidence, not installation/provider/persistence acceptance. [Blank-logo PNG repair (#30)](https://github.com/kcook98765/script.tvguide.fullscreen/pull/30): four actual-Pillow cases pass; ordinary/white-background pixels unchanged. TLS verification remains; no secret logging or downloaded Python restoration. |
 | Background updates, autostart, reminder/AutoPlay reconstruction | Both script/service declarations and functions **retained** | [Startup safety and saved scheduling](service-safety.md) repaired; stale-marker, database/recovery and race limits remain. Enabled state or startup markers alone do not prove background work. |
 | Package metadata, artwork declarations, translations | **Retained with bounded modernization** | [Package/language notes](package-metadata.md): **69 catalogs / 2,492 entries** preserved; three legacy language identities/variants remain unresolved. Not distribution or checker acceptance. |
 | Proposed permanent feature removals | **None** | Only downloaded-code/arbitrary-command mechanisms are approved removed. All other gaps above remain restoration/acceptance work or require an explicit owner decision. |
@@ -29,38 +29,40 @@ docs retain review-time evidence; this table describes the current merged source
 ## Qualification
 
 **Full validation: FAIL on all four lanes; source readiness: PARTIAL.** Task22
-measured exact runtime baseline `5e83b888e3b82dd621da6b1576f6daea0d06747c`:
-**all 16 focused scripts exited 0** (96 unittest cases plus 4 script checks).
-Each lane **PASSED syntax, manifest, paths and package**, but failed both types
-and official checker. These are actual results, not clean qualification.
+completed the gate on exact `84b171b`: **all 17 focused scripts exited 0**
+(100 unittest cases plus 4 assertion scripts). Each lane **PASSED syntax,
+manifest, paths and package**, but failed types and official checker.
 
 | Intended native target | Types | Official checker | CLI / JSON exit | Native acceptance |
 | --- | --- | --- | --- | --- |
-| Matrix **19.4** ([#8][n8]) | **FAIL**, 644 errors | **FAIL**, 3 errors / 9 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Nexus **20.5** ([#9][n9]) | **FAIL**, 644 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Omega **21.3** ([#10][n10]) | **FAIL**, 644 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Piers **22 RC2** ([#11][n11]) | **FAIL**, 618 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Matrix **19.4** ([#8][n8]) | **FAIL**, 643 errors | **FAIL**, 3 errors / 9 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Nexus **20.5** ([#9][n9]) | **FAIL**, 643 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Omega **21.3** ([#10][n10]) | **FAIL**, 643 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Piers **22 RC2** ([#11][n11]) | **FAIL**, 617 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
 
 The checker errors on every lane concern the retained `Georgian`, `Haitian
 (Haitian Creole)` and `Vietnamese (Viet Nam)` locale directories; see
 [language identity/variant limits](package-metadata.md#localization-evidence-and-unresolved-variants).
-Typing remains unresolved: **the diagnostics are not all classified as false
-positives**. All warnings and negative-control diagnostics remain preserved,
-including focused-check stderr; table warning counts are the official checker's.
-Task22's final machine summary/bounded diagnostic classification is still pending.
+Typing remains unresolved, **not all false positives**. `gui.py`'s `playOrChoose`
+optional-Database `getStreamUrl` access remains static uncertainty, not a proven
+new runtime failure. Only the logo optional-index diagnostic was removed per lane;
+no normalized type diagnostics were added and checker diagnostics are unchanged.
+All warnings/negative controls remain preserved, including focused stderr; table
+warning counts are the official checker's.
 Matrix's static lane is **19.5**, not native19.4 proof; Piers remains bounded RC2
 prerelease/static coverage, not all-platform or all-runtime correctness.
 
-The supervisor independently rehashed **912 runtime files / 4,888,259 bytes**
-against exact Git blobs/modes: no mismatches, extra or missing files. Aggregate
-runtime SHA-256: `9b792b52e31cace7bc50ee816ae30f5f5173c4efeefb5dd3b6c6823d4676ac6e`.
-Private Task22 evidence is retained at
-`.git/modernization-evidence/task22-final-qualification/`: `runtime-inventory.json`
-defines the digest algorithm/inventory; `focused-results.json` and each lane's
-`*-validate.stdout` / `*-validate.receipt.json` retain raw results and actual exits.
-These receipts apply to this immutable runtime payload; applicability to later
-docs-only main requires **independent payload-equality verification**, not merely
-a docs-only label. No validation was rerun for this documentation update.
+After the run, the supervisor independently verified **912 runtime files /
+4,888,353 bytes**, exact Git blobs/modes and aggregate SHA-256
+`4883108c5ffea0c1e9199088e86c1bd808e02de1f5ff1101262d29e61a429edd`.
+Only `ResizeLogos.py` differs from the prior runtime; all modes and 911 other
+files match. Task22's private receipt bundle is
+`.git/modernization-evidence/task22-final-qualification/logo-followup-84b171b/`:
+`gate-summary.json`, `comparison-to-5e83.json`, `bounded-classification.json`
+and `receipt-index.json` locate results, limits and hashed raw evidence;
+`runtime-inventory.json` defines the aggregate algorithm. Original gate receipts
+remain historical. Applicability to later docs-only main requires **independent
+payload-equality verification**; no validation was rerun for these docs.
 
 [Toolkit31](https://github.com/kcook98765/kodi-agent-toolkit/issues/31)
 (`start="login"` path classification) and
@@ -74,8 +76,8 @@ consented full-manifest cold activation, not proof Kodi cannot run script+servic
 fixed-video smoke ineligibility is not whole-add-on failure. No native retry or
 workaround is authorized while deferred.
 
-Future separately authorized acceptance remains sequential **Matrix → Nexus →
-Omega → Piers**: dependencies/install/consented full-manifest activation →
+After deferred Lab394 is resolved, resume acceptance sequentially **Matrix →
+Nexus → Omega → Piers**: dependencies/install/consented full-manifest activation →
 `development_launch` **ordinal 0** → independently verified background updates
 and reminder/AutoPlay reconstruction and actual work → XMLTV/guide navigation,
 playback/settings persistence → clean stop and bounded logs. Enabled state or
