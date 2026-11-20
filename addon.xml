@@ -15,16 +15,19 @@ provider-name="primaeval">
     </extension>
     <extension point="xbmc.service" library="service.py"/>
     <extension point="xbmc.addon.metadata">
-        <description lang="en">Possibly the most powerful TV Guide in the world. ;) Thanks for the major contributions from: iainmacleod, im85288, RayW1986, bluezed, andy, Zomboided, tycoo, kjb86, Doctor-Eggs</description>
-        <disclaimer lang="en">Based on the original TV Guide addon by twinther, FTV Guide and Midraal's fork.</disclaimer>
-        <language></language>
+        <summary lang="en_GB">Fullscreen TV guide with XMLTV listings.</summary>
+        <description lang="en_GB">Possibly the most powerful TV Guide in the world. ;) Thanks for the major contributions from: iainmacleod, im85288, RayW1986, bluezed, andy, Zomboided, tycoo, kjb86, Doctor-Eggs</description>
+        <disclaimer lang="en_GB">Based on the original TV Guide addon by twinther, FTV Guide and Midraal's fork.</disclaimer>
         <platform>all</platform>
         <license>GPLv2</license>
         <forum>http://forum.kodi.tv/showthread.php?tid=282157</forum>
-        <source>https://github.com/primaeval/script.tvguide.fullscreen</source>
+        <source>https://github.com/kcook98765/script.tvguide.fullscreen</source>
         <website>https://github.com/primaeval/script.tvguide.fullscreen</website>
         <email>primaeval</email>
-        <news>
-        </news>
+        <news>Development: modernize package metadata and language directory names while preserving translations and upstream credits. Native compatibility testing remains pending.</news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
     </extension>
 </addon>
