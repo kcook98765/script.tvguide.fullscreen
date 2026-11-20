@@ -4791,10 +4791,12 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
 
         if not self.program.title:
             labelControl.setEnabled(False)
-            programdescriptionControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(77000)'):
+                programdescriptionControl.setEnabled(False)
             programLabelControl.setEnabled(False)
             programDateControl.setEnabled(False)
-            programDateandEndTimeControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(77003)'):
+                programDateandEndTimeControl.setEnabled(False)
             programImageControl.setEnabled(False)
             remindControl.setEnabled(False)
             autoplayControl.setEnabled(False)
@@ -4804,15 +4806,22 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
             programTitleControl.setEnabled(False)
             programPlayBeginningControl.setEnabled(False)
             programSuperFavourites.setEnabled(False)
-            programDurationControl.setEnabled(False)
-            programProgressInfoControl.setEnabled(False)
-            programProgressBarControl.setEnabled(False)
-            nextprogramTitleControl.setEnabled(False)
-            nextprogramDateControl.setEnabled(False)
-            setupChannelTitleControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(4103)'):
+                programDurationControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(4104)'):
+                programProgressInfoControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsEnabled(4105)'):
+                programProgressBarControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(4106)'):
+                nextprogramTitleControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(4107)'):
+                nextprogramDateControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(44101)'):
+                setupChannelTitleControl.setEnabled(False)
         if not self.program.channel:
             playControl.setEnabled(False)
-            stopControl.setEnabled(False)
+            if xbmc.getCondVisibility('Control.IsVisible(44000)'):
+                stopControl.setEnabled(False)
             self.getControl(self.C_POPUP_CHOOSE_STREAM).setEnabled(False)
             self.getControl(self.C_POPUP_CHOOSE_STREAM_2).setEnabled(False)
             self.getControl(self.C_POPUP_REMOVE_STREAM).setEnabled(False)
