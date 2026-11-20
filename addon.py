@@ -57,8 +57,6 @@ if ADDON.getAddonInfo('id').endswith('fullscreen'):
         if not xbmcvfs.exists(dst):
             xbmcvfs.copy(src,dst)
 
-xbmcvfs.copy('special://home/addons/script.tvguide.fullscreen/resources/actions.json','special://profile/addon_data/script.tvguide.fullscreen/actions.json')
-
 try:
     import gui
     w = gui.TVGuide()

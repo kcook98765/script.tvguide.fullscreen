@@ -46,6 +46,7 @@ from strings import *
 from rpc import RPC
 import utils
 import ActionEditor
+import action_bar
 from vpnapi import VPNAPI
 
 import streaming
@@ -1316,8 +1317,11 @@ class TVGuide(xbmcgui.WindowXML):
         if controlId == self.C_MAIN_ACTIONS:
             cList = self.getControl(self.C_MAIN_ACTIONS)
             pos = cList.getSelectedPosition()
-            self.action_index = pos
-            xbmc.executebuiltin(self.actions[pos][1])
+            command = action_bar.command_at(self.actions, pos)
+            if command:
+                self.action_index = pos
+                xbmc.executebuiltin(command)
+            return
         if controlId == self.C_MAIN_CATEGORY:
             cList = self.getControl(self.C_MAIN_CATEGORY)
             item = cList.getSelectedItem()
@@ -3900,22 +3904,15 @@ class TVGuide(xbmcgui.WindowXML):
             self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 
     def saveActions(self):
-        file_name = 'special://profile/addon_data/script.tvguide.fullscreen/actions.json'
-        f = xbmcvfs.File(file_name,"wb")
-        data = json.dumps(self.actions,indent=2)
-        f.write(data)
-        f.close()
+        saved = action_bar.save(xbmcvfs.translatePath(action_bar.PROFILE), self.actions)
+        if not saved:
+            xbmcgui.Dialog().notification('TV Guide Fullscreen', 'Action bar save failed')
+        return saved
 
     def loadActions(self):
-        # Profile actions.json used to accept arbitrary Kodi builtins.
-        file_name = os.path.join(ADDON.getAddonInfo('path'), 'resources', 'actions.json')
-        f = xbmcvfs.File(file_name,"rb")
-        data = f.read()
-        f.close()
-        if data:
-            self.actions = json.loads(data)
-        else:
-            self.actions = []
+        self.actions, warning = action_bar.load(xbmcvfs.translatePath(action_bar.PROFILE))
+        if warning:
+            xbmc.log(warning, xbmc.LOGWARNING)
 
 
     def loadChannelMappings(self):
