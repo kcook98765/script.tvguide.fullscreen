@@ -27,13 +27,44 @@
 import xbmcaddon
 import notification
 import autoplay
-import xbmc, xbmcgui, xbmcvfs
+import xbmc, xbmcgui
 import source
 import time
 import time, datetime
 
 def log(x):
     xbmc.log(repr(x))
+
+
+def _time_left(schedule_type, interval, daily_time, last_update, now):
+    """Read legacy schedule strings without rewriting settings or polling."""
+    if schedule_type in ('1', 'Time'):
+        try:
+            hms = daily_time.split(':')
+            next_time = now.replace(hour=int(hms[0]), minute=int(hms[1]),
+                                    second=0, microsecond=0)
+        except (ValueError, IndexError):
+            # Same daily default as settings.xml; empty/malformed saves must wait.
+            next_time = now.replace(hour=3, minute=33, second=0, microsecond=0)
+        if next_time < now:
+            next_time += datetime.timedelta(hours=24)
+    else:
+        # '0', the legacy default 'Period', empty and unknown values use period.
+        try:
+            interval = int(interval)
+        except ValueError:
+            interval = 1
+        wait_time = {0: 7200, 1: 21600, 2: 43200, 3: 86400}.get(interval, 21600)
+        try:
+            last_time = datetime.datetime.fromtimestamp(float(last_update or '0.0'))
+            next_time = last_time + datetime.timedelta(seconds=wait_time)
+        except (ValueError, OverflowError, OSError):
+            # Unusable history is due now, like missing/epoch history. The normal
+            # update path records a fresh timestamp, not a zero-delay retry loop.
+            next_time = now
+    td = next_time - now
+    return max(0, td.seconds + td.days * 24 * 3600)
+
 
 class Service(object):
     def __init__(self):
@@ -68,9 +99,8 @@ if __name__ == '__main__':
         #xbmcgui.Dialog().textviewer("TV Guide Fullscreen",text)
         ADDON.setSetting('version', version)
 
-    xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/source.db-journal')
-    lock = 'special://profile/addon_data/script.tvguide.fullscreen/db.lock'
-    xbmcvfs.delete(lock)
+    # SQLite owns journal recovery; source updates own their normal lock cleanup.
+    # Startup cannot establish ownership of either file and must not delete them.
     try:
         if ADDON.getSetting('autostart') == "true":
             xbmc.executebuiltin("RunAddon(script.tvguide.fullscreen)")
@@ -84,40 +114,15 @@ if __name__ == '__main__':
                 if ADDON.getSetting('service.addon.folders') == "true":
                     xbmc.executebuiltin('RunScript(special://home/addons/script.tvguide.fullscreen/ReloadAddonFolders.py)')
             while not monitor.abortRequested():
-                if ADDON.getSetting('service.type') == '0':
-                    interval = int(ADDON.getSetting('service.interval'))
-                    waitTime = 21600  # Default 6hrs
-                    if interval == 0:
-                        waitTime = 7200   # 2hrs
-                    elif interval == 1:
-                        waitTime = 21600  # 6hrs
-                    elif interval == 2:
-                        waitTime = 43200  # 12hrs
-                    elif interval == 3:
-                        waitTime = 86400  # 24hrs
-                    ts = ADDON.getSetting('last.background.update') or "0.0"
-                    lastTime = datetime.datetime.fromtimestamp(float(ts))
-                    now = datetime.datetime.now()
-                    nextTime = lastTime + datetime.timedelta(seconds=waitTime)
-                    td = nextTime - now
-                    timeLeft = td.seconds + (td.days * 24 * 3600)
-                    xbmc.log("[script.tvguide.fullscreen] Service waiting for interval %s" % waitTime, xbmc.LOGDEBUG)
-                else:
-                    next_time = ADDON.getSetting('service.time')
-                    if next_time:
-                        hms = next_time.split(':')
-                        hour = hms[0]
-                        minute  = hms[1]
-                        now = datetime.datetime.now()
-                        next_time = now.replace(hour=int(hour),minute=int(minute),second=0,microsecond=0)
-                        if next_time < now:
-                            next_time = next_time + datetime.timedelta(hours=24)
-                        td = next_time - now
-                        timeLeft = td.seconds + (td.days * 24 * 3600)
-                if timeLeft < 0:
-                    timeLeft = 0
+                timeLeft = _time_left(ADDON.getSetting('service.type'),
+                                      ADDON.getSetting('service.interval'),
+                                      ADDON.getSetting('service.time'),
+                                      ADDON.getSetting('last.background.update'),
+                                      datetime.datetime.now())
                 xbmc.log("[script.tvguide.fullscreen] Service waiting for %d seconds" % timeLeft, xbmc.LOGDEBUG)
                 if timeLeft and monitor.waitForAbort(timeLeft):
+                    break
+                if monitor.abortRequested():
                     break
                 xbmc.log("[script.tvguide.fullscreen] Service now triggered...", xbmc.LOGDEBUG)
                 Service()

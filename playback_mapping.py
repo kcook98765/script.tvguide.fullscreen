@@ -91,9 +91,9 @@ def route_mapping(value, execute, report, allow_folder=True):
         if mapping.kind == Kind.PLAY:
             return mapping.uri, False
         if mapping.kind == Kind.RUN_ADDON:
-            raise MappingError('Alternative @ plugin actions are temporarily blocked: '
-                               'Kodi ExecuteAddon is not RunPlugin-equivalent. '
-                               'The saved mapping is retained; no action was executed.')
+            raise MappingError('Add-on action mappings (@) are temporarily unavailable. '
+                               'The saved mapping is kept. Choose a playable stream '
+                               'or a supported add-on folder.')
         if not allow_folder:
             raise MappingError('Scheduled autoplay supports media playback only. '
                                'Open this folder mapping interactively in the guide.')

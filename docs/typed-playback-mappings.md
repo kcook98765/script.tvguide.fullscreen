@@ -1,24 +1,28 @@
-# Task19 — typed playback / add-on-folder mappings (refs #14 / #6 / #7 / #1)
+# Typed playback / add-on-folder mappings (refs #14 / #6 / #7 / #1)
 
 Source-only restoration from reviewed `6d1b9162289ccc20c3ba089302dc3a149150d0be`.
 OpenCode owns the implementation; independent Codex review is still required.
 No master-history rewrite, attribution/license change, manifest/entrypoint change,
-release, distribution or merge. Both Program script and service remain. Task14's
-canonical dirty checkout and all other task worktrees are untouched.
+release, distribution or merge into main. Both Program script and service remain.
+The canonical checkout and all other task worktrees are untouched.
 
-## Pinned-main integration preparation
+## Combined reviewed parent and final source scope
 
-Initial source review accepted the practical mapping direction at
-`5dbeab22c53576d4ba579575a1efa013e232b525`. Normally merged **only** pinned main
-`891151d2318f3178df61c77fa1da6482eaade2eb` into this private branch, preserving
-history without rebase/force. This includes reviewed dependencies/settings #24,
-cache #22, scoped scheduling #23 and ordinary AutoPlay #20. This is preparation
-for independent **final** review, not acceptance/merge into main or a source freeze.
-Other reviewed PRs #27/#25/#26 and Task15 metadata are outside this reconciliation;
-a later separately supervised small main merge may be needed. Do not follow moving
-main automatically or edit another worktree/canonical checkout.
+The combined reviewed parent is exact service PR #26 head
+`10e543449907006898ee52136eb398ddccc5e22a`, normally merged into this private
+branch without rebase/force or following moving main. It includes reviewed service
+safety, action bar #25, package metadata/languages #27, dependencies/settings #24,
+cache #22, scoped scheduling #23 and ordinary AutoPlay #20. Local and GitHub head
+trees match `53e588e423e40b16afc45310b3cd04e42b4355ff`; the reported PR merge-tree
+`6346ed10f691831df83771269698712242c609c7` has exactly the same tree. This verifies
+source identity, not permission to merge the feature PR or native acceptance.
+Combined parent adoption was conflict-free; no incoming feature or test needed
+correction. Independent final review is still required. Do not edit other
+worktrees/canonical, follow moving main, or infer source freeze/publication.
 
-The only conflict was `play.py`. The resolution retains main's entire reviewed
+The independently reviewed mapping head
+`e7251f053ccaf4b6812711c439938e4735d246d6` is preserved. Its earlier `play.py`
+conflict resolution retains main's entire reviewed
 `main(argv)` opaque decoder, two-argument legacy data support, early invalid-payload
 return, parameterized SELECT, failed-connect return and `finally: conn.close()`.
 The only callback addition is the existing media-only mapping guard **after** the
@@ -35,22 +39,33 @@ command-looking-mapping-as-Player expectations were deliberately updated to the
 media-only contract; its decoder, scheduling/ownership and malformed-data tests
 remain otherwise intact.
 
-Bounded source-only checks pass: typed mappings **12**, AutoPlay **6**, scoped
-schedule ownership **7**, image cache **12**, plus command-data, source-safety and
-dependency/settings scripts. All run with the explicit Matrix tool interpreter
-and minimal PATH/LANG environment. Existing warnings and baseline negative-control
-diagnostics are retained; no broad six-stage/four-lane validation was run.
+Current bounded source-only checks pass: typed mappings **12**, AutoPlay **6**,
+service safety **5**, action bar **4**, plus command-data, source-safety and
+dependency/settings scripts. No new tests were added for reversible product copy.
+The earlier reviewed scoped-schedule **7** and image-cache **12** results remain
+historical; those files/behaviors are retained by the scope proof below. All current
+checks run with the explicit Matrix tool interpreter and minimal PATH/LANG
+environment. Existing warnings and baseline negative-control diagnostics are
+retained; no broad six-stage/four-lane validation was run.
 
-Private scope proof asserts exactly **seven** paths differ from pinned main:
+Private scope proof asserts exactly **seven** paths differ from the accepted parent:
 `gui.py`, `play.py`, `streaming.py`, `playback_mapping.py`, this document and the
 two focused mapping/AutoPlay tests. Every other tracked main file is byte-identical,
-including manifest/settings, settings_compat, source/database/scoped schedules,
-PVR, skins and cache. The adapter is byte-identical to independently reviewed
-`5dbeab2`; primary/fallback/preview/selection/favourite-import and PVR callback ASTs
-are unchanged. Removing exactly the helper import + media-only guard from the
-resolved `play.py` yields pinned main's complete AST. No old callback overwrites
-main's decoder or connection handling. Settings imports/semantics in GUI/streaming
-and the incoming ImageCache wiring are retained.
+including service and its tests, action-bar module/startup/commands/tests, package
+manifest/art/languages/tests, settings_compat, source/database/scoped schedules,
+PVR, skins and cache. The only adapter change from independently reviewed `e7251f0`
+is this actionable product message: **"Add-on action mappings (@) are temporarily
+unavailable. The saved mapping is kept. Choose a playable stream or a supported
+add-on folder."** Implementation API research stays in this document, not the
+product dialog. Parser, security checks and routing are unchanged.
+
+Primary/fallback/preview/selection/favourite-import and PVR callback ASTs are
+unchanged from `e7251f0`. The full GUI/streaming AST outside the typed-mapping
+methods matches the combined parent, including action-bar load/save/dispatch,
+settings and ImageCache wiring. `play.py` and both mapping/AutoPlay tests are
+byte-identical to reviewed `e7251f0`. Removing exactly the helper import + media-only
+guard from `play.py` yields the accepted parent's complete AST; no old callback
+overwrites main's decoder, legacy support or connection handling.
 
 ## Inventory before changes
 
@@ -71,7 +86,7 @@ Compared original `0e46733e9e5f7711f2381562cfbb98fd3b54b429`, the safety removal
 Task17 owns action-bar commands, Task16 external players, Task14 settings/requires,
 Task13 scheduler ownership, Task12 cache, Task15 metadata/languages. None are
 reimplemented here. **PR20's reviewed `main(argv)` decoder/legacy-argument handling
-is now retained by the pinned-main reconciliation above**, with this task's small
+is retained by the combined reviewed parent above**, with this task's small
 guard before bookkeeping/VPN/player. Never replace it with the initial pinned
 base's old top-level callback.
 
@@ -249,5 +264,5 @@ above is separate from static signatures. Toolkit/config/cache are untouched.
 **Lab394 DEFERRED:** no Lab calls, catalog/native probes, Start/Stop/Reset,
 workspaces, deployments, executions, UI/screenshots/logs, workarounds or production
 access. No runtime identity/generation/receipt exists for this task. Stop at draft
-PR for independent final review of the pinned-main preparation above. Any later
+PR for independent final review of the combined reviewed parent adoption above. Any later
 source-freeze reconciliation remains separately supervised. No merge into main.
