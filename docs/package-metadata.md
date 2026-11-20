@@ -161,3 +161,51 @@ production access, infrastructure/config/Toolkit changes, permission changes,
 publication or removal decision. Fixed video smoke ineligibility says nothing
 about this preserved Program+service add-on's overall functional health.
 Independent Codex review is required before any merge.
+
+## Reviewed current-main integration
+
+The sections above describe the initial package candidate and its original
+checker receipt. [Independent initial review](https://github.com/kcook98765/script.tvguide.fullscreen/pull/27#issuecomment-7026034219)
+accepted exact `006fdb5695b810234315f64da50d9c7105c7a667`, independently passed
+all five preservation tests, and visually inspected both icon versions.
+
+After dependency/settings PR24 was normally merged, Task15 normally merged exact
+main `891151d2318f3178df61c77fa1da6482eaade2eb` as
+`9f5f0b66b9b787f3756b2f6b64f343d61196e408` (no rebase or force push).
+Approved requires/settings, scheduler, cache, AutoPlay, skins and metadata source
+are retained from that main. This supersedes the initial comparison saying that
+requires still equal the older `6d1b916` baseline: they now equal reviewed main.
+
+The package test no longer freezes the entire pre-metadata manifest prefix or
+the implementation bytes of `addon.py`/`service.py` at the old baseline. It still
+checks complete extension identity/library/order, both entry files' presence and
+nonempty content, metadata semantics, GPL and assets. Dependency correctness
+remains covered separately by `check_dependencies_settings.py`. Every existing
+translation/fallback/data-loss/escape and pixel-composite control is retained.
+This allows legitimate future startup/service fixes instead of requiring their
+reversion to satisfy an unrelated package test.
+
+Durable private Git-tree evidence compares the integration to **pinned main**:
+every path outside the explicit package/docs/test ownership set has the same Git
+mode/blob, with no non-owned additions or removals. It separately proves that the
+manifest outside its metadata extension equals main, while the metadata extension,
+icon, fanart, language map and all 69 catalogs equal the reviewed package candidate.
+The integration runs only the five package tests, dependency/settings, source
+safety and command-data controls, plus changed-test Python3.8 AST/whitespace checks.
+Raw streams, actual process returncodes and path/blob proof are retained under
+`modernization-evidence/task15-package-metadata/integration-*`.
+
+Focused integration results: all five package tests **pass (actual exit0)**;
+dependency/settings, safety and command-data scripts each **exit0**, retaining
+their baseline/unsafe-data negative controls. Changed-test Python3.8 AST and
+whitespace checks pass. The proof verifies **865 non-owned main paths** by mode/blob
+and confirms **69 catalogs / 2,492 entries** with the reviewed asset/catalog bytes.
+
+The **original** Omega checker exit1 / three problems / eleven warnings is reused
+only for the unchanged metadata/localization/artwork slice; **it is not a fresh
+whole-integrated-tree checker result**. Approved dependency changes can alter its
+dependency warnings. No new official-checker/full-six-stage/four-lane or final
+combined gate is run. The three unresolved legacy directories remain intact;
+no guessed mappings or new metadata/icon changes. Native #8–#11 remain unrun under
+deferred Lab394, with no Lab/native/infrastructure/publication actions. Draft PR27
+still requires independent final review before any merge.

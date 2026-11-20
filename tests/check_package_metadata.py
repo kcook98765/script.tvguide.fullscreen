@@ -87,16 +87,21 @@ class PackageMetadataTests(unittest.TestCase):
                                   'sha256': hashlib.sha256(after).hexdigest()}, ensure_ascii=False))
         print('Preserved {} entries across 69 catalogs; only English/German gain a final LF'.format(total))
 
-    def test_manifest_metadata_only(self):
+    def test_manifest_metadata_and_entrypoint_identity(self):
         before = original('addon.xml')
         after = (ROOT / 'addon.xml').read_bytes()
-        marker = b'<extension point="xbmc.addon.metadata">'
-        self.assertEqual(before.split(marker)[0], after.split(marker)[0])
+        # Package semantics must survive legitimate dependency/startup changes.
+        # Dependency correctness has its own check_dependencies_settings suite;
+        # task-specific non-owned byte preservation is proved in private Git trees.
         old, new = ET.fromstring(before), ET.fromstring(after)
         self.assertEqual(old.attrib, new.attrib)
         self.assertEqual(new.get('version'), '0.0.445')
-        self.assertEqual([(e.get('point'), e.get('library')) for e in new.findall('extension')[:2]],
-                         [('xbmc.python.script', 'addon.py'), ('xbmc.service', 'service.py')])
+        self.assertEqual([(e.get('point'), e.get('library')) for e in new.findall('extension')],
+                         [('xbmc.python.script', 'addon.py'), ('xbmc.service', 'service.py'),
+                          ('xbmc.addon.metadata', None)])
+        for entry in new.findall('extension')[:2]:
+            self.assertTrue((ROOT / entry.get('library')).is_file())
+            self.assertTrue((ROOT / entry.get('library')).read_bytes())
         meta = new.find("extension[@point='xbmc.addon.metadata']")
         old_meta = old.find("extension[@point='xbmc.addon.metadata']")
         for tag in ('description', 'disclaimer', 'license', 'website'):
@@ -106,7 +111,7 @@ class PackageMetadataTests(unittest.TestCase):
         self.assertTrue(0 < len(meta.findtext('news').strip()) <= 1500)
         for asset in meta.findall('assets/*'):
             self.assertTrue((ROOT / asset.text).is_file())
-        for path in ('LICENSE.txt', 'addon.py', 'service.py', 'fanart.jpg'):
+        for path in ('LICENSE.txt', 'fanart.jpg'):
             self.assertEqual(original(path), (ROOT / path).read_bytes())
 
     def test_icon_exact_black_matte(self):
