@@ -28,19 +28,40 @@ docs retain review-time evidence; this table describes the current merged source
 
 ## Qualification
 
-**Task22's final non-native four-lane gate is IN PROGRESS** on exact runtime
-baseline `5e83b888e3b82dd621da6b1576f6daea0d06747c`. Final receipts are pending;
-no pass/failure cells or counts are inferred from earlier candidate reports.
+**Full validation: FAIL on all four lanes; source readiness: PARTIAL.** Task22
+measured exact runtime baseline `5e83b888e3b82dd621da6b1576f6daea0d06747c`:
+**all 16 focused scripts exited 0** (96 unittest cases plus 4 script checks).
+Each lane **PASSED syntax, manifest, paths and package**, but failed both types
+and official checker. These are actual results, not clean qualification.
 
-| Intended native target | Final non-native gate (Task22) | Native acceptance |
-| --- | --- | --- |
-| Matrix **19.4** ([#8][n8]) | **IN PROGRESS**; static lane **19.5** is not native19.4 proof | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Nexus **20.5** ([#9][n9]) | **IN PROGRESS** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Omega **21.3** ([#10][n10]) | **IN PROGRESS** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Piers **22 RC2** ([#11][n11]) | **IN PROGRESS**; bounded prerelease/static coverage | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Intended native target | Types | Official checker | CLI / JSON exit | Native acceptance |
+| --- | --- | --- | --- | --- |
+| Matrix **19.4** ([#8][n8]) | **FAIL**, 644 errors | **FAIL**, 3 errors / 9 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Nexus **20.5** ([#9][n9]) | **FAIL**, 644 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Omega **21.3** ([#10][n10]) | **FAIL**, 644 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+| Piers **22 RC2** ([#11][n11]) | **FAIL**, 618 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
 
-Historical broad typing/checker failures, all six stages, warnings and negative
-controls remain evidence for their exact inputs, not current-source success.
+The checker errors on every lane concern the retained `Georgian`, `Haitian
+(Haitian Creole)` and `Vietnamese (Viet Nam)` locale directories; see
+[language identity/variant limits](package-metadata.md#localization-evidence-and-unresolved-variants).
+Typing remains unresolved: **the diagnostics are not all classified as false
+positives**. All warnings and negative-control diagnostics remain preserved,
+including focused-check stderr; table warning counts are the official checker's.
+Task22's final machine summary/bounded diagnostic classification is still pending.
+Matrix's static lane is **19.5**, not native19.4 proof; Piers remains bounded RC2
+prerelease/static coverage, not all-platform or all-runtime correctness.
+
+The supervisor independently rehashed **912 runtime files / 4,888,259 bytes**
+against exact Git blobs/modes: no mismatches, extra or missing files. Aggregate
+runtime SHA-256: `9b792b52e31cace7bc50ee816ae30f5f5173c4efeefb5dd3b6c6823d4676ac6e`.
+Private Task22 evidence is retained at
+`.git/modernization-evidence/task22-final-qualification/`: `runtime-inventory.json`
+defines the digest algorithm/inventory; `focused-results.json` and each lane's
+`*-validate.stdout` / `*-validate.receipt.json` retain raw results and actual exits.
+These receipts apply to this immutable runtime payload; applicability to later
+docs-only main requires **independent payload-equality verification**, not merely
+a docs-only label. No validation was rerun for this documentation update.
+
 [Toolkit31](https://github.com/kcook98765/kodi-agent-toolkit/issues/31)
 (`start="login"` path classification) and
 [Toolkit32](https://github.com/kcook98765/kodi-agent-toolkit/issues/32)

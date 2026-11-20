@@ -9,8 +9,10 @@ Intended targets: **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2**.
 All four native acceptance lanes are **BLOCKED/UNRUN**; the
 [Lab394 activation dependency](https://github.com/kcook98765/kodi-lab/issues/394)
 is explicitly deferred. Current source has not been deployed or native-tested.
-Task22's final non-native four-lane gate is **in progress** on runtime baseline
-`5e83b888e3b82dd621da6b1576f6daea0d06747c`; no final static result is claimed yet.
+On runtime baseline `5e83b888`, Task22's 16 focused scripts pass, but full
+validation **FAILS on all four static lanes** (typing and official checker).
+Source readiness is **PARTIAL**, not clean qualification; see the
+[measured results and limits](docs/modernization-status.md#qualification).
 
 ## What is being preserved?
 
