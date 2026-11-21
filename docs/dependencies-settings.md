@@ -258,8 +258,12 @@ inert VFS/logo fakes: true/false/empty values, missing icons, folder-match prece
 TheLogoDB opt-in/keep rules, and an in-memory raw-string negative control.
 At A2, the URL-source branch computed but did not assign a replacement logo;
 that limitation was deliberately preserved for separate review.
-No cache invalidation/forced refresh is added. Native persistence/display testing
-and the full Toolkit gate remain pending; private evidence: `.git/modernization-evidence/alpha-A2-logos/`.
+No cache invalidation/forced refresh is added. A2 itself did not run native
+persistence/display testing or the full Toolkit gate; private evidence:
+`.git/modernization-evidence/alpha-A2-logos/`. The later
+[final overview](modernization-status.md#qualification) records GEN7 fresh
+Omega/Nexus parses with the false flag, 244 XML icons and zero database logos,
+plus the final four-lane static FAIL. This does not accept every logo mode.
 
 ### Alpha A3: restore the explicit URL logo source
 
@@ -269,8 +273,22 @@ XMLTV icons even when `xmltv.logos` is off or no icon exists. Case/spaces, folde
 matching, empty-base fallback, and TheLogoDB Always / If Missing / keep precedence
 are retained; no URL encoding, probing or download is added. The same parser tests
 replace A2's broken-URL expectations and cover trailing slashes and precedence.
-Native display/reachability and full-gate validation remain pending; private
-evidence: `.git/modernization-evidence/alpha-A3-url-logos/`.
+A3's private source evidence remains `.git/modernization-evidence/alpha-A3-url-logos/`.
+The later final static gate failed as recorded in the overview; native URL-image
+display/reachability remains unverified, not inferred from construction tests.
+
+### Phase5: logo-setting visibility
+
+[PR56](https://github.com/kcook98765/script.tvguide.fullscreen/pull/56) changes
+only two `resources/settings.xml` visibility attributes: XMLTV and add-on-folder
+logo options are visible when the Logos master is on and External is None, and
+hidden when the master is off. The focused final **GEN8 Omega-only** retest
+independently audited by supervisor Codex observed both options OFF, hid/restored
+them using the master, left both options untouched and clicked Cancel. It is not
+a save/migration test, new integration or full four-version settings acceptance.
+See the [authoritative retest record](modernization-status.md#focused-final-settings-retest--gen8-omega-only)
+for exact runtime, preservation, logs and Stop evidence. Historical Task14 failures
+and boundaries above remain historical, not current whole-campaign blockers.
 
 [matrix-index]: https://mirrors.kodi.tv/addons/matrix/addons.xml.gz
 [nexus-index]: https://mirrors.kodi.tv/addons/nexus/addons.xml.gz

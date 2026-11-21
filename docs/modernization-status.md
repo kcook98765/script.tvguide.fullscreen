@@ -5,20 +5,31 @@ This is the authoritative current overview. The reviewed Alpha source batch
 [#46](https://github.com/kcook98765/script.tvguide.fullscreen/pull/46),
 [#48](https://github.com/kcook98765/script.tvguide.fullscreen/pull/48),
 [#50](https://github.com/kcook98765/script.tvguide.fullscreen/pull/50),
-[#52](https://github.com/kcook98765/script.tvguide.fullscreen/pull/52)) is merged.
-Reviewed implementation checkout:
-[`ca198d4ffc498f23ffdfae59d815d84177b10f1f`](https://github.com/kcook98765/script.tvguide.fullscreen/commit/ca198d4ffc498f23ffdfae59d815d84177b10f1f).
-That is a reviewed source baseline, **not** a frozen or newly qualified payload.
-This documentation/changelog update precedes runtime freeze; **no final frozen
-payload identity or new consolidated qualification result is recorded yet**.
+[#52](https://github.com/kcook98765/script.tvguide.fullscreen/pull/52)) and Phase5
+[#56](https://github.com/kcook98765/script.tvguide.fullscreen/pull/56) were
+independently accepted and normally merged. Final frozen runtime:
+[`965ee470e80abaaf13788ff921852ecdf6f0cfda`](https://github.com/kcook98765/script.tvguide.fullscreen/commit/965ee470e80abaaf13788ff921852ecdf6f0cfda),
+Git tree `3c1f01374bbc452bf643b9ac1b623babb4f74b26`.
+The reviewed runtime inventory is **912 files / 4,894,184 bytes**, aggregate
+SHA-256 `64e7fd38f2069bf5d04c2500dabc9e47d7f506c23b034b30c01bab15d4e60376`.
+Source/cache were unchanged by the final gate. A later README/docs-only merge
+inherits qualification only after supervisor proof of protected runtime identity.
 Overall acceptance: [#1][overall]; preservation: [#14][preservation];
 dependencies/settings: [#3][dependencies]. No release or full legacy parity is claimed.
 
 ## Qualification
 
-**New consolidated native round: PENDING. New four-lane static gate: PENDING.**
-Focused source regressions pass, but do not substitute for these checks. Older
-full-addon static failures remain unresolved evidence, not an assumed current pass.
+**Overall qualification: PARTIAL. Final four-lane static gate: FAIL.**
+All final static/native facts below are supplied by **supervisor Codex's
+independent review**, including pixels, operation receipts and complete stopped
+archives; they are not this documentation author's native execution or owner
+observation. No tests, gates or native calls were rerun for this docs update.
+
+The broad primary native round applies to **GEN7 / `a92d17858b01dc6201a52ccfbd1f163f600acd78`**.
+The final **GEN8 / `965ee470`** correction changes only two visibility attributes
+in `resources/settings.xml`; Python, manifest, changelog and all other runtime
+bytes are identical to GEN7. GEN8 has a focused **Omega settings-only retest**,
+not a fresh full core cycle or four-version native pass on the final bytes.
 
 Earlier blanket “all native BLOCKED/UNRUN” statements are superseded. The
 [Lab394 activation blocker][lab394] is no longer the current blocker: deployed
@@ -27,12 +38,136 @@ That infrastructure observation does not qualify this add-on or authorize a new
 runtime action. Mixed Program+service execution must still be observed, not
 inferred from structural validation, enabled state or launch acknowledgement.
 
-| Intended target | Historical native evidence and exceptions | New consolidated native | New full static gate |
-| --- | --- | --- | --- |
-| Matrix **19.4** ([#8][n8]) | Fixture XMLTV/guide, mapped playback/Stop and bounded background/timer evidence. Ordinary reopen had an unexplained native exit; separate historical SIGSEGV evidence is retained in **#8 (deferred)**, without a shared causal diagnosis. Recovery did not erase either observation. | **PENDING**; historical result remains partial | **PENDING**, using static **19.5**, not native 19.4 proof |
-| Nexus **20.5** ([#9][n9]) | Core fixture/background/timer/player evidence plus later guide/control, M3U retention and empty-list corrections; exact source scopes below. | **PENDING** | **PENDING** |
-| Omega **21.3** ([#10][n10]) | Core fixture/background/timer evidence; later optional-popup and source-aware XMLTV cache checks. Post-restart NOW reminder was **unobserved**, not diagnosed as failed. | **PENDING** | **PENDING** |
-| Piers **22 RC2** ([#11][n11]) | Seven core fixture criteria passed on the exact Linux preview build below. Separate rapid-modal blank popup remains unexplained; no proven shared cause with Omega. | **PENDING**; bounded preview only | **PENDING**, bounded RC2 stub/checker limits |
+| Intended native target | Current bounded evidence / assessment for owner review |
+| --- | --- |
+| Matrix **19.4** ([#8][n8]) | Current candidate native **UNRUN**: no new Start/deploy. Experimental; historical SIGSEGV and ordinary-reopen exit remain deferred #8, not repaired by recovery. Static 19.5 is not native 19.4. |
+| Nexus **20.5** ([#9][n9]) | GEN7 real guide/search/listing, LAN-video frame, ordinary Stop and close/reopen; strongest current core lane, not prolonged-stream/audio/timer acceptance. |
+| Omega **21.3** ([#10][n10]) | GEN7 real guide/search/listing/background parse, with terminal unrequested exit and incomplete playback/reopen-after-pilot. GEN8 logo visibility retest passed with proper managed Stop. Bounded core/settings evidence, not resolution of the earlier exit. |
+| Piers **22 RC2** ([#11][n11]) | GEN7 expired-fixture empty-state navigation and advancing local clip/Stop. Preview-bounded; no new populated programme/real-feed/timer acceptance. Earlier separate rapid-modal blank remains unproved and is not claimed fixed. |
+
+These recommendations may support **core Alpha candidate owner review under a
+limited scope**, not approved release support. The owner chooses support scope,
+release version and publication separately. No target is silently removed.
+
+### Primary native round — GEN7 applicability
+
+- **Omega 21.3**, Debian `2:21.3+dfsg-1ubuntu1`: actual guide navigation,
+  details/context, populated and empty title/channel search, populated
+  selected-channel listing, safe Left/Back and ordinary guide close. Earlier
+  supported same-profile Stop/Start rendered populated guide data. Fresh primary
+  background update **01:01:17.733–01:01:18.526 UTC, 21 November 2026** mapped
+  **246/246 feed IDs**: **244 XML channel icons / 0 database channel logos** with
+  `xmltv.logos=false` and other logo sources off. The two missing Logos widgets
+  were the visibility defect tracked in [#55](https://github.com/kcook98765/script.tvguide.fullscreen/issues/55)
+  and corrected by [PR56](https://github.com/kcook98765/script.tvguide.fullscreen/pull/56),
+  not a parser-false regression. Secondary VFS pilot
+  was never saved or offset-parsed; the viewer disconnected during long text,
+  followed by an unrequested native exit. No causal diagnosis, restart/crash
+  investigation or final successful Stop is claimed for that terminal exit.
+  Initial proper Stop and explicit resume have separate retained receipts.
+  Primary playback and reopen-after-pilot remain incomplete; older evidence below
+  remains historical. Full audit found critical config/core preferences unchanged,
+  original **0 rules** retained, **247 channels / 2,180 programmes / 249 maps**;
+  unsaved secondary/type/text did not persist.
+- **Nexus 20.5**, Debian `2:20.5+dfsg-1ubuntu1`, `20240927-nogitfound`:
+  populated real guide metadata/navigation/context/listing, positive/empty title
+  search and safe Back, actual LAN-video frame followed by ordinary Stop to
+  inactive playback/guide, and ordinary close/reopen. No audio, time-progression
+  or prolonged-stream guarantee. Proper managed Stop confirmed. Fresh primary
+  parse mapped **246/246 feed IDs**, **244 XML icons / 0 channel logos**;
+  background update **02:16:02.245–02:16:02.753 UTC**. Original **0 rules**,
+  config/core preferences preserved; **247 channels / 2,097 programmes / 249 maps**.
+- **Piers 22 RC2**, build **21.90.902**, Git `20261109-d686683a-dirty`, Linux:
+  retained fixture channels with expected empty current-date cells, usable empty
+  programme context with intended disabled actions, empty channel listing/Back.
+  One mapped local clip advanced **0s/frame 0 → 30s/frame 60**, then ordinary
+  Stop to guide/inactive and proper managed Stop. Fixture was expired; no offset
+  or cache reset/date hunt. All **3 fixture IDs** mapped; **4 channels / 24 fresh
+  fixture programmes / 3 maps**. The original 27 → 24 cached programmes is a
+  fresh fixture parse, not unchanged-cache evidence. Original **1 reminder +
+  1 AutoPlay**, config/core preferences preserved; background update
+  **02:31:25.034–02:31:25.255 UTC**. No new populated-programme, real-feed or timer
+  qualification; separate earlier blank-modal behavior remains unresolved.
+- **Matrix 19.4** was untouched: the independently final-archived **3,196-entry
+  whole-profile inventory** exactly matches initial, retaining original
+  **1 reminder + 1 AutoPlay** and source payload `1e7e5a16`. Historical guide,
+  playback and timer observations are partial exact-source evidence, not a
+  current-candidate native run. Only Matrix is current-native UNRUN, not all lanes.
+
+For the three primary-tested versions, Codex independently matched **912 installed
+runtime blobs and mode classes, no extras**, to GEN7 Git. Saved rules/config were
+preserved, while search history and ordinary caches changed: no byte-identical
+whole-profile claim applies to them. Complete current and old logs had no
+`Traceback`, `PythonToCppException`, `UnboundLocalError` or fatal markers, but
+caught missing-control/audio/environment errors remain. Current + old
+**lines/errors**: Omega **23,930/15,739 + 732/304**; Nexus **5,022/3,142 +
+731/297**; Piers **437/75 + 285/25**. No clean-log, blanket callback, audio or
+all-recurrence acceptance follows. Nexus/Piers update times above are also
+21 November UTC.
+
+### Focused final settings retest — GEN8 Omega only
+
+Phase5 [PR56](https://github.com/kcook98765/script.tvguide.fullscreen/pull/56)
+fixes [NF1 #55](https://github.com/kcook98765/script.tvguide.fullscreen/issues/55).
+The original XML had **14 assertion failures**; the corrected source passes
+**4 methods / 24 widget-state expectations**. OpenCode's adjacent **39 methods plus
+settings contract**, and Codex's independent **4 visibility + 6 parser methods plus
+contract**, passed. Modeling documented C++ condition semantics is not native
+execution.
+
+The sole post-primary native correction round used Omega 21.3 and exact GEN8:
+both XMLTV/add-on-folder Logos options appeared **OFF** with master **ON** and
+External **None**; master **OFF** hid them; restoring **ON** showed both. Neither
+option was touched; **Cancel** was clicked and the owned browser closed.
+Structural validation passed. Capture `0bd46b4b-0dc9-446c-925c-a8cb1a762ffe`,
+digest `9a59352ce91ae35cc7a8383131fd226ab3f55143be4190c10f1bf8e5e0b0f344`,
+and managed Stop `1433b56a-8eb3-4523-87c1-c5432de47f08` were independently
+audited; Stop confirmed and all four originals were stopped. Independent pixel
+comparison and full stopped archive plus second read verified **912 runtime
+blobs/modes exactly `965ee470`, no extras**; config/core preferences/rules exactly
+match primary and initial, with only `last.background.update` changed.
+Fresh data: **247 channels / 2,075 programmes / 249 maps**, **246/246 feed IDs**,
+**0 logos / 244 XML icons** with the false flag. Actual background update:
+**02:49:14.202–02:49:14.740 UTC, 21 November 2026**. Complete focused logs:
+current **1,405 lines / 769 errors**, old **478 / 157**, no Python-exception/fatal
+markers; not clean logs. The focused visibility defect in #55 is resolved with
+Codex-accepted source and native audit evidence, not a new full core/native cycle.
+Broader issues retain their exact scopes.
+
+### Final static gate — exact frozen runtime
+
+One final four-lane gate actually ran on `965ee470` and the runtime inventory
+above. All six stages are accounted for: **syntax PASS, manifest PASS, paths
+PASS, package PASS, types FAIL, official checker FAIL** in every lane.
+
+| Final static lane | Kodistubs | Type errors | Checker errors / warnings | CLI / JSON exit |
+| --- | --- | --- | --- | --- |
+| Matrix **19.5** | **19.0.3** | **641** | **3 / 9** | **1 / 1** |
+| Nexus **20.5** | **20.0.1** | **641** | **3 / 10** | **1 / 1** |
+| Omega **21.3** | **21.0.0** | **641** | **3 / 10** | **1 / 1** |
+| Piers **22 RC2** | **22.0.1rc1** | **615** | **3 / 10** | **1 / 1** |
+
+Tool host: **CPython 3.12.3 / mypy 2.4.0 / addon-check 0.0.36**, not proof of
+Kodi's embedded Python. Each intended lane used its explicit isolated interpreter;
+`--branch` does not switch stubs. Matrix static **19.5 is not native 19.4**;
+Piers is bounded exact RC2, not stable/full API qualification. Warnings and
+negative-control diagnostics remain retained, not suppressed.
+
+Against historical Task22 `84b171b` below, normalized typing comparison adds
+**1 annotation diagnostic and removes 3 diagnostics (net −2)** per lane. The new
+annotation diagnostic at `source.py:1054`, `programList`, belongs to
+**`_channelSearch`**; that entire function's AST is identical to starting
+`95c031`. No attributable runtime failure
+or new code finding was established. Hundreds of unresolved diagnostics are
+**not all false positives**; the typing debt remains unresolved.
+Normalized checker errors/warnings are unchanged: Georgian, Haitian (Creole) and
+Vietnamese variant identities still require owner/translator decisions. Preserve
+**69 catalogs / 2,492 entries**, with no destructive locale guesses.
+
+Two unnecessary NF1 source-worktree single-Omega validations also ran contrary
+to scope. They failed packaging and inherited/test diagnostics and are retained
+separately as a **workflow deviation**, not this runtime gate or qualification.
+No new runs were made to prepare this documentation.
 
 ### Historical native provenance and limits
 
@@ -44,6 +179,9 @@ run or a result for the merged five-fix Alpha batch:
   exceptions. Nexus reuses **`465cc55`** timer/background/player evidence and
   **`21d01fd`** GUI correction/native evidence; its `1e7e5a1` follow-up establishes
   **M3U/rule retention only**, not a fresh repeat of all prior criteria.
+- Matrix's historical ordinary-reopen native exit and separate SIGSEGV evidence
+  remain deferred in #8, without a shared causal diagnosis; recovery did not erase
+  either observation.
 - Piers was **22 RC2 / build 21.90.902 / Git 20261109-d686683a-dirty**, Linux.
   Seven fixture criteria passed there, not on every Piers build or platform.
 - [PR32](https://github.com/kcook98765/script.tvguide.fullscreen/pull/32) repairs
@@ -67,7 +205,8 @@ run or a result for the merged five-fix Alpha batch:
 
 Reminder/AutoPlay timer/background observations are partial functional evidence,
 not acceptance of all recurrence/restart/cancellation phases or proof of a PVR
-backend recording. Japanese/emoji glyph boxes and environmental audio/control
+backend recording. Omega's historical post-restart NOW reminder was **unobserved**,
+not diagnosed as failed. Japanese/emoji glyph boxes and environmental audio/control
 log diagnostics remain recorded. There is no clean-log, complete audio,
 all-platform or full four-version compatibility claim.
 
@@ -109,9 +248,9 @@ exact-RC2 preview/static comparison, not complete API or platform qualification.
 
 | Feature | Current state / evidence boundary | Focused guide |
 | --- | --- | --- |
-| Fullscreen/quick XMLTV EPG, mappings, lists/search, channel navigation and ordinary playback | Core paths have **bounded historical native evidence** above. Latest Alpha fixes need consolidated native checks. OSD/PiP/next-up and latent VOD are not fully accepted. | [Fixtures](native-fixtures.md); [GUI/API assessment][gui-audit] |
-| XMLTV sources, offsets, logos and cache | Reviewed independent-offset, explicit bool opt-in and URL-logo restorations; source-aware cache repair has historical Omega evidence. URL construction is not image reachability/rendering proof. | [Offsets](xmltv-source-offsets.md); [settings/logo notes](dependencies-settings.md#alpha-a2-xmltv-logo-opt-in) |
-| Internal title/synopsis/category/channel search and saved searches | Empty-result/list navigation has historical Nexus evidence. New title-only date window and source-scoped listing/catchup regressions pass; native pending. LIKE wildcards/cross-channel search remain intentional. | [Alpha repairs below](#reviewed-alpha-source-repairs); [fixtures](native-fixtures.md) |
+| Fullscreen/quick XMLTV EPG, mappings, lists/search, channel navigation and ordinary playback | Bounded GEN7 core evidence per lane above; only Omega settings retested on GEN8. OSD/PiP/next-up and latent VOD are not fully accepted; Matrix current-native unrun. | [Fixtures](native-fixtures.md); [GUI/API assessment][gui-audit] |
+| XMLTV sources, offsets, logos and cache | Independent-offset, bool opt-in and URL-logo source regressions pass; fresh GEN7 Omega/Nexus parse confirms false means no database logos. GEN8 Omega accepts visibility of both options. Secondary offset pilot was unsaved/unparsed; URL construction is not image reachability/rendering proof. Cache-setting invalidation tied to destructive channel refresh remains preservation-sensitive and deferred. | [Offsets](xmltv-source-offsets.md); [settings/logo notes](dependencies-settings.md#alpha-a2-xmltv-logo-opt-in) |
+| Internal title/synopsis/category/channel search and saved searches | GEN7 Omega/Nexus populated/empty search and listing observations above, plus focused window/source regressions; not every search mode or catchup provider accepted. LIKE wildcards/cross-channel search remain intentional. | [Alpha repairs below](#reviewed-alpha-source-repairs); [fixtures](native-fixtures.md) |
 | Reminders and ordinary AutoPlay | Safe text/data, source/channel event ownership and reconstruction retained; historical timer/background evidence is partial, not every phase. Old collisions, unclicked recurrence horizons and in-flight delivery/playback limits remain deferred. | [Reminders](modernization-reminders.md), [AutoPlay](autoplay-data.md), [ownership](schedule-ownership.md) |
 | Recording / legacy external AutoPlayWith | **Partial PVR replacement**: existing capable backend/client required; no arbitrary-stream/FFmpeg capture, full old recurrence/padding/markers or legacy-row migration. | [PVR prerequisites/limits](recording-pvr.md) |
 | External-player choice | **Provisionally disabled** pending platform/configuration/receiver/stop qualification; source presence/JSON is not safe execution proof. | [Research][external-audit] |
@@ -120,16 +259,18 @@ exact-RC2 preview/static comparison, not complete API or platform qualification.
 | Artwork and image matches | Bounded JSON persistence replaces pickle, **without migration**. Last-writer-wins/interprocess and legacy lookup-service health limits remain; blank-logo PNG repair retained. | [Image cache](image-match-cache.md); [PR30](https://github.com/kcook98765/script.tvguide.fullscreen/pull/30) |
 | Media/plugin mappings, alternates, ini/M3U/TSV/subscriptions and catchup | Ordinary paths retained; **partial typed stream/folder dispatch**. `@` RunPlugin-equivalent actions remain blocked; scheduled AutoPlay is media-only. Receiver/provider and catchup parity unqualified. | [Mapping contract](typed-playback-mappings.md) |
 | Key editor and action bar/MINE | Key editor retained; **closed action catalog** supports hide/order/label/image, not arbitrary builtins, MINE templates or downloaded Python. | [Action bar](action-bar.md) |
-| Settings, providers, logos/backgrounds, VPN and backup/import/export/reset | Source retained with bounded settings/cache repairs and sampled historical settings evidence; not universal provider health or persistence acceptance. TLS verification retained; no secret logging/downloaded-code restoration. | [Dependencies/settings](dependencies-settings.md) |
-| Background updates/autostart | Both original script/service responsibilities retained; historical startup/background work exists with per-lane limits. Recovery/race/restart acceptance remains incomplete. | [Service safety](service-safety.md) |
+| Settings, providers, logos/backgrounds, VPN and backup/import/export/reset | GEN7 preservation audits plus GEN8 Omega Cancel/visibility retest; not universal provider health, migrations or all settings persistence acceptance. TLS verification retained; no secret logging/downloaded-code restoration. | [Dependencies/settings](dependencies-settings.md) |
+| Background updates/autostart | Both original script/service responsibilities and background consent retained; actual fresh GEN7 Omega/Nexus/Piers and focused GEN8 Omega updates audited above. Recovery/race/restart acceptance remains incomplete. | [Service safety](service-safety.md) |
 | Package/artwork/translations | Manifest **0.0.445**, Program+service, GPL/upstream credits, assets and **69 catalogs / 2,492 entries** preserved. Three locale identity/variant problems unresolved. | [Package notes](package-metadata.md) |
 | Permanent removals | Only downloaded-code/arbitrary-command mechanisms are approved removed. Other feature gaps remain restoration work or require an owner decision. | [Safety](modernization-safety.md); [preservation #14][preservation] |
 
 ### Reviewed Alpha source repairs
 
 All five PRs were independently accepted and normally merged. These are focused
-source results, **not new native results**; no new optional integration was needed
-or installed for them:
+source results, distinct from the exact-source native observations above; no new
+official add-on or integration was installed. Core guide/search requires none;
+existing optional TMDbHelper lookup and backend-dependent PVR remain partial
+replacements, not mandatory new optional dependencies:
 
 - **#44:** secondary-only/tertiary-only XMLTV offsets; original 18 failing
   subtests → four methods / 128 scenarios pass (cache 13 and fixtures four pass).
@@ -145,12 +286,29 @@ or installed for them:
   failures → five tests pass, preserving their distinct strict-overlap predicates,
   independent windows, metadata and same-source result sequence.
 
+The integrated primary GEN7 regression result was **19 scripts, 94 unittest
+methods + 4 assertion scripts ALL PASS**. The original failure proofs above and
+Phase5's separate XML visibility proof remain distinct from that integrated run.
+
 The bounded adjacent review established no further small empty-selection or
-scheduler #21 defect. Deferred scheduler limitations are not a request for a new
-framework. The [changelog](../changelog.txt) includes the pre-freeze Alpha work;
-later native/status follow-up is restricted to README/docs, not another changelog
-or runtime change. Final qualification must identify the actual frozen payload
-and separately establish GUI, playback/Stop, settings and functional service work.
+scheduler [#21](https://github.com/kcook98765/script.tvguide.fullscreen/issues/21)
+defect. The documented scheduler limitations remain unresolved.
+[Owner #54](https://github.com/kcook98765/script.tvguide.fullscreen/issues/54) is
+**owner-approved small cleanup for the next batch**, explicitly deferred by the
+freeze rule—not a blocker or a new integration. No work on pytz is included.
+Large gaps remain: FFmpeg/arbitrary capture, external AutoPlayWith/player,
+complex skins/providers/migrations, old scheduler collision/horizon/in-flight
+behavior and preservation-sensitive cache invalidation. There is no full-parity
+claim, unsafe downloaded code/raw-command restoration or permanent additional
+feature deletion.
+
+[Initial docs PR53](https://github.com/kcook98765/script.tvguide.fullscreen/pull/53)
+already finalized the [changelog](../changelog.txt): its **26,296 historical bytes
+plus 3,252-byte Unreleased prefix** remain untouched. This final qualification update
+is README/docs only; no runtime/test/manifest/GPL/translation/asset/dependency or
+version changes, release ZIP, repository package, tag or publication. Older
+exact-source reports, their failed results and historical header notices are
+retained rather than rewritten as passes.
 
 [overall]: https://github.com/kcook98765/script.tvguide.fullscreen/issues/1
 [preservation]: https://github.com/kcook98765/script.tvguide.fullscreen/issues/14

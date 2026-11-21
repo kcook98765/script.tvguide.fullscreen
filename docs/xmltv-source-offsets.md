@@ -64,9 +64,15 @@ the canonical checkout's `.git/modernization-evidence/alpha-A1-offsets/`.
 Python 3.12 emits existing invalid-regex-escape `SyntaxWarning`s while parsing
 unrelated retained source; outputs preserve them rather than suppress them.
 
-**Native pending.** No Kodi/Lab inspection, lifecycle, workspace deployment,
-launch, native settings persistence, GUI/EPG or playback acceptance is performed
-in A1. The six-stage Toolkit static gate is also intentionally unrun; focused
+**Historical A1 boundary:** no Kodi/Lab inspection, lifecycle, workspace
+deployment, launch, native settings persistence, GUI/EPG or playback acceptance
+was performed in A1; its six-stage Toolkit gate was intentionally unrun. Focused
 stdlib tests and Python 3.8 grammar acceptance do not qualify any Kodi release.
+The later [final qualification overview](modernization-status.md#qualification)
+records supervisor-independent GEN7 native evidence and the frozen-runtime static
+FAIL. The secondary VFS pilot was not saved or offset-parsed: later core evidence
+does not establish native independent-secondary/tertiary-offset acceptance.
 Script+service declarations, GPL/upstream credits, assets and feature coverage
-remain unchanged. Codex independently reviews this draft; no merge is authorized.
+remain unchanged. [PR44](https://github.com/kcook98765/script.tvguide.fullscreen/pull/44)
+was independently accepted and normally merged; this remains its original
+source-only evidence, not a new test run.
