@@ -1,15 +1,28 @@
-# TV Guide Fullscreen — Alpha development
+# TV Guide Fullscreen — Alpha2 development
 
 A fullscreen XMLTV programme guide for Kodi: browse what's on, map channels to
 streams, search listings, and set reminders or ordinary AutoPlay. This is an
 **actively developed modernization fork**, not a qualified release or a promise
 of full legacy feature parity.
 
-The owner-decided **initial Alpha scope includes all four versions: Matrix 19.4,
+**Alpha 1 is published; Alpha2 is development only.** The smallest recommended
+future Alpha2 scope is six practical improvements in three merged PRs: correct
+AutoPlay padding, Quick guide selection/paging/labels/metadata focus, and resilient
+XMLTV programme-row handling. Automatic cache invalidation remains deferred for
+proven persistence risks. **Final bounded observations and preservation audits
+are independently reviewed: Nexus/Omega have targeted behaviour evidence, Matrix
+has shared-fixture limits, and Piers Run/guide/playback/Quick remain UNOBSERVED.
+All four originals are stopped; Current Nexus selection is restored. Static
+remains FAIL.** This is not full four-version or native scheduler qualification;
+targeted Piers UI verification remains outstanding before a confidence claim.
+No Alpha2 version, installer or release is prepared.
+See [Alpha2 development scope and evidence](docs/alpha2-development.md).
+
+The owner-decided **initial Alpha 1 scope includes all four versions: Matrix 19.4,
 Nexus 20.5, Omega 21.3 and Piers 22.0-RC2**. The former Nexus-first recommendation
 is superseded. As of **21 November 2026 UTC**, the independently reviewed
-**bounded aggregate native gate passed on all four; the final four-lane static
-gate remains FAIL**. [Alpha 1 is published as a GitHub prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),
+**historical Alpha 1 bounded aggregate native gate passed on all four; its final
+four-lane static gate remained FAIL**. [Alpha 1 is published as a GitHub prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),
 not a Kodi repository release.
 
 That prior retained-install result combines fresh guide/import/service/preservation
@@ -36,8 +49,11 @@ for precise sources, results and remaining limits.
 - Reviewed Alpha source fixes for independent secondary/tertiary XMLTV offsets,
   XMLTV logo opt-in and explicit URL logos, title-search date windows, and
   source-scoped channel/catchup listings, plus restored logo-setting visibility.
-  The final focused core batch passed all 19 scripts; broader static typing and
-  official-checker failures remain disclosed in the overview.
+  The historical Alpha 1 focused core batch passed all 19 scripts. The Alpha2
+  frozen-source batch passed 21 focused scripts (114 reported unittest methods
+  plus three assertion scripts); broader static typing and official-checker
+  failures remain disclosed in the overview. These static results do not establish
+  native acceptance; the separate bounded observations have explicit limits.
 
 Other bounded restorations include JSON image matches, passive guide styling,
 closed-catalog action customization and typed media/folder mappings. The
