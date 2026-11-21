@@ -17,6 +17,7 @@ FLOORS = {
     'xbmc.python': '3.0.0',
     'script.module.requests': '2.31.0',
     'script.module.dateutil': '2.8.2',
+    'script.module.pytz': '2023.3.0+matrix.1',
     'script.module.pil': '5.1.0',
     'script.module.beautifulsoup4': '4.12.2',
 }

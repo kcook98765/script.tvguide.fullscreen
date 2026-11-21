@@ -1,5 +1,23 @@
 # Current fork feature and qualification status
 
+## Dependency/package follow-up — issue #54
+
+The [official pytz follow-up](official-pytz.md) replaces the bundled module and
+changes the manifest/import/package bytes. It is **not** covered by the historical
+912-file `965ee470` / GEN8 qualification below. Codex independently accepted the
+source/dependency/package/license review and passed the four focused commands at
+runtime freeze `023bf2670f0c6e910c49e5bd54e941fe8ee7d52a`. One ordinary native
+**Nexus 20.5 guide/XMLTV startup passed**, with the official module installed and
+all 611 module file payloads exact. This was a **retained-copy** deployment, not a
+clean install or native vendor-removal proof; the MCP exact-launch path was
+refused/unqualified, separate from successful ordinary GUI Run. See the focused
+record for the corrected installer error, preservation and non-clean-log limits.
+Four-catalog declarations are not four-native qualification. This docs-only
+follow-up reruns no tests/native actions. Historical receipts/tables and
+owner-pending Nexus-first release scope stand; no release decision is implied.
+
+## Historical frozen Alpha qualification
+
 This is the authoritative current overview. The reviewed Alpha source batch
 ([#44](https://github.com/kcook98765/script.tvguide.fullscreen/pull/44),
 [#46](https://github.com/kcook98765/script.tvguide.fullscreen/pull/46),

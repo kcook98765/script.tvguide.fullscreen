@@ -30,10 +30,8 @@ def check():
 
     runtime = list(ROOT.glob("*.py")) + list((ROOT / "resources").rglob("*.py"))
     for path in runtime:
-        # Vendored pytz has pickle doctest text, not a profile deserializer.
-        if "resources/lib/pytz" in path.as_posix():
-            continue
         assert not FORBIDDEN.search(path.read_text()), str(path)
+    assert not (ROOT / "resources/lib/pytz").exists()
     assert not any(p.is_file() for p in (ROOT / "resources/playwith").rglob("*"))
     for path in ("autoplaywith.py", "playwith.py", "playwithchannel.py", "stopwith.py",
                  "stopwithchannel.py", "search.py", "resources/favourites.xml"):
