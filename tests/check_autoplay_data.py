@@ -14,6 +14,7 @@ import sqlite3
 import subprocess
 from types import SimpleNamespace
 import unittest
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'c96189c7a7a9d5ad20f8946d280166be0aa15e69'
@@ -107,6 +108,77 @@ class AutoPlay(unittest.TestCase):
                    xbmcvfs=SimpleNamespace(translatePath=lambda path: (effects.append(('path', path)), path)[1]),
                    sqlite3=SimpleNamespace(connect=connect, PARSE_DECLTYPES=sqlite3.PARSE_DECLTYPES))
         return extracted('play.py', 'main', dict(env)), extracted('stop.py', 'main', dict(env))
+
+    def assert_padding(self, n, before, after, stop=True):
+        """Assert complete real-method commands, including unchanged identities."""
+        self.calls.clear()
+        p = self.program()
+        n._scheduleAutoplay(p.channel.id, p.title, p.startDate, p.endDate)
+        legacy = safe.alarm_name('autoplay', p.title, p.startDate)
+        name = n.createAlarmClockName(p.title, p.startDate, p.channel.id)
+        token = data.encode_identity(p.channel.id, str(p.startDate))
+        expected = [
+            'CancelAlarm(%s-start,True)' % legacy,
+            'CancelAlarm(%s-stop,True)' % legacy,
+            'AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s),%d,True)' %
+            (name, token, 10 - before)]
+        if stop:
+            expected.append(
+                'AlarmClock(%s-stop,RunScript(special://home/addons/script.tvguide.fullscreen/stop.py,%s),%d,True)' %
+                (name, token, 40 + after))
+        self.assertEqual(self.calls, expected)
+
+    def test_padding_all_saved_selections_independent_and_reconstructed(self):
+        n = self.scheduler()
+        # Explicit oracle: do not derive expected minutes from the runtime helper.
+        for before_index, before in enumerate((0, 1, 2, 3, 4, 5, 10)):
+            for after_index, after in enumerate((0, 1, 2, 3, 4, 5, 10)):
+                with self.subTest(before=before_index, after=after_index):
+                    self.settings.update({'autoplays.before': str(before_index),
+                                          'autoplays.after': str(after_index)})
+                    saved = dict(self.settings)
+                    self.assert_padding(n, before, after)
+                    commands = list(self.calls)
+                    self.calls.clear()
+                    self.programs[:] = [self.program()]
+                    n.scheduleAutoplays()
+                    self.assertEqual(self.calls, commands)
+                    self.assertEqual(self.settings, saved)
+
+    def test_padding_settings_contract_and_defaults(self):
+        settings = (ROOT / 'resources/settings.xml').read_bytes()
+        self.assertEqual(settings, subprocess.check_output(
+            ['git', 'show', '439b8b72059a2f5031459a7dbefaa1a05b3bb24c:resources/settings.xml'], cwd=ROOT))
+        rows = {row.get('id'): row for row in ET.fromstring(settings).iter('setting')}
+        n = self.scheduler()
+        for key in ('autoplays.before', 'autoplays.after'):
+            self.assertEqual(rows[key].get('type'), 'enum')
+            self.assertEqual(rows[key].get('values'), '0|1|2|3|4|5|10')
+            self.assertEqual(rows[key].get('default'), '1')
+            self.assertIsNone(rows[key].get('entries'))
+            self.settings[key] = rows[key].get('default')
+        self.assert_padding(n, 1, 1)
+
+    def test_padding_stop_off_does_not_read_after(self):
+        n = self.scheduler()
+        self.settings['autoplays.stop'] = 'false'
+        # A missing key raises if after is read while stop is disabled.
+        del self.settings['autoplays.after']
+        for index, minutes in enumerate((0, 1, 2, 3, 4, 5, 10)):
+            with self.subTest(index=index):
+                self.settings['autoplays.before'] = str(index)
+                self.assert_padding(n, minutes, 0, stop=False)
+
+    def test_padding_invalid_strings_use_one_minute_without_rewriting(self):
+        n = self.scheduler()
+        for key in ('autoplays.before', 'autoplays.after'):
+            for invalid in ('', '-1', '7', '10', 'bogus', '1.5', ' 6', '06', '+6'):
+                with self.subTest(key=key, invalid=invalid):
+                    self.settings.update({'autoplays.before': '6', 'autoplays.after': '6', key: invalid})
+                    saved = dict(self.settings)
+                    self.assert_padding(n, 1 if key.endswith('before') else 10,
+                                        1 if key.endswith('after') else 10)
+                    self.assertEqual(self.settings, saved)
 
     def test_producer_roundtrip_timing_reconstruction_and_optional_stop(self):
         n = self.scheduler()

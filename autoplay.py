@@ -38,6 +38,13 @@ ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
 
 
 class Autoplay(object):
+    @staticmethod
+    def _paddingMinutes(setting):
+        # Legacy enum stores an index, not its displayed minutes. Invalid strings
+        # use the existing one-minute default without rewriting saved settings.
+        return {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 10}.get(
+            ADDON.getSetting(setting), 1)
+
     def __init__(self, database, addonPath):
         """
         @param database: source.Database
@@ -73,14 +80,14 @@ class Autoplay(object):
         xbmc.executebuiltin('CancelAlarm(%s-stop,True)' % legacy)
         name = self.createAlarmClockName(programTitle, startTime, channelId)
         xbmc.executebuiltin('AlarmClock(%s-start,RunScript(special://home/addons/script.tvguide.fullscreen/play.py,%s),%d,True)' %
-        (name, payload, timeToAutoplay - int(ADDON.getSetting('autoplays.before'))))
+        (name, payload, timeToAutoplay - self._paddingMinutes('autoplays.before')))
 
         t = endTime - datetime.datetime.now()
         timeToAutoplay = ((t.days * 86400) + t.seconds) // 60
         #timeToAutoplay = 0
         if ADDON.getSetting('autoplays.stop') == 'true':
             xbmc.executebuiltin('AlarmClock(%s-stop,RunScript(special://home/addons/script.tvguide.fullscreen/stop.py,%s),%d,True)' %
-            (name, payload, timeToAutoplay + int(ADDON.getSetting('autoplays.after'))))
+            (name, payload, timeToAutoplay + self._paddingMinutes('autoplays.after')))
 
 
     def _unscheduleAutoplay(self, programTitle, startTime, channelId, sourceKey=None):
