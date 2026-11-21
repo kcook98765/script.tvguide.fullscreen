@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFILE = 'special://profile/addon_data/script.tvguide.fullscreen/'
 ICON = 'https://example.invalid/xmltv.png'
 LOOKUP = 'https://example.invalid/thelogodb.png'
+URL_LOGO = 'https://example.invalid/logos/Fixture Channel.png'
 VALUES = ('true', 'false', '')
 
 
@@ -30,7 +31,7 @@ class XMLTVLogos(unittest.TestCase):
                            if isinstance(n, ast.ClassDef) and n.name == 'Channel')
 
     def load(self, value, icon=ICON, logo_source=0, files=(), mode='0', keep='false',
-             truthiness_control=False):
+             truthiness_control=False, logo_base='https://example.invalid/logos/'):
         settings = {'xmltv.logos': value, 'thelogodb': mode, 'logos.keep': keep}
         lookup = Mock(return_value=LOOKUP)
         def vfs_file(path, mode):
@@ -38,7 +39,7 @@ class XMLTVLogos(unittest.TestCase):
                 return io.StringIO('')
             self.assertEqual((path, mode), (PROFILE + 'category_count.ini', 'wb'))
             return io.BytesIO()
-        folder = {0: '', 1: 'fixture-logos', 2: 'https://example.invalid/logos/'}[logo_source]
+        folder = {0: '', 1: 'fixture-logos', 2: logo_base}[logo_source]
         listdir = Mock(return_value=([], files))
         env = dict(os=os, re=re, Channel=None, getLogo=lookup,
                    ADDON=SimpleNamespace(getSetting=lambda key: settings.get(key, '')),
@@ -106,14 +107,32 @@ class XMLTVLogos(unittest.TestCase):
                 self.assertEqual(logo, expected)
                 lookup.assert_not_called()
 
-    def test_url_source_retains_current_non_override_behavior(self):
-        # Existing URL branch computes logoFile but never assigns it to logo.
-        # Preserve that behavior, not a new claim that URL-folder logos work.
-        for value in VALUES:
-            with self.subTest(value=value):
-                logo, lookup = self.load(value, logo_source=2)
-                self.assertEqual(logo, ICON if value == 'true' else '')
+    def test_explicit_url_overrides_xmltv_and_preserves_path_spelling(self):
+        settings = ET.parse(ROOT / 'resources/settings.xml')
+        self.assertEqual(settings.find(".//setting[@id='logos.source']").get('values'),
+                         'None|Folder|Url')
+        self.assertEqual(settings.find(".//setting[@id='logos.url']").get('type'), 'text')
+        for value, icon, base in product(VALUES, (ICON, None), (
+                'https://example.invalid/logos', 'https://example.invalid/logos/', '')):
+            with self.subTest(value=value, icon=icon, base=base):
+                logo, lookup = self.load(value, icon, logo_source=2, logo_base=base)
+                expected = URL_LOGO if base else (ICON if value == 'true' and icon else '')
+                # Keep mixed case and the literal space; no new encoding policy.
+                self.assertEqual(logo, expected)
                 lookup.assert_not_called()
+
+    def test_url_source_thelogodb_precedence(self):
+        for icon, mode, keep in product((ICON, None), ('0', '1', '2'), ('false', 'true')):
+            with self.subTest(icon=icon, mode=mode, keep=keep):
+                logo, lookup = self.load('true', icon, logo_source=2, mode=mode, keep=keep)
+                # An explicit URL is present even without XMLTV icons: If Missing
+                # must not look up. Always still bypasses both sources; keep wins.
+                expected = URL_LOGO if mode != '2' else (LOOKUP if keep == 'false' else '')
+                self.assertEqual(logo, expected)
+                if mode == '2' and keep == 'false':
+                    lookup.assert_called_once_with('Fixture Channel', False, False)
+                else:
+                    lookup.assert_not_called()
 
     def test_thelogodb_opt_in_and_keep_mapping(self):
         for value, icon, mode, keep in product(VALUES, (ICON, None), ('0', '1', '2'),
