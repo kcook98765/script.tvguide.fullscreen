@@ -1,11 +1,14 @@
 # Official pytz dependency — issue #54
 
-This is a new **source-only** dependency/package follow-up to the historical
-Alpha, not requalification of `965ee470` / GEN8. Native dependency installation
-and the later single managed Nexus 20.5 guide-startup/XMLTV smoke are **PENDING**
-Codex's independent exact-source/dependency/package/license review. No Kodi
-lifecycle, install, deploy or launch was performed. Release support scope remains
-owner-pending; this catalog check does not readjudicate Nexus-first scope.
+This dependency/package follow-up has **accepted independent Codex source,
+dependency, license and package review**, four independently passed focused
+commands, and **one bounded ordinary native Nexus 20.5 guide/XMLTV startup PASS**
+on frozen runtime `023bf2670f0c6e910c49e5bd54e941fe8ee7d52a`. Native observations
+below are supplied by Codex's independent audit, not this documentation author's
+execution. This is not requalification of historical `965ee470` / GEN8, a clean
+native install, or four-version native qualification. Release support scope
+remains owner-pending; Nexus-first scope is not readjudicated. This final update
+changes documentation only; no runtime/test bytes or native actions are repeated.
 
 ## Official catalog and package evidence
 
@@ -67,7 +70,7 @@ unchanged. No fallback, zoneinfo migration or framework was added.
 
 The baseline copy identifies **2015.7 / 2015g**. Its tracked directory has no
 standalone license or copyright notice; original history is retained unchanged.
-No substantial vendored implementation remains in the new runtime. For retained
+No substantial vendored implementation remains in the new source/package. For retained
 attribution/reference, [pytz-LICENSE.txt](pytz-LICENSE.txt) reproduces the complete
 MIT notice shipped by the reviewed official package (Stuart Bishop, 2003–2019),
 without claiming it is a newly discovered original-2015 notice. The separately
@@ -77,7 +80,8 @@ GPLv2 and upstream credits/history are untouched; this is not relicensing.
 ## Proportional checks and size
 
 The original tracked vendor inventory is **595 files / 801,521 logical bytes**
-(not the approximate issue estimate). All are removed. Using the same raw runtime
+(not the approximate issue estimate). All are removed from source/package, not
+from the retained native destination described below. Using the same raw runtime
 inventory boundary (all tracked resources, root Python, manifest, changelog,
 artwork, GPL license and commands.txt), the count falls from **912 files /
 4,894,184 bytes** to **317 files / 4,092,862 bytes**: net reduction **801,322
@@ -95,7 +99,8 @@ local offset. Existing dependency/settings, safety and XMLTV offset regressions
 are the nearby checks. No full suite, Toolkit validate, timezone-history/DST
 campaign, provider request, playback or timer test is part of this follow-up.
 
-All four focused commands passed (exit 0), using the existing Nexus tool
+All four focused commands passed (exit 0) and were independently passed by Codex
+at frozen runtime `023bf2670f0c6e910c49e5bd54e941fe8ee7d52a`, using the existing Nexus tool
 interpreter `/home/kyle/kodi-development/toolkit/.venv/bin/python` (CPython 3.12
 host tooling, not Kodi's embedded interpreter), with `-I -S -B`:
 
@@ -110,10 +115,64 @@ host tooling, not Kodi's embedded interpreter), with `-I -S -B`:
 `git diff --check ed1226f695113470197b9e0d6c174f42b6f25487` also passed.
 Existing invalid-escape `SyntaxWarning` diagnostics from source/baseline AST
 parsing remain unchanged and are retained in full private command logs. No
-Toolkit validation/stub-lane or native qualification is claimed.
+Toolkit validation/stub-lane or broad native qualification is claimed. No tests
+or static gates were rerun for this final documentation-only update.
 
-Native installation is deferred: the normal supported path is Kodi's official
-repository UI dependency resolution/installation. Unattended repo-install-by-ID
-is unsupported (Lab #339); no arbitrary RPC or invented installer is proposed.
-An appropriate supported exact-official-package workflow may instead be chosen
-after review. No native method was invoked in this phase.
+## Bounded native follow-up — independent Codex audit
+
+**PASS: one ordinary guide/XMLTV startup**, on the original retained Nexus
+**20.5**, Debian package **2:20.5+dfsg-1ubuntu1**, Linux x86_64. Codex independently
+viewed the populated grid, programme times, descriptions and artwork. Official
+`script.module.pytz` **2023.3.0+matrix.1** was installed/enabled; **all 611 installed
+file payloads** independently matched the exact official Nexus ZIP above. This
+single build/result is distinct from the four catalog/declaration checks.
+
+GEN9 capture `65e890cf-16f9-40d9-9dfe-617a6ffeb845`, validation
+`c5deb145-c011-461a-a973-e51cde8d3b8a` and supported direct deployment
+`dbadc272-4488-4b66-9252-3ba3358e309e` succeeded, with normal guarded restart.
+The exact development-launch request for ordinal 0 was **refused
+`launch_not_deployed`**, not retried: the retained-copy setup did not qualify that
+exact manifest-launch tool. After independent physical-byte verification, Codex
+accepted the distinct ordinary native GUI **Program Info 0.0.445 / Script → Run**
+for primary `addon.py`. This was not service ordinal 1, raw RPC, arbitrary Python
+or a custom builtin. Successful guide startup does **not** turn the refused MCP
+launch path into a pass.
+
+The deployment intentionally retained **595 original unused vendor files**.
+All **317 new source/runtime files plus 595 old vendor files** were verified exact
+both live and stopped, with **zero unknown nongenerated source files**. The
+317-file source/package truly has no vendor; isolated import checks prove use
+without it. The native retained-copy smoke is **not a clean install or proof of
+native vendor removal**.
+
+The supported official-repository UI installation had an operational error:
+intended Dependencies navigation instead installed official **OzWeather 2.2.2**,
+**Bossanova808 1.0.6** and pytz. Supported native weather uninstall automatically
+removed all three new add-ons, restoring the original **119**; exact pytz Info
+then installed **only the module**, giving final inventory **120**. Every original
+ID/version/enabled state was unchanged. The independent stopped archive confirmed
+both unintended add-ons and their data absent, and every preexisting other user
+add-on payload exact. Original failure evidence is retained; this is a corrected
+installation, not an error-free operation. No unsupported install-by-ID (Lab #339)
+or package-size bypass was used.
+
+Supported Stop `bc8b642f-d1a7-4d4d-8946-d35a074ed59f` completed with Stop confirmed.
+All four originals are **STOPPED**, owned viewer/browser closed, original Nexus
+Current selection retained at generation **36**, no Reset. Independent stopped
+archive second read matched; DB integrity was **ok**. Channels **247** and mappings
+**249** were preserved; programmes **2,097 → 2,324** reflect ordinary feed refresh.
+Existing rules **0/0/0** were unchanged: **not a nonempty timer-retention test**.
+All user preferences and core preferences including weather were preserved;
+only the existing service's operational `last.background.update` timestamp
+advanced. **Settings XML bytes were not identical.**
+
+The full current log was **not clean**: audio-sink spam and four caught
+`NonExistentControl` markers remained. The only Python traceback was `SystemExit`
+at `addon.py:63` / `w.doModal()` when managed Stop forced the open modal after a
+five-second warning. Complete stopped-log review found **no ImportError,
+ModuleNotFoundError or startup Python traceback**. A log-scan schema attempt
+returned invalid parameters; a short tail plus independent complete stopped-log
+review supplied the evidence, not a successful scan claim. These observations
+were not investigated, fixed, attributed to pytz or followed by a cleanup restart.
+No playback, timers, feature exploration, stability campaign, full static gate or
+four-native qualification was performed. Historical Alpha limitations remain.

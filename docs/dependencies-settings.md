@@ -7,6 +7,14 @@ The bundled pytz has now been replaced by the official Kodi module. See the
 versions, package hashes, licensing, checks and native-smoke limits. The Task14
 table and vendor statements below are historical, not qualification of this
 follow-up. Dateutil/tzlocal, provider and scheduler logic are unchanged.
+Codex accepted the focused source/dependency/license/package review and
+independently passed the four focused commands at runtime freeze `023bf267`.
+One ordinary retained-profile **Nexus 20.5 guide/XMLTV startup passed** with the
+official module installed/enabled and all 611 file payloads verified. This is
+not a clean install, native vendor-removal proof, successful MCP exact-launch
+qualification or four-native pass. The focused record retains the corrected
+installation error, log observations and preservation limits; no test/native
+rerun accompanies this final docs-only update.
 
 > Historical task record: old activation-blocker / whole-campaign UNRUN statements
 > below are superseded by the [current overview](modernization-status.md).
