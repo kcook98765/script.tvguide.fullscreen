@@ -1012,8 +1012,8 @@ class Database(object):
         endTime = now + datetime.timedelta(days=days)
         programList = []
         c = self.conn.cursor()
-        try: c.execute('SELECT * FROM programs WHERE channel=? AND end_date>? AND start_date<?',
-                  [channel.id,now,endTime])
+        try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND end_date>? AND start_date<?',
+                  [channel.id, self.source.KEY, now, endTime])
         except: return
         for row in c:
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
@@ -1034,8 +1034,8 @@ class Database(object):
         endTime = now + datetime.timedelta(hours=hours)
         programList = []
         c = self.conn.cursor()
-        try: c.execute('SELECT * FROM programs WHERE channel=? AND end_date>? AND start_date<?',
-                  [channel.id,now,endTime])
+        try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND end_date>? AND start_date<?',
+                  [channel.id, self.source.KEY, now, endTime])
         except: return
         for row in c:
             program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
