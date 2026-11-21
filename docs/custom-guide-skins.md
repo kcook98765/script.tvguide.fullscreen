@@ -1,5 +1,10 @@
 # Passive guide styling/layout overrides — first partial restoration
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Refs #14, #5, #7, #3, #1. This is **not compatibility with arbitrary existing
 custom themes**, a native Kodi theme, or a complete skin format. It restores
 practical local/profile styling of the existing bundled WindowXML layouts.

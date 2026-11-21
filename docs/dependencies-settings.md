@@ -1,5 +1,10 @@
 # Dependencies and retained legacy settings (Task14)
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Scope: source review for the shared Matrix **19.4**, Nexus **20.5**, Omega
 **21.3**, and Piers **22.0 RC2** implementation. This is **not** native dependency
 installation, settings persistence, provider or GUI acceptance. Refs #1, #3, #14.

@@ -1,5 +1,10 @@
 # Action-bar customization (Task17)
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 The original interface is manual editing of
 `userdata/addon_data/script.tvguide.fullscreen/actions.json` (see the original
 Action Bar changelog entry). **Action Editor** in Settings is a separate keyboard

@@ -1,5 +1,10 @@
 # Ordinary AutoPlay data preservation (task11)
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Refs #14, #7, #6, #1. Focused source repair, **not native acceptance**. Built on
 `c96189c7a7a9d5ad20f8946d280166be0aa15e69`, the normal PR17 merge whose tree
 equals reviewed `d712b23`. Original master remains `0e46733`.
