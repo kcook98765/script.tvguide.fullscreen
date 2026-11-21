@@ -2269,6 +2269,22 @@ class XMLTVSource(Source):
             if event == "end":
                 result = None
                 if elem.tag == "programme":
+                    # The timed grid needs an identity and both time bounds.
+                    # An omitted XMLTV stop is not inferred from later rows.
+                    raw_channel = elem.get('channel')
+                    raw_start, raw_stop = elem.get('start'), elem.get('stop')
+                    if not raw_channel or not raw_channel.strip() or not raw_start or not raw_stop:
+                        root.clear()
+                        continue
+                    try:
+                        parsed_start = self.parseXMLTVDate(raw_start)
+                        parsed_stop = self.parseXMLTVDate(raw_stop)
+                    except (ValueError, IndexError):
+                        root.clear()
+                        continue
+                    if parsed_start is None or parsed_stop is None:
+                        root.clear()
+                        continue
                     channel = elem.get("channel").replace("'", "").replace("=","-")  # Make ID safe to use as ' can cause crashes!
                     description = elem.findtext("desc")
                     date = elem.findtext("date")
@@ -2349,8 +2365,8 @@ class XMLTVSource(Source):
                         cid = id_shortcuts[channel]
                     else:
                         cid = channel
-                    start = self.parseXMLTVDate(elem.get('start')) + datetime.timedelta(minutes=time_offset)
-                    stop = self.parseXMLTVDate(elem.get('stop'))+ datetime.timedelta(minutes=time_offset)
+                    start = parsed_start + datetime.timedelta(minutes=time_offset)
+                    stop = parsed_stop + datetime.timedelta(minutes=time_offset)
                     result = Program(cid, title, sub_title, start,
                                      stop, description, categories, imageSmall=icon,
                                      season = season, episode = episode, is_new = is_new, is_movie = is_movie, language= language)
