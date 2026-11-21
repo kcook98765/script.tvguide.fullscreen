@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.tvguide.fullscreen" name="TV Guide Fullscreen"
-version="0.0.445"
+version="0.0.446~alpha1"
 provider-name="primaeval">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -24,7 +24,7 @@ provider-name="primaeval">
         <source>https://github.com/kcook98765/script.tvguide.fullscreen</source>
         <website>https://github.com/primaeval/script.tvguide.fullscreen</website>
         <email>primaeval</email>
-        <news>Development: modernize package metadata and language directory names while preserving translations and upstream credits. Native compatibility testing remains pending.</news>
+        <news>Four-version Alpha: Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2 have bounded aggregate native qualification, with historical component reuse and known limits. Static typing/checker failures remain. Official pytz is required separately; Program and background service are preserved.</news>
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>

@@ -109,20 +109,29 @@ warning reduction. This disclosed debt may inform an Alpha decision, but the
 static gate stays **FAIL** and does not establish official-repository intake
 readiness. No new functional regression was demonstrated by these deltas.
 
-### Planned release — still unpublished
+### Alpha release candidate preparation — still unpublished
 
-The shared manifest version **`0.0.446~alpha1` is proposed only**; actual manifest
-**0.0.445 remains unchanged**. [Kodi Wiki ordering](https://kodi.wiki/view/Addon.xml#How_versioning_works)
+The shared manifest version is now **`0.0.446~alpha1`**, prepared for independent
+candidate review. Only version/news and changelog runtime metadata change;
+Python logic, dependency floors, settings, artwork and catalogs are unchanged.
+This is not a new runtime regression result. [Kodi Wiki ordering](https://kodi.wiki/view/Addon.xml#How_versioning_works)
 documents `~alpha` before the corresponding unsuffixed version. The separate
 proposed Git tag is **`v0.0.446-alpha1`**; Git tags cannot contain `~`.
-Subject to owner approval and a version-metadata rebuild, a proposed GitHub
-prerelease would carry **one common `script.tvguide.fullscreen-0.0.446~alpha1.zip`
+The tag is **not created**. The private candidate build contains
+**one common `script.tvguide.fullscreen-0.0.446~alpha1.zip`
 with a single `script.tvguide.fullscreen/` root**, final SHA-256, exact
-tag/source/candidate build notes and actual per-version results and limitations.
+source/candidate build notes and actual per-version results and limitations.
 A private qualification ZIP at unchanged **0.0.445** is not that release artifact.
-The prerelease is **planned and unpublished**, without invented asset URLs.
-Repository publication needs separate explicit approval. See [planned user
-installation](alpha-installation.md).
+The same **317 runtime paths** are retained, with new manifest/changelog hashes;
+GPL and embedded notices remain, while official pytz and its notice stay in its
+separate official module. Focused manifest/package/metadata checks do not replace
+the recorded six-stage FAIL above; no full four-lane gate is rerun here.
+Native installation of the **actual candidate ZIP** in a genuinely clean isolated
+environment is **unperformed**. Retained-copy acceptance is not that proof, and
+source-copy deployment cannot substitute for Kodi **Install from zip file**.
+The prerelease is **planned and unpublished**, without invented asset URLs;
+tag/release creation, ZIP upload and repository publication need separate explicit
+approval. See [planned user installation](alpha-installation.md).
 
 No stable, future-stable Piers, all-platform, full-parity, clean-log or static-pass
 claim is made. Font/glyph limitations, caught control diagnostics and environment/

@@ -64,7 +64,7 @@ in-flight cancellation have documented limits. Font glyph boxes, audio coverage
 and partial timer evidence remain qualification limits. Translation identities
 also need owner/translator decisions; no catalogs were discarded.
 
-## Planned Alpha installation — unpublished
+## Alpha candidate installation — unpublished
 
 There is **no published Alpha, release ZIP or repository package from this work**.
 A GitHub source snapshot is not a validated Kodi installer; inherited tags are
@@ -77,18 +77,20 @@ optional and must not be bundled in the TV Guide ZIP. The other declared module
 dependencies remain required. Both the Program (`addon.py`) and background service
 (`service.py`) are preserved, with explicit consent for background execution.
 
-**Proposed only:** shared Kodi manifest version `0.0.446~alpha1` and separate Git
-tag `v0.0.446-alpha1`; the current manifest remains **0.0.445, unchanged**. The
-eventual common asset would be `script.tvguide.fullscreen-0.0.446~alpha1.zip`, with
-one add-on root, SHA-256 and exact source/candidate build notes. Owner-approved
-version metadata, a rebuild/new hash and explicit publication authorization are
-required first. No release asset is available yet. Repository publication requires
-separate explicit approval. See the [planned installation steps](docs/alpha-installation.md)
+The shared Kodi manifest version is now **`0.0.446~alpha1`**, an unpublished
+candidate for independent review. Git tag **`v0.0.446-alpha1` remains proposed
+only and has not been created**. The private candidate build is named
+`script.tvguide.fullscreen-0.0.446~alpha1.zip`, with one add-on root, SHA-256 and
+exact source/candidate build notes. Metadata preparation is not a new runtime
+regression result or clean-install proof. No release asset is available yet;
+tag/release creation, ZIP upload and repository publication require separate
+explicit approval. See the [planned installation steps](docs/alpha-installation.md)
 and [current status](docs/modernization-status.md) before any future installation.
 
-The clean qualification export is **317 files / 4,093,191 bytes**, including the
-329-byte changelog addition, with no `resources/lib/pytz`. A private **0.0.445**
-qualification preview is not a release installer or native clean-install proof.
+The prior clean qualification export was **317 files / 4,093,191 bytes**, including
+the 329-byte changelog addition. The candidate keeps the same **317 runtime paths**,
+with only manifest/changelog bytes changed and no `resources/lib/pytz`. A private
+**0.0.445** qualification preview is not a release installer or native clean-install proof.
 All native tests used retained installations containing **595 unchanged unused
 old vendor files** as well as the reviewed source. No clean native installation
 or official-repository intake readiness is claimed.
