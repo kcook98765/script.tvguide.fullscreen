@@ -9,7 +9,9 @@ Unreleased — Alpha2 development
 - Defer automatic cache invalidation because of reproduced persistence risks;
   retain existing source-aware download caching and additive M3U preservation.
 - Development only: 21 focused scripts passed; the final four-lane static gate
-  remains FAIL. Four-version affected-behavior native acceptance is PENDING.
+  remains FAIL. Bounded native observations and preservation audits are complete;
+  Piers Run/guide/playback/Quick remain UNOBSERVED, not an add-on failure.
+  No full four-version or native scheduler qualification follows.
   See docs/alpha2-development.md; no Alpha2 version, package or release prepared.
 
 version 0.0.446~alpha1 — Alpha

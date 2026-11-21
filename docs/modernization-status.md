@@ -34,8 +34,9 @@ Normalized semantic diagnostics have **zero additions and zero removals versus
 Alpha 1**. Warnings, negative controls and genuine typing/locale debt remain.
 Matrix static 19.5 is not native 19.4; Piers evidence is RC2-only.
 
-**Three bounded Alpha2 affected-behavior rounds are independently audited by
-Codex; Piers 22 RC2 and final Current-selection restoration remain PENDING.**
+**Final bounded Alpha2 observations and all-four preservation/stopped-state
+audits are independently reviewed by Codex; original Current Nexus selection
+is restored. Piers Run/guide/playback/Quick remain UNOBSERVED.**
 Nexus 20.5 observed padding 10/10 Save/reopen, distinct Quick selection and an
 independently established exact-full-page Up wrap (246 visible channels, last
 page 243). Omega 21.3 observed distinct Quick selection, but wrap was refused
@@ -44,21 +45,34 @@ dateless fixture guide and Quick selection returning playback, but distinct
 channel identity is **UNOBSERVED** with shared fixture media. Empty-detail clearing
 and metadata prefill remain **UNOBSERVED** natively. This is not a repeat of the
 old eight-point gate or full four-version qualification. See the
-[native observations and preservation limits](alpha2-development.md#bounded-native-observations--piers-pending).
+[native observations and preservation limits](alpha2-development.md#final-bounded-native-observations).
 
-All three ended supported Stopped with owned browsers closed. Independent
-stopped-archive/second-copy audits matched GEN10 runtime and protected channels,
-mappings and rule fields; ordinary programme refreshes and generated preferences
-changed. **Whole profiles/all setting bytes are not unchanged.** Logs retain
-caught control/environment/audio errors, despite no Python exception/import
-markers in the audited complete current/old logs. No clean-log, motion/audio,
+Piers' initial attempt and one supervisor-authorized bounded supplement are
+retained separately. The supplement reached Add-ons only; two pre-input refusals
+around one supported viewer renewal ended optional checks permanently. This is
+not an add-on failure; no further runtime attempts or infrastructure work follow.
+The background updater started/finished. Targeted Piers UI verification remains
+outstanding before a confidence claim, not authority to retry it now.
+
+All four original profiles/identities are independently verified **STOPPED**, with
+no pending operations. Original Current Nexus selection **46**, same source/workspace
+**GEN10**, is restored; browser closed, **no Nexus startup**. Independent
+stopped-archive/second-copy audits matched GEN10 runtime, channel identifiers and
+schedule rows/associations, plus all mapping values. Internal primary-mapping
+rowids changed on Matrix/Nexus/Omega, not protected channel/schedule identities;
+ordinary programme refreshes and generated preferences changed.
+**Whole profiles/all setting bytes are not unchanged.** Logs retain
+caught control/environment/audio errors, despite no selected Python traceback,
+PythonToCppException or import-failure markers in the audited complete current/old
+logs. Nexus has **23 caught missing-control EXCEPTION entries**; these are
+retained, not a zero-exceptions claim. No clean-log, motion/audio,
 new timer/provider or release-ready claim follows.
 The source freeze is `be9c64141161e671604a4876404e6aaf64778ccb`, tree
 `a339971aa620f667eec988173b31d751be303add`, **317 runtime files / 4,094,697 bytes**.
 This documentation update adds only changelog metadata to those runtime bytes;
-independent final four-round preservation reconciliation and original Current
-Nexus selection restoration remain pending. No tests, static gates or native
-actions were rerun to author it.
+the final original-profile preservation/selection audit is complete, not a
+functional pass for unobserved cases. No tests, static gates or native actions
+were rerun to author it. There is no native scheduler qualification claim.
 
 Keep **#2/#4/#5/#8/#14/#21 OPEN**. The historical Matrix crash is unresolved;
 `Control.getPosition` is preserved. No broad static cleanup, locale guessing,

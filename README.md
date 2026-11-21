@@ -9,10 +9,13 @@ of full legacy feature parity.
 future Alpha2 scope is six practical improvements in three merged PRs: correct
 AutoPlay padding, Quick guide selection/paging/labels/metadata focus, and resilient
 XMLTV programme-row handling. Automatic cache invalidation remains deferred for
-proven persistence risks. **Bounded affected-behavior rounds on Nexus, Omega and
-Matrix are independently audited, with unobserved cases; Piers and final selection
-restoration remain PENDING. The final static gate is FAIL.** This is not full
-four-version qualification. No Alpha2 version, installer or release is prepared.
+proven persistence risks. **Final bounded observations and preservation audits
+are independently reviewed: Nexus/Omega have targeted behaviour evidence, Matrix
+has shared-fixture limits, and Piers Run/guide/playback/Quick remain UNOBSERVED.
+All four originals are stopped; Current Nexus selection is restored. Static
+remains FAIL.** This is not full four-version or native scheduler qualification;
+targeted Piers UI verification remains outstanding before a confidence claim.
+No Alpha2 version, installer or release is prepared.
 See [Alpha2 development scope and evidence](docs/alpha2-development.md).
 
 The owner-decided **initial Alpha 1 scope includes all four versions: Matrix 19.4,
