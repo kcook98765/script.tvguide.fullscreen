@@ -1,6 +1,7 @@
-# Alpha candidate installation — not yet published
+# Alpha 1 download and installation
 
-**Planned and unpublished.** There is no Alpha release asset to download yet.
+**Published GitHub prerelease:** [TV Guide Fullscreen 0.0.446 Alpha 1](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1).
+This is not Kodi repository publication or expanded qualification.
 As of **21 November 2026 UTC**, the independently reviewed bounded aggregate
 retained-install native gate passed on all four initial-scope versions, with
 explicit historical component reuse; the final static gate remains **FAIL**.
@@ -12,13 +13,24 @@ The owner-decided initial scope is **Matrix 19.4, Nexus 20.5, Omega 21.3 and Pie
 22 RC2**, using one common TV Guide ZIP, not a Nexus-first rollout. Piers is bounded
 RC2 only. This is not stable, all-platform or full legacy-feature qualification.
 
-## Planned installation flow — when a prerelease is available
+## Installation flow
 
 1. Use a separate development/test Kodi setup, not your everyday profile.
    Preserve its settings, mappings and saved rules before any installation/update.
-   Obtain the eventual GitHub **prerelease** asset and build notes.
-   Match its exact tag, source/candidate revision, version and published SHA-256.
-   No public asset URL or release checksum is available yet.
+   Download the [installer `script.tvguide.fullscreen-0.0.446.alpha1.zip`](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/script.tvguide.fullscreen-0.0.446.alpha1.zip)
+   and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/SHA256SUMS)
+   from the [Alpha 1 prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),
+   not GitHub's automatic source archives. Save both files in the same directory,
+   keep the ZIP's published filename, and verify before installation:
+
+   ```sh
+   sha256sum -c SHA256SUMS
+   ```
+
+   Require `script.tvguide.fullscreen-0.0.446.alpha1.zip: OK`.
+   The installer's SHA-256 is
+   `dd10ec02c5a3e9c8f133c87c3cc0ac1806a650473cad7ef877554346daa903e7`.
+   Match the release identity below; do not install if verification fails.
 2. Keep the official Kodi repository available for the declared required modules:
 
    | Dependency | Minimum version |
@@ -68,31 +80,33 @@ a listings refresh, turn it off after a successful import. This is a guide-data
 refresh, not a reason to reset the Kodi profile or delete its database. See
 [source-offset notes](xmltv-source-offsets.md) and [current limits](modernization-status.md).
 
-## Candidate version and proposed release identity
+## Published version and release identity
 
-The manifest is **`0.0.446~alpha1`**, common to all four versions and prepared for
-independent candidate review, not publication. The [Kodi Wiki version-ordering
+The manifest remains **`0.0.446~alpha1`**, common to all four versions.
+The [Kodi Wiki version-ordering
 examples](https://kodi.wiki/view/Addon.xml#How_versioning_works) document `~alpha`
-sorting before the corresponding unsuffixed version. The separate proposed Git
-tag is **`v0.0.446-alpha1`**: `~` is valid in the Kodi version but **invalid in a
-Git tag**. The proposed tag has not been created.
+sorting before the corresponding unsuffixed version. The immutable annotated Git
+tag **`v0.0.446-alpha1`** points to
+**`fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`**: `~` is valid in the Kodi version
+but **invalid in a Git tag**.
 
-The private common candidate ZIP is named
-**`script.tvguide.fullscreen-0.0.446~alpha1.zip`**, with exactly one
+The public common installer ZIP is named
+**`script.tvguide.fullscreen-0.0.446.alpha1.zip`**; the GitHub asset filename differs
+from the Kodi manifest spelling. It has exactly one
 `script.tvguide.fullscreen/` root, SHA-256 and exact source/candidate build notes.
 It is built reproducibly from a clean committed candidate, using the explicit
 317-path reviewed runtime inventory; private build notes retain source commit/tree,
-per-file hashes, byte sizes, exclusions and ZIP SHA-256. Independent review and
-explicit tag/release/upload authorization are required before publication. The
-older private qualification ZIP at **0.0.445** is separate and must not be renamed
-or have its checksum reused as this candidate's identity.
+per-file hashes, byte sizes, exclusions and ZIP SHA-256. Publication does not change
+the frozen ZIP or add qualification evidence. The older private qualification ZIP
+at **0.0.445** is separate and must not be renamed or have its checksum reused as
+this release's identity.
 
 ## Packaging and retained-install limits
 
 The prior clean qualification export was **317 files / 4,093,191 bytes**, including
 the 329-byte changelog addition. This candidate retains those **317 paths**,
 totaling **4,093,446 logical bytes**; only manifest/changelog payloads change,
-requiring new inventory/hashes. No public release ZIP is available. The candidate
+with their own inventory/hashes. The published ZIP
 excludes `resources/lib/pytz`, README, tests, tools, docs, configuration,
 agent/development/CI files, reports, evidence,
 logs, caches and bytecode. Root GPL and embedded third-party notices remain in
@@ -141,8 +155,9 @@ prunes old vendor files. No original retained profile may be reset, uninstalled
 or pruned to manufacture cleanliness. The candidate's 317 runtime payloads remain
 frozen; this checkpoint changes nonpackaged documentation only.
 
-The planned prerelease will identify one reviewed common ZIP, SHA-256,
-exact tag/candidate build notes and actual results/limits for all four targets.
-A GitHub prerelease is not repository availability. Never publish
+The [published prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1)
+identifies one reviewed common ZIP, SHA-256, exact tag/candidate build notes and
+actual results/limits for all four targets. A GitHub prerelease is not Kodi
+repository availability; no Kodi repository publication has occurred. Never publish
 private feed names/URLs, settings, credentials, private logs or unsanitized images.
 See [current status](modernization-status.md) and [official pytz evidence](official-pytz.md).

@@ -9,7 +9,8 @@ The owner-decided **initial Alpha scope includes all four versions: Matrix 19.4,
 Nexus 20.5, Omega 21.3 and Piers 22.0-RC2**. The former Nexus-first recommendation
 is superseded. As of **21 November 2026 UTC**, the independently reviewed
 **bounded aggregate native gate passed on all four; the final four-lane static
-gate remains FAIL**. No Alpha release is published yet.
+gate remains FAIL**. [Alpha 1 is published as a GitHub prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),
+not a Kodi repository release.
 
 That prior retained-install result combines fresh guide/import/service/preservation
 observations with exact, reviewed historical component evidence. Nexus/Omega reuse
@@ -64,29 +65,33 @@ in-flight cancellation have documented limits. Font glyph boxes, audio coverage
 and partial timer evidence remain qualification limits. Translation identities
 also need owner/translator decisions; no catalogs were discarded.
 
-## Alpha candidate installation — unpublished
+## Alpha 1 download and installation
 
-There is **no published Alpha, release ZIP or repository package from this work**.
-A GitHub source snapshot is not a validated Kodi installer; inherited tags are
-history, not Alpha release certification.
+The public GitHub prerelease is **TV Guide Fullscreen 0.0.446 Alpha 1**:
+[download the installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/script.tvguide.fullscreen-0.0.446.alpha1.zip)
+and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/SHA256SUMS).
+There is **no Kodi repository publication**. A GitHub source snapshot is not the
+installer; inherited tags are history, not Alpha release certification.
 
-The plan is **one common TV Guide ZIP for all four initial-scope versions**, with
+There is **one common TV Guide ZIP for all four initial-scope versions**, with
 dependencies obtained separately from the official Kodi repository. Required
 `script.module.pytz >= 2023.3.0+matrix.1` replaces the old bundled copy; it is not
 optional and must not be bundled in the TV Guide ZIP. The other declared module
 dependencies remain required. Both the Program (`addon.py`) and background service
 (`service.py`) are preserved, with explicit consent for background execution.
 
-The shared Kodi manifest version is now **`0.0.446~alpha1`**, an unpublished
-candidate for independent review. Git tag **`v0.0.446-alpha1` remains proposed
-only and has not been created**. The private candidate build is named
-`script.tvguide.fullscreen-0.0.446~alpha1.zip`, with one add-on root, SHA-256 and
-exact source/candidate build notes. Metadata changes alone do not establish
-runtime behavior; the separate clean-install observation is bounded below.
-No release asset is available yet; tag/release creation, ZIP upload and
-repository publication require separate explicit approval. See the
-[planned installation steps](docs/alpha-installation.md)
-and [current status](docs/modernization-status.md) before any future installation.
+The shared Kodi manifest version remains **`0.0.446~alpha1`**. The immutable
+annotated Git tag **`v0.0.446-alpha1`** points to
+`fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`. The public installer filename is
+**`script.tvguide.fullscreen-0.0.446.alpha1.zip`**, which differs from the Kodi
+manifest spelling. Its SHA-256 is
+`dd10ec02c5a3e9c8f133c87c3cc0ac1806a650473cad7ef877554346daa903e7`.
+Download the ZIP and `SHA256SUMS` into the same directory, keep the ZIP's published
+filename, and run `sha256sum -c SHA256SUMS`; require
+`script.tvguide.fullscreen-0.0.446.alpha1.zip: OK` before installing.
+Publication does not extend qualification; the separate clean-install observation
+is bounded below. See the [installation steps](docs/alpha-installation.md)
+and [current status](docs/modernization-status.md) before installation.
 
 The prior clean qualification export was **317 files / 4,093,191 bytes**, including
 the 329-byte changelog addition. The candidate keeps the same **317 runtime paths**,
