@@ -108,12 +108,20 @@ def check():
     assert bad_defaults(new) == [], bad_defaults(new)
     assert set(old) == set(new), 'Setting IDs added/removed'
     changed = {'channel.shortcut': '0', 'service.type': '0', 'catchup.type': 'Meta?'}
+    # NF1: only these two visibility attributes intentionally change. Separators
+    # occupy legacy condition slots; both widgets must reference logos.enabled.
+    visibility_changes = {'xmltv.logos': ('eq(-5,true)', 'eq(-6,true)'),
+                          'addon.logos': ('eq(-6,true)', 'eq(-7,true)')}
     for key in old:
         expected = dict(old[key].attrib)
         if key in changed:
             expected['default'] = changed[key]
+        if key in visibility_changes:
+            before, after = visibility_changes[key]
+            assert expected['visible'] == before, key
+            expected['visible'] = after
         assert new[key].attrib == expected, key
-    print('PASS all setting IDs/types/options/conditions and other defaults retained')
+    print('PASS all setting attributes retained except three reviewed defaults and two NF1 visibility offsets')
 
     text = (ROOT / 'resources/settings.xml').read_text()
     visible = catchup_visible_values(text)
