@@ -3,9 +3,10 @@
 This dependency/package follow-up has **accepted independent Codex source,
 dependency, license and package review**, four independently passed focused
 commands, and **one bounded ordinary native Nexus 20.5 guide/XMLTV startup PASS**
-on frozen runtime `023bf2670f0c6e910c49e5bd54e941fe8ee7d52a`. Native observations
-below are supplied by Codex's independent audit, not this documentation author's
-execution. This is not requalification of historical `965ee470` / GEN8, a clean
+on frozen runtime `023bf2670f0c6e910c49e5bd54e941fe8ee7d52a`. **OpenCodeN1 executed
+the native inputs/tests; Codex independently supervised and performed read-only
+review of pixels, installed file bytes, stopped archives and logs.** This is not
+requalification of historical `965ee470` / GEN8, a clean
 native install, or four-version native qualification. Release support scope
 remains owner-pending; Nexus-first scope is not readjudicated. This final update
 changes documentation only; no runtime/test bytes or native actions are repeated.
