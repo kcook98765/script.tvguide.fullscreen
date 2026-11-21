@@ -1,5 +1,10 @@
 # Persistent image matches — Task12 source candidate
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Refs #14 / #5 / #7 / #1. This focused restoration starts at reviewed PR18 normal
 merge `8b03cad38c9730449773458efc1a7dcdcbe68284` (tree equals reviewed `d47440d`).
 Original `origin/master` remains `0e46733e9e5f7711f2381562cfbb98fd3b54b429`, an

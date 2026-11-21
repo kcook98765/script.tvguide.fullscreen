@@ -1,5 +1,10 @@
 # Typed playback / add-on-folder mappings (refs #14 / #6 / #7 / #1)
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Source-only restoration from reviewed `6d1b9162289ccc20c3ba089302dc3a149150d0be`.
 OpenCode owns the implementation; independent Codex review is still required.
 No master-history rewrite, attribution/license change, manifest/entrypoint change,

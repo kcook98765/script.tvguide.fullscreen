@@ -1,5 +1,10 @@
 # Intended reminder and ordinary AutoPlay event ownership (#21)
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Task13 is a focused source/database correction for final review against main,
 **not native acceptance**. Its original implementation/evidence base is exact
 PR20 commit `d210c1cd199b8c28cb57ec901da98f07ba9b8205`.

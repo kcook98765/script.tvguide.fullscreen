@@ -1,5 +1,10 @@
 # First optional recording slice: Kodi PVR (source-only partial replacement)
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Refs #14, #7, #6, #1. Targets: Matrix **19.4**, Nexus **20.5**, Omega **21.3**,
 Piers **22 RC2**. This is a focused draft implementation, not native acceptance,
 arbitrary XMLTV/M3U recording parity, or permanent disposition of AutoPlayWith.

@@ -1,3 +1,47 @@
+Unreleased — Alpha development
+- Actively developed Python 3 / modern Kodi API fork; preserve the original
+  Program + background service, GPL/upstream history, artwork and translations.
+  This is development source, not a certified release or full legacy parity.
+- Replace unsafe executable/profile data and arbitrary command paths with safe
+  text/data callbacks, bounded JSON image matches and typed playback/folder
+  mappings. Retain TLS checks; do not restore downloaded Python or secret logging.
+- Restore punctuation/Unicode-safe reminders and ordinary AutoPlay, new-only
+  reconstruction and channel/source-scoped event identities. Preserve both
+  reminder phases, saved-rule removal/clear, before/after and optional stop.
+- Preserve cached programmes and schedules during additive, source-scoped M3U
+  channel updates; refresh XMLTV caches when the selected source changes.
+- Repair guide labels/details, native programme control actions, optional popup
+  controls, unmatched channel search and empty-list arrow navigation.
+- Correct retained legacy settings defaults/representations, service startup
+  safety and saved scheduling; retain dependencies and all fixed settings actions.
+- Offer bounded optional TMDbHelper movie/TV lookup and Kodi PVR recording/timer
+  actions with an existing capable provider/backend/client; neither is a new
+  requirement for core guide use or the five Alpha repairs below.
+- Retain passive guide styling, closed-catalog action customization, package
+  artwork/credits and all 69 translation catalogs / 2,492 entries.
+- Repair blank-logo PNG resizing while preserving ordinary/white-background pixels.
+- Alpha: use each secondary/tertiary XMLTV source's own offset in every routing
+  branch; honor XMLTV logo true/false opt-in; restore the explicit URL logo source
+  without changing title/path spelling or folder/TheLogoDB precedence.
+- Alpha: apply the existing synopsis/title date window to title-only searches,
+  retaining LIKE wildcards and cross-channel results; keep channel/catchup listing
+  results active-source scoped without changing their strict overlap windows.
+- Limits: no full four-version/all-platform qualification. Historical native
+  core results have per-version exceptions: unexplained Matrix reopen native exit
+  (separate historical SIGSEGV evidence retained in issue #8),
+  unexplained Piers rapid-modal blank popup, unobserved Omega post-restart NOW
+  reminder, font glyph boxes and incomplete audio/timer coverage.
+- Qualification remains bounded; historical full static checks retain unresolved
+  typing/checker failures. See docs/modernization-status.md for latest qualification.
+- Complex skins, external players, legacy action/provider templates and old
+  recording/AutoPlayWith modes remain partial or provisionally disabled. PVR needs
+  a recording backend; metadata lookup is not full ExtendedInfo/episode parity.
+- Old scheduler collisions, recurrence horizons and in-flight cancellation limits
+  remain. No pickle-to-JSON image-cache migration; concurrency limits remain.
+  Locale identities/variants need owner/translator decisions; no catalogs are
+  removed or guessed into compliance.
+- See README.md and docs/modernization-status.md for current evidence and scope.
+
 version 0.0.393
 - ftp fix
 

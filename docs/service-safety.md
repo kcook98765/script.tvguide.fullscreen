@@ -1,5 +1,10 @@
 # Task18 — service startup safety and bounded schedule repair
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 ## Integration continuation — final source review pending
 
 Initial independent source review accepted

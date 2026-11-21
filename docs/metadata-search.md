@@ -1,5 +1,10 @@
 # Optional metadata and named add-on search — partial source restoration
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 Refs #14, #7, #5, #1. One shared implementation for Matrix 19.4, Nexus 20.5,
 Omega 21.3 and Piers 22 RC2, not four ports. **Native results/details, window
 transitions and return-to-guide behavior remain untested on all four.**

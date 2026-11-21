@@ -1,5 +1,10 @@
 # Package metadata and translations — Task15
 
+> Historical task record: old activation-blocker / whole-campaign UNRUN statements
+> below are superseded by the [current overview](modernization-status.md).
+> Original failures and feature-specific unverified limits remain; later core
+> native evidence is not blanket acceptance of this feature.
+
 **Source-only partial readiness, not an install/native pass or official approval.**
 Based only on `6d1b9162289ccc20c3ba089302dc3a149150d0be`, without merging
 concurrent work. Refs #1, #3, #5, #14. Add-on version remains **0.0.445**;

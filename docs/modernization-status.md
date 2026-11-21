@@ -1,89 +1,156 @@
 # Current fork feature and qualification status
 
-Settled runtime source: **`84b171b15562609d1af0db30c6059af21d71e763`**,
-tree `0eda7048376fac5e5965fc5e62f26eb739f1ad2f`. The focused runtime work and
-blank-logo repair are merged. **Source presence/review is not native acceptance
-or full legacy parity.** Overall acceptance: [#1][overall]; preservation and original research:
-[#14][preservation]; dependencies/settings: [#3][dependencies]. Older focused
-docs retain review-time evidence; this table describes the current merged source.
-
-## Feature inventory
-
-| Feature | Current classification | Boundary / focused guide |
-| --- | --- | --- |
-| Fullscreen/quick EPG, XMLTV/offsets, channel/category/order/number navigation, lists/now/next, OSD/PiP/next-up, ordinary playback | **Retained, unverified natively** | [Local XMLTV/M3U/video fixtures](native-fixtures.md). Latent VOD callback is not working-VOD evidence ([GUI/API assessment][gui-audit]). |
-| Internal title/synopsis/category/channel search, saved searches, favourites/library shortcuts | **Retained, unverified natively** | Internal search remains separate from external lookup; third-party favourites require compatible installed receivers. |
-| Reminders / ordinary AutoPlay, recurrence, add/remove/clear, before/after, optional stop and reconstruction | **Retained through safe data replacements** | Punctuation/Unicode, five-minute/start reminder phases, 10000ms/sound-on semantics and scoped event identities retained. [Reminders](modernization-reminders.md), [AutoPlay](autoplay-data.md), [ownership/legacy limits](schedule-ownership.md): old collisions, recurrence horizons, claim/crash and in-flight cancellation limits remain. |
-| Recording / legacy external AutoPlayWith | **Partially replaced**; other legacy modes **temporarily disabled** | [PVR recording/timers](recording-pvr.md) need an existing capable backend. Not arbitrary-M3U/plugin or FFmpeg capture, external AutoPlayWith, full old recurrence/padding/markers or legacy-row migration. |
-| Optional external-player choice | **Temporarily disabled/provisional** | [External-player research][external-audit]: platform/configuration/receiver/stop qualification pending. Registered-player selection and JSON do not establish shell safety or playback. |
-| Bundled Default/Dark/CatBar; local/profile appearance | Bundles **retained**; customization **partially replaced** | [Opt-in passive layout/PNG subset](custom-guide-skins.md), not arbitrary executable themes. Complex layouts/includes/resources and WMC/WhiteSnow compatibility remain unresolved. |
-| ExtendedInfo / MySearch/iSearch cross-add-on lookup | **Partially replaced** | [Optional TMDbHelper movie/TV lookup](metadata-search.md), not all ExtendedInfo/search, arbitrary provider templates, year/episode/ID mapping or guide plot/art injection. Provider availability, quote normalization and native results/return remain limits. |
-| Artwork, delete-image suppression, persistent image matches | Art paths **retained/unverified**; persistence **replaced, partial** | [Bounded JSON cache](image-match-cache.md): **no pickle migration**. Legacy lookup-service health and interprocess last-writer-wins behavior remain unresolved. |
-| Media/plugin mappings, alternates, ini/M3U/TSV/subscriptions, catchup/play-beginning | Ordinary paths **retained**; stream/folder dispatch **partially replaced** | [Typed playback and safe video/Programs folders](typed-playback-mappings.md) are not RunPlugin-equivalent **`@` actions**, which remain temporarily blocked. Scheduled AutoPlay is media-only; receiver/catchup contracts still need native acceptance. |
-| Key editor, bundled actions, custom action bar/MINE | Key editor **retained**; action customization **partially replaced** | [Closed action catalog](action-bar.md) supports hide/order/label/image choices, not arbitrary custom commands or MINE execution. |
-| Providers, settings, logos/backgrounds, VPN, backup/import/export/reset | **Retained, unverified natively** | [Dependencies/defaults](dependencies-settings.md) are source/catalog evidence, not installation/provider/persistence acceptance. [Blank-logo PNG repair (#30)](https://github.com/kcook98765/script.tvguide.fullscreen/pull/30): four actual-Pillow cases pass; ordinary/white-background pixels unchanged. TLS verification remains; no secret logging or downloaded Python restoration. |
-| Background updates, autostart, reminder/AutoPlay reconstruction | Both script/service declarations and functions **retained** | [Startup safety and saved scheduling](service-safety.md) repaired; stale-marker, database/recovery and race limits remain. Enabled state or startup markers alone do not prove background work. |
-| Package metadata, artwork declarations, translations | **Retained with bounded modernization** | [Package/language notes](package-metadata.md): **69 catalogs / 2,492 entries** preserved; three legacy language identities/variants remain unresolved. Not distribution or checker acceptance. |
-| Proposed permanent feature removals | **None** | Only downloaded-code/arbitrary-command mechanisms are approved removed. All other gaps above remain restoration/acceptance work or require an explicit owner decision. |
+This is the authoritative current overview. The reviewed Alpha source batch
+([#44](https://github.com/kcook98765/script.tvguide.fullscreen/pull/44),
+[#46](https://github.com/kcook98765/script.tvguide.fullscreen/pull/46),
+[#48](https://github.com/kcook98765/script.tvguide.fullscreen/pull/48),
+[#50](https://github.com/kcook98765/script.tvguide.fullscreen/pull/50),
+[#52](https://github.com/kcook98765/script.tvguide.fullscreen/pull/52)) is merged.
+Reviewed implementation checkout:
+[`ca198d4ffc498f23ffdfae59d815d84177b10f1f`](https://github.com/kcook98765/script.tvguide.fullscreen/commit/ca198d4ffc498f23ffdfae59d815d84177b10f1f).
+That is a reviewed source baseline, **not** a frozen or newly qualified payload.
+This documentation/changelog update precedes runtime freeze; **no final frozen
+payload identity or new consolidated qualification result is recorded yet**.
+Overall acceptance: [#1][overall]; preservation: [#14][preservation];
+dependencies/settings: [#3][dependencies]. No release or full legacy parity is claimed.
 
 ## Qualification
 
-**Full validation: FAIL on all four lanes; source readiness: PARTIAL.** Task22
-completed the gate on exact `84b171b`: **all 17 focused scripts exited 0**
-(100 unittest cases plus 4 assertion scripts). Each lane **PASSED syntax,
-manifest, paths and package**, but failed types and official checker.
+**New consolidated native round: PENDING. New four-lane static gate: PENDING.**
+Focused source regressions pass, but do not substitute for these checks. Older
+full-addon static failures remain unresolved evidence, not an assumed current pass.
 
-| Intended native target | Types | Official checker | CLI / JSON exit | Native acceptance |
-| --- | --- | --- | --- | --- |
-| Matrix **19.4** ([#8][n8]) | **FAIL**, 643 errors | **FAIL**, 3 errors / 9 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Nexus **20.5** ([#9][n9]) | **FAIL**, 643 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Omega **21.3** ([#10][n10]) | **FAIL**, 643 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
-| Piers **22 RC2** ([#11][n11]) | **FAIL**, 617 errors | **FAIL**, 3 errors / 10 warnings | **1 / 1** | **BLOCKED/UNRUN** — deferred [Lab394][lab394] |
+Earlier blanket “all native BLOCKED/UNRUN” statements are superseded. The
+[Lab394 activation blocker][lab394] is no longer the current blocker: deployed
+Lab revision `3d1d459`, schema `0017`, was independently live-verified healthy.
+That infrastructure observation does not qualify this add-on or authorize a new
+runtime action. Mixed Program+service execution must still be observed, not
+inferred from structural validation, enabled state or launch acknowledgement.
 
-The checker errors on every lane concern the retained `Georgian`, `Haitian
-(Haitian Creole)` and `Vietnamese (Viet Nam)` locale directories; see
-[language identity/variant limits](package-metadata.md#localization-evidence-and-unresolved-variants).
-Typing remains unresolved, **not all false positives**. `gui.py`'s `playOrChoose`
-optional-Database `getStreamUrl` access remains static uncertainty, not a proven
-new runtime failure. Only the logo optional-index diagnostic was removed per lane;
-no normalized type diagnostics were added and checker diagnostics are unchanged.
-All warnings/negative controls remain preserved, including focused stderr; table
-warning counts are the official checker's.
-Matrix's static lane is **19.5**, not native19.4 proof; Piers remains bounded RC2
-prerelease/static coverage, not all-platform or all-runtime correctness.
+| Intended target | Historical native evidence and exceptions | New consolidated native | New full static gate |
+| --- | --- | --- | --- |
+| Matrix **19.4** ([#8][n8]) | Fixture XMLTV/guide, mapped playback/Stop and bounded background/timer evidence. Ordinary reopen had an unexplained native exit; separate historical SIGSEGV evidence is retained in **#8 (deferred)**, without a shared causal diagnosis. Recovery did not erase either observation. | **PENDING**; historical result remains partial | **PENDING**, using static **19.5**, not native 19.4 proof |
+| Nexus **20.5** ([#9][n9]) | Core fixture/background/timer/player evidence plus later guide/control, M3U retention and empty-list corrections; exact source scopes below. | **PENDING** | **PENDING** |
+| Omega **21.3** ([#10][n10]) | Core fixture/background/timer evidence; later optional-popup and source-aware XMLTV cache checks. Post-restart NOW reminder was **unobserved**, not diagnosed as failed. | **PENDING** | **PENDING** |
+| Piers **22 RC2** ([#11][n11]) | Seven core fixture criteria passed on the exact Linux preview build below. Separate rapid-modal blank popup remains unexplained; no proven shared cause with Omega. | **PENDING**; bounded preview only | **PENDING**, bounded RC2 stub/checker limits |
 
-After the run, the supervisor independently verified **912 runtime files /
-4,888,353 bytes**, exact Git blobs/modes and aggregate SHA-256
-`4883108c5ffea0c1e9199088e86c1bd808e02de1f5ff1101262d29e61a429edd`.
-Only `ResizeLogos.py` differs from the prior runtime; all modes and 911 other
-files match. Task22's private receipt bundle is
-`.git/modernization-evidence/task22-final-qualification/logo-followup-84b171b/`:
-`gate-summary.json`, `comparison-to-5e83.json`, `bounded-classification.json`
-and `receipt-index.json` locate results, limits and hashed raw evidence;
-`runtime-inventory.json` defines the aggregate algorithm. Original gate receipts
-remain historical. Applicability to later docs-only main requires **independent
-payload-equality verification**; no validation was rerun for these docs.
+### Historical native provenance and limits
 
-[Toolkit31](https://github.com/kcook98765/kodi-agent-toolkit/issues/31)
-(`start="login"` path classification) and
-[Toolkit32](https://github.com/kcook98765/kodi-agent-toolkit/issues/32)
-(Matrix `getPosition` stub false positive) are separate from Lab394; no source
-workaround or blanket typing acceptance is implied.
+These are supervisor-independently-reviewed historical observations, not a new
+run or a result for the merged five-fix Alpha batch:
 
-Frozen Lab **generation 0** structural validation applies only to **`78bac49`**,
-not this source, deployment or native behavior. Lab394 concerns qualified,
-consented full-manifest cold activation, not proof Kodi cannot run script+service;
-fixed-video smoke ineligibility is not whole-add-on failure. No native retry or
-workaround is authorized while deferred.
+- Native source **`1e7e5a1`** has actual fixture XMLTV/guide/mapped playback/Stop
+  and background/timer evidence across all four targets, with the table's
+  exceptions. Nexus reuses **`465cc55`** timer/background/player evidence and
+  **`21d01fd`** GUI correction/native evidence; its `1e7e5a1` follow-up establishes
+  **M3U/rule retention only**, not a fresh repeat of all prior criteria.
+- Piers was **22 RC2 / build 21.90.902 / Git 20261109-d686683a-dirty**, Linux.
+  Seven fixture criteria passed there, not on every Piers build or platform.
+- [PR32](https://github.com/kcook98765/script.tvguide.fullscreen/pull/32) repairs
+  Nexus guide labels/details and programme actions using native control IDs;
+  [PR34](https://github.com/kcook98765/script.tvguide.fullscreen/pull/34) preserves
+  cached programmes/schedules during source-scoped additive M3U channel updates.
+- [PR36](https://github.com/kcook98765/script.tvguide.fullscreen/pull/36) has
+  original **Omega generation 4** optional-popup native evidence: two popups,
+  Watch, an advancing fixture clip, Stop, populated saved-rule context and reopen.
+  This does not establish the cause of Piers' separate blank modal.
+  [PR38](https://github.com/kcook98765/script.tvguide.fullscreen/pull/38) has
+  **Omega** source-aware XMLTV cache native evidence.
+- [PR40](https://github.com/kcook98765/script.tvguide.fullscreen/pull/40) and
+  [PR42](https://github.com/kcook98765/script.tvguide.fullscreen/pull/42) have exact
+  combined **Nexus generation 6** no-match/empty-list arrow native evidence.
+  At pre-Alpha source **`95c0310`**, **246/246 real-feed channel IDs mapped**;
+  sampled guide/navigation/cache/settings and playback dispatch/Stop were checked.
+  This is **not sustained playback progression or audio acceptance**. Private
+  feed contents, endpoints, titles, settings, screenshots and raw logs are not
+  redistributed here.
 
-After deferred Lab394 is resolved, resume acceptance sequentially **Matrix →
-Nexus → Omega → Piers**: dependencies/install/consented full-manifest activation →
-`development_launch` **ordinal 0** → independently verified background updates
-and reminder/AutoPlay reconstruction and actual work → XMLTV/guide navigation,
-playback/settings persistence → clean stop and bounded logs. Enabled state or
-launch dispatch alone is not acceptance. Preserve both original `addon.py` and
-`service.py` declarations/functions, GPL/upstream credits and history throughout.
-No native, release or distribution qualification is claimed.
+Reminder/AutoPlay timer/background observations are partial functional evidence,
+not acceptance of all recurrence/restart/cancellation phases or proof of a PVR
+backend recording. Japanese/emoji glyph boxes and environmental audio/control
+log diagnostics remain recorded. There is no clean-log, complete audio,
+all-platform or full four-version compatibility claim.
+
+### Historical full static gate — exact Task22 source, not the current gate
+
+Task22 validated **`84b171b15562609d1af0db30c6059af21d71e763`**,
+tree `0eda7048376fac5e5965fc5e62f26eb739f1ad2f`. Its 17 focused scripts exited 0
+(100 unittest cases plus four assertion scripts). On every lane syntax,
+manifest, paths and package **passed**; types and official checker **failed**:
+
+| Historical static lane | Type errors | Official checker errors / warnings | CLI / JSON exit |
+| --- | --- | --- | --- |
+| Matrix **19.5** | **643** | **3 / 9** | **1 / 1** |
+| Nexus **20.5** | **643** | **3 / 10** | **1 / 1** |
+| Omega **21.3** | **643** | **3 / 10** | **1 / 1** |
+| Piers **22 RC2** | **617** | **3 / 10** | **1 / 1** |
+
+The three checker errors concern retained `Georgian`, `Haitian (Haitian Creole)`
+and `Vietnamese (Viet Nam)` directories. Preserve **69 catalogs / 2,492 entries**;
+Georgian/Haitian identities and a conflicting Vietnamese variant need explicit
+owner/translator decisions, not deletion or guessed mappings. See
+[language limits](package-metadata.md#localization-evidence-and-unresolved-variants).
+Typing is unresolved, **not all false positives**. The optional-Database
+`playOrChoose` diagnostic is static uncertainty, not a proven new runtime defect.
+Only the logo optional-index diagnostic changed in that historical comparison;
+normalized checker diagnostics were unchanged. Warnings/negative controls remain.
+
+Historical preservation proof covered **912 runtime files / 4,888,353 bytes**,
+aggregate SHA-256 `4883108c5ffea0c1e9199088e86c1bd808e02de1f5ff1101262d29e61a429edd`.
+The private Task22 `logo-followup-84b171b` receipts retain the six stages, hashes,
+comparisons and limits. They do **not** validate later changed bytes. The old
+generation-0 structural receipt for `78bac49` is likewise not current acceptance.
+[Toolkit31](https://github.com/kcook98765/kodi-agent-toolkit/issues/31) and
+[Toolkit32](https://github.com/kcook98765/kodi-agent-toolkit/issues/32) are historical
+tooling context, not blanket explanations for typing failures. Piers remains an
+exact-RC2 preview/static comparison, not complete API or platform qualification.
+
+## Feature inventory
+
+| Feature | Current state / evidence boundary | Focused guide |
+| --- | --- | --- |
+| Fullscreen/quick XMLTV EPG, mappings, lists/search, channel navigation and ordinary playback | Core paths have **bounded historical native evidence** above. Latest Alpha fixes need consolidated native checks. OSD/PiP/next-up and latent VOD are not fully accepted. | [Fixtures](native-fixtures.md); [GUI/API assessment][gui-audit] |
+| XMLTV sources, offsets, logos and cache | Reviewed independent-offset, explicit bool opt-in and URL-logo restorations; source-aware cache repair has historical Omega evidence. URL construction is not image reachability/rendering proof. | [Offsets](xmltv-source-offsets.md); [settings/logo notes](dependencies-settings.md#alpha-a2-xmltv-logo-opt-in) |
+| Internal title/synopsis/category/channel search and saved searches | Empty-result/list navigation has historical Nexus evidence. New title-only date window and source-scoped listing/catchup regressions pass; native pending. LIKE wildcards/cross-channel search remain intentional. | [Alpha repairs below](#reviewed-alpha-source-repairs); [fixtures](native-fixtures.md) |
+| Reminders and ordinary AutoPlay | Safe text/data, source/channel event ownership and reconstruction retained; historical timer/background evidence is partial, not every phase. Old collisions, unclicked recurrence horizons and in-flight delivery/playback limits remain deferred. | [Reminders](modernization-reminders.md), [AutoPlay](autoplay-data.md), [ownership](schedule-ownership.md) |
+| Recording / legacy external AutoPlayWith | **Partial PVR replacement**: existing capable backend/client required; no arbitrary-stream/FFmpeg capture, full old recurrence/padding/markers or legacy-row migration. | [PVR prerequisites/limits](recording-pvr.md) |
+| External-player choice | **Provisionally disabled** pending platform/configuration/receiver/stop qualification; source presence/JSON is not safe execution proof. | [Research][external-audit] |
+| Default/Dark/CatBar and custom appearance | Bundles retained; **partial passive layout/PNG customization**. Complex includes/resources and WMC/WhiteSnow compatibility unresolved. | [Passive skin subset](custom-guide-skins.md) |
+| ExtendedInfo / MySearch / iSearch external lookup | **Optional TMDbHelper movie/TV handoff**, requiring an installed/enabled compatible official provider and its setup; not full legacy lookup, episode/ID matching or guide metadata injection. Provider results/return still need feature acceptance. | [Metadata lookup](metadata-search.md) |
+| Artwork and image matches | Bounded JSON persistence replaces pickle, **without migration**. Last-writer-wins/interprocess and legacy lookup-service health limits remain; blank-logo PNG repair retained. | [Image cache](image-match-cache.md); [PR30](https://github.com/kcook98765/script.tvguide.fullscreen/pull/30) |
+| Media/plugin mappings, alternates, ini/M3U/TSV/subscriptions and catchup | Ordinary paths retained; **partial typed stream/folder dispatch**. `@` RunPlugin-equivalent actions remain blocked; scheduled AutoPlay is media-only. Receiver/provider and catchup parity unqualified. | [Mapping contract](typed-playback-mappings.md) |
+| Key editor and action bar/MINE | Key editor retained; **closed action catalog** supports hide/order/label/image, not arbitrary builtins, MINE templates or downloaded Python. | [Action bar](action-bar.md) |
+| Settings, providers, logos/backgrounds, VPN and backup/import/export/reset | Source retained with bounded settings/cache repairs and sampled historical settings evidence; not universal provider health or persistence acceptance. TLS verification retained; no secret logging/downloaded-code restoration. | [Dependencies/settings](dependencies-settings.md) |
+| Background updates/autostart | Both original script/service responsibilities retained; historical startup/background work exists with per-lane limits. Recovery/race/restart acceptance remains incomplete. | [Service safety](service-safety.md) |
+| Package/artwork/translations | Manifest **0.0.445**, Program+service, GPL/upstream credits, assets and **69 catalogs / 2,492 entries** preserved. Three locale identity/variant problems unresolved. | [Package notes](package-metadata.md) |
+| Permanent removals | Only downloaded-code/arbitrary-command mechanisms are approved removed. Other feature gaps remain restoration work or require an owner decision. | [Safety](modernization-safety.md); [preservation #14][preservation] |
+
+### Reviewed Alpha source repairs
+
+All five PRs were independently accepted and normally merged. These are focused
+source results, **not new native results**; no new optional integration was needed
+or installed for them:
+
+- **#44:** secondary-only/tertiary-only XMLTV offsets; original 18 failing
+  subtests → four methods / 128 scenarios pass (cache 13 and fixtures four pass).
+- **#46:** `'false'` no longer enables XMLTV icons; seven original failing
+  subtests → five parser methods pass.
+- **#48:** explicit URL logo source now uses its already constructed URL;
+  20 original failing subtests → six parser methods pass; title/path spelling,
+  folder/XMLTV and TheLogoDB precedence retained.
+- **#50:** title-only search uses the existing synopsis/title containment window;
+  four original failures → seven tests pass, retaining wildcard/source/channel/
+  metadata behavior.
+- **#52:** channel/catchup listings filter by active source; four original
+  failures → five tests pass, preserving their distinct strict-overlap predicates,
+  independent windows, metadata and same-source result sequence.
+
+The bounded adjacent review established no further small empty-selection or
+scheduler #21 defect. Deferred scheduler limitations are not a request for a new
+framework. The [changelog](../changelog.txt) includes the pre-freeze Alpha work;
+later native/status follow-up is restricted to README/docs, not another changelog
+or runtime change. Final qualification must identify the actual frozen payload
+and separately establish GUI, playback/Stop, settings and functional service work.
 
 [overall]: https://github.com/kcook98765/script.tvguide.fullscreen/issues/1
 [preservation]: https://github.com/kcook98765/script.tvguide.fullscreen/issues/14
