@@ -6,6 +6,7 @@ provider-name="primaeval">
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.31.0" />
         <import addon="script.module.dateutil" version="2.8.2" />
+        <import addon="script.module.pytz" version="2023.3.0+matrix.1" />
         <import addon="script.module.pil" version="5.1.0" />
         <import addon="script.module.beautifulsoup4" version="4.12.2" />
     </requires>

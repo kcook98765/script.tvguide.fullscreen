@@ -52,8 +52,8 @@ from urllib.parse import urlparse
 from urllib import parse as urllib
 from html import entities as htmlentitydefs
 
-import resources.lib.pytz as pytz
-from resources.lib.pytz import timezone
+import pytz
+from pytz import timezone
 
 from sdAPI import SdAPI
 from utils import *

@@ -1,5 +1,17 @@
 # Current fork feature and qualification status
 
+## New source-only dependency/package follow-up — issue #54
+
+The [official pytz follow-up](official-pytz.md) replaces the bundled module and
+changes the manifest/import/package bytes. It is **not** covered by the historical
+912-file `965ee470` / GEN8 qualification below. Only focused source/dependency
+checks apply to the new bytes; independent Codex source/dependency/package/license
+review and the later single managed Nexus 20.5 startup/XMLTV smoke are **PENDING**.
+No runtime action, release-scope decision or requalification is implied. The
+historical receipts/tables and owner-pending Nexus-first release scope stand.
+
+## Historical frozen Alpha qualification
+
 This is the authoritative current overview. The reviewed Alpha source batch
 ([#44](https://github.com/kcook98765/script.tvguide.fullscreen/pull/44),
 [#46](https://github.com/kcook98765/script.tvguide.fullscreen/pull/46),

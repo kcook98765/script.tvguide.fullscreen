@@ -1,4 +1,7 @@
 Unreleased — Alpha development
+- Replace bundled pytz 2015.7 with Kodi's official script.module.pytz dependency
+  (minimum 2023.3.0+matrix.1); preserve existing timezone calls and scheduling.
+  This dependency/package follow-up has source checks only; native smoke pending.
 - Actively developed Python 3 / modern Kodi API fork; preserve the original
   Program + background service, GPL/upstream history, artwork and translations.
   This is development source, not a certified release or full legacy parity.

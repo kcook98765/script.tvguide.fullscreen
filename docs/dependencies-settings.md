@@ -1,5 +1,13 @@
 # Dependencies and retained legacy settings (Task14)
 
+## Current dependency follow-up — issue #54
+
+The bundled pytz has now been replaced by the official Kodi module. See the
+[focused dependency/package record](official-pytz.md) for exact four-catalog
+versions, package hashes, licensing, checks and native-smoke limits. The Task14
+table and vendor statements below are historical, not qualification of this
+follow-up. Dateutil/tzlocal, provider and scheduler logic are unchanged.
+
 > Historical task record: old activation-blocker / whole-campaign UNRUN statements
 > below are superseded by the [current overview](modernization-status.md).
 > Original failures and feature-specific unverified limits remain; later core
