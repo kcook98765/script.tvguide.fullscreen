@@ -1,13 +1,72 @@
 # Current fork feature and qualification status
 
-## Alpha2 U1 source-only follow-up — 21 November 2026
+## Current Alpha2 development — 21 November 2026
+
+**Alpha 1 is publicly published; Alpha2 is unreleased development only.** The
+existing [Alpha 1 prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1)
+is tagged at `fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`; the later download-documentation
+correction merged as `439b8b7`. Its public ZIP, checksum and tag are unchanged.
+The manifest remains **`0.0.446~alpha1`**; there is no Alpha2 package, version bump
+or repository distribution.
+
+Seven confirmed user-visible defect groups were investigated; **six improved in
+three independently reviewed, normally merged PRs #62/#63/#64**. These cover
+AutoPlay padding, Quick selection, exact-full-page Up wrap, explicit label
+clearing, Quick metadata focus and unusable XMLTV programme rows. Automatic
+cache invalidation is deferred at a reproduced persistence boundary; the separate
+latent left-button discrepancy was not selected because no bundled control 17027
+exists. See [Alpha2 development](alpha2-development.md) for contracts and limits.
+
+The final frozen-source batch passed **21 focused scripts: 114 reported unittest
+methods plus three assertion scripts**, including real official-pytz checks.
+Codex independently verified the raw receipts/counters. The one four-lane gate
+is **FAIL**, not static acceptance: syntax/manifest/paths/package PASS,
+types/official checker FAIL in every lane, process and JSON exits **1 / 1**.
+
+| Static lane | Type errors | Inherited locale errors / warnings |
+| --- | --- | --- |
+| Matrix 19.5 | 606 | 3 / 6 |
+| Nexus 20.5 | 606 | 3 / 7 |
+| Omega 21.3 | 606 | 3 / 7 |
+| Piers 22.0 RC2 | 580 | 3 / 7 |
+
+Normalized semantic diagnostics have **zero additions and zero removals versus
+Alpha 1**. Warnings, negative controls and genuine typing/locale debt remain.
+Matrix static 19.5 is not native 19.4; Piers evidence is RC2-only.
+
+**Alpha2 affected-behavior native acceptance on Matrix 19.4, Nexus 20.5, Omega
+21.3 and Piers 22 RC2: PENDING.** Native/preservation outcomes await independent
+supervisor evidence; no new native PASS or final acceptance is asserted here.
+The source freeze is `be9c64141161e671604a4876404e6aaf64778ccb`, tree
+`a339971aa620f667eec988173b31d751be303add`, **317 runtime files / 4,094,697 bytes**.
+This documentation update adds only changelog metadata to those runtime bytes;
+independent final preservation reconciliation remains pending. No tests, static
+gates or native actions were rerun to author it.
+
+Keep **#2/#4/#5/#8/#14/#21 OPEN**. The historical Matrix crash is unresolved;
+`Control.getPosition` is preserved. No broad static cleanup, locale guessing,
+unsafe execution restoration or additional feature work is included. Recommend
+only these six improvements for the smallest future Alpha2 scope, without
+packaging yet. The complete feature inventory and historical records below are
+retained, not new acceptance of their older claims.
+
+## Historical Alpha2 U1 implementation checkpoint
 
 [Guide correctness U1](quick-guide-correctness.md) records focused Quick selection,
 page wrapping, label clearing and retained metadata-focus fixes. Deterministic
 source fixtures are not new native acceptance; the initial Alpha results and
 feature inventory below retain their original scope and provenance.
 
-## Current initial Alpha qualification — 21 November 2026 UTC
+## Historical Alpha 1 qualification and prepublication record — 21 November 2026 UTC
+
+**Historical scope notice:** everything from this heading through the next
+historical-snapshots notice records the earlier Alpha 1 qualification and private
+candidate preparation. Its “unpublished”, “not created”, “planned”, “current” and
+candidate-filename statements describe that earlier checkpoint, not today's
+publication state or Alpha2 acceptance. Alpha 1 was subsequently published as
+linked above; use the [README download instructions](../README.md#alpha-1-download-and-installation)
+for the actual public installer filename, checksum and immutable tag. Native and
+static results below retain only their original exact-source scope.
 
 **All four versions are owner-decided initial Alpha scope. Bounded aggregate
 native gate: PASS on all four retained installations. Final four-lane static gate:

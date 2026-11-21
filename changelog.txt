@@ -1,3 +1,17 @@
+Unreleased — Alpha2 development
+- Correct AutoPlay before/after padding: saved enum index 6 uses the displayed
+  10 minutes at both runtime consumers; saved choices, indices and defaults stay.
+- Use the focused Quick programme for Select and metadata lookup, wrap Up to the
+  final full page correctly, and clear explicitly empty guide labels.
+- Skip XMLTV programme rows with unusable channel identity/start/stop, preserving
+  valid trailing rows, metadata, order and offsets across all three sources.
+  No stop inference, XML syntax repair or new title/duration policy.
+- Defer automatic cache invalidation because of reproduced persistence risks;
+  retain existing source-aware download caching and additive M3U preservation.
+- Development only: 21 focused scripts passed; the final four-lane static gate
+  remains FAIL. Four-version affected-behavior native acceptance is PENDING.
+  See docs/alpha2-development.md; no Alpha2 version, package or release prepared.
+
 version 0.0.446~alpha1 — Alpha
 - Prepare shared Alpha version/news metadata for all four initial-scope versions;
   no runtime logic or dependency changes.
