@@ -1273,8 +1273,10 @@ class TVGuide(xbmcgui.WindowXML):
         elif action.getId() == ACTION_MOUSE_WHEEL_DOWN:
             self._quickMoveDown(1)
         elif action.getId() in COMMAND_ACTIONS["PLAY"]:
-            self._hideQuickEpg()
-            self.playOrChoose(self.osdProgram)
+            program = self._getQuickProgramFromControl(controlInFocus)
+            if program is not None:
+                self._hideQuickEpg()
+                self.playOrChoose(program)
         elif action.getId() in COMMAND_ACTIONS["CHANNEL_LISTING"]:
             program = self._getQuickProgramFromControl(controlInFocus)
             if program is not None:
@@ -2187,9 +2189,9 @@ class TVGuide(xbmcgui.WindowXML):
         except Exception:
             return
         program = self._getProgramFromControl(controlInFocus)
-        self.focusedProgram = program
         if self.mode == MODE_QUICK_EPG:
             program = self._getQuickProgramFromControl(controlInFocus)
+        self.focusedProgram = program
 
         if program is None:
             return
@@ -2728,8 +2730,7 @@ class TVGuide(xbmcgui.WindowXML):
             first_channel = self.quickChannelIdx - 3
             if first_channel < 0:
                 len_channels = self.database.getNumberOfChannels()
-                last_page = len_channels % 3
-                first_channel = len_channels - last_page
+                first_channel = ((len_channels - 1) // 3) * 3 if len_channels else 0
             self.quickFocusPoint.y = self.quickEpgView.bottom
             self.onRedrawQuickEPG(first_channel, self.quickViewStartDate,
                              focusFunction=self._findQuickControlAbove)
@@ -2799,8 +2800,7 @@ class TVGuide(xbmcgui.WindowXML):
         first_channel = self.quickChannelIdx - count
         if first_channel < 0:
             len_channels = self.database.getNumberOfChannels()
-            last_page = len_channels % 3
-            first_channel = len_channels - last_page
+            first_channel = ((len_channels - 1) // 3) * 3 if len_channels else 0
         if scrollEvent:
             self.onRedrawQuickEPG(first_channel, self.quickViewStartDate)
         else:
@@ -4448,7 +4448,7 @@ class TVGuide(xbmcgui.WindowXML):
 
     def setControlLabel(self, controlId, label):
         control = self.getControl(controlId)
-        if control and label:
+        if control and label is not None:
             control.setLabel(label)
 
     def setControlText(self, controlId, text):
