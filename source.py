@@ -2374,6 +2374,7 @@ class XMLTVSource(Source):
                         if logoFolder:
                             if self.logoSource == XMLTVSource.LOGO_SOURCE_URL:
                                 logoFile = '/'.join([logoFolder.rstrip('/'), title + '.png'])
+                                logo = logoFile
                                 #logo = logoFile.replace(' ', '%20').lower()
                             #elif xbmcvfs.exists(logoFile): #BUG case insensitive match but won't load image
                             #    logo = logoFile

@@ -251,10 +251,21 @@ the nonempty string `'false'` previously enabled them too. No setting is rewritt
 `/usr/bin/python3 -B tests/check_xmltv_logos.py` executes the actual parser with
 inert VFS/logo fakes: true/false/empty values, missing icons, folder-match precedence,
 TheLogoDB opt-in/keep rules, and an in-memory raw-string negative control.
-The existing URL-source branch computes but does not assign a replacement logo;
-that limitation is preserved, not repaired or claimed working here.
+At A2, the URL-source branch computed but did not assign a replacement logo;
+that limitation was deliberately preserved for separate review.
 No cache invalidation/forced refresh is added. Native persistence/display testing
 and the full Toolkit gate remain pending; private evidence: `.git/modernization-evidence/alpha-A2-logos/`.
+
+### Alpha A3: restore the explicit URL logo source
+
+Selecting `logos.source=2` (Url) now uses the already constructed
+`logos.url.rstrip('/') + '/' + title + '.png'` as the channel logo, overriding
+XMLTV icons even when `xmltv.logos` is off or no icon exists. Case/spaces, folder
+matching, empty-base fallback, and TheLogoDB Always / If Missing / keep precedence
+are retained; no URL encoding, probing or download is added. The same parser tests
+replace A2's broken-URL expectations and cover trailing slashes and precedence.
+Native display/reachability and full-gate validation remain pending; private
+evidence: `.git/modernization-evidence/alpha-A3-url-logos/`.
 
 [matrix-index]: https://mirrors.kodi.tv/addons/matrix/addons.xml.gz
 [nexus-index]: https://mirrors.kodi.tv/addons/nexus/addons.xml.gz
