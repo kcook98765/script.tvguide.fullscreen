@@ -13,7 +13,7 @@ All four official `addons.xml.gz` catalogs resolve the same declaration:
 
 | Intended catalog | Official add-on version | Only dependency | Module |
 | --- | --- | --- | --- |
-| [Matrix](https://mirrors.kodi.tv/addons/matrix/addons.xml.gz) (19.5) | 2023.3.0+matrix.1 | xbmc.python 3.0.0 | lib/pytz |
+| [Matrix](https://mirrors.kodi.tv/addons/matrix/addons.xml.gz) (19.4) | 2023.3.0+matrix.1 | xbmc.python 3.0.0 | lib/pytz |
 | [Nexus](https://mirrors.kodi.tv/addons/nexus/addons.xml.gz) (20.5) | 2023.3.0+matrix.1 | xbmc.python 3.0.0 | lib/pytz |
 | [Omega](https://mirrors.kodi.tv/addons/omega/addons.xml.gz) (21.3) | 2023.3.0+matrix.1 | xbmc.python 3.0.0 | lib/pytz |
 | [Piers](https://mirrors.kodi.tv/addons/piers/addons.xml.gz) (22.0 RC2) | 2023.3.0+matrix.1 | xbmc.python 3.0.0 | lib/pytz |
@@ -41,6 +41,14 @@ no third-party/transitive module dependency. Its actual code identifies **pytz
 3.0.0 is compatible with the four intended Kodi Python-3 API declarations; it is
 not a CPython version. This establishes declaration/source compatibility, not
 four-platform native qualification or a claim of the latest timezone database.
+
+Matrix **19.4** is this follow-up's compatibility target. Its exact
+[xbmc.python manifest](https://github.com/xbmc/xbmc/blob/e12e66e019af29ba9d5f5a2614315b15a138b81a/addons/xbmc.python/addon.xml)
+at the retained Task14 Kodi revision declares **3.0.0** (ABI 3.0.0), satisfying
+the official module's API floor. The Matrix catalog is release-family metadata,
+not evidence of native installation or testing on 19.4. **19.5** names only the
+historical static-tooling target, not this compatibility target. No new native
+Matrix test or static gate was performed for this documentation correction.
 
 The common minimum **2023.3.0+matrix.1** selects the exact package verified in all
 four current catalogs, not the earliest possible pytz API. The suffix does not
