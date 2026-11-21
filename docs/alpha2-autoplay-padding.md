@@ -66,7 +66,7 @@ index 6 emitted start delay **4**, stop **46**, instead of **0**, **50**.
 
 After the fix: **exit 0**, AutoPlay **10 tests**, including all 49 before/after
 pairs, exact command/payload identity, reconstruction, seven stop-off cases,
-unchanged XML/defaults and 18 independent invalid-string cases. Existing callback,
+enum options/defaults and 18 independent invalid-string cases. Existing callback,
 ownership and hostile-data checks remain active. In-memory mutations returning
 six instead of ten and using before for after both exit **1**, respectively
 13 and 42 failing subtests; no mutated runtime file is written.
@@ -90,3 +90,15 @@ official checker **not run** (full static gate excluded from S1). No dependency
 installation, native startup, deployment, smoke, launch, UI, playback, settings
 save/restart or lifecycle test was performed. No version/release/distribution
 change. Stop for independent Codex review before any merge.
+
+### Focused review correction
+
+The scheduler test asserts only the two enum IDs/types, ordered options, defaults
+and absence of `entries`; it no longer freezes the entire settings file to a
+historical revision. Whole-file equality to the campaign base remains recorded
+as private preservation evidence, not a product-test requirement. The affected
+contract/default test rerun passes (1 test, exit 0); both mutations still exit 1
+with 13 / 42 failing subtests. The 49-combination test is unchanged. The earlier
+10-test suite result above predates this assertion-only correction; no full suite
+or native gate was rerun. Existing baseline tests still require Git history, so
+this is not an archive-portability fix or a claim the export failure was new.

@@ -147,8 +147,6 @@ class AutoPlay(unittest.TestCase):
 
     def test_padding_settings_contract_and_defaults(self):
         settings = (ROOT / 'resources/settings.xml').read_bytes()
-        self.assertEqual(settings, subprocess.check_output(
-            ['git', 'show', '439b8b72059a2f5031459a7dbefaa1a05b3bb24c:resources/settings.xml'], cwd=ROOT))
         rows = {row.get('id'): row for row in ET.fromstring(settings).iter('setting')}
         n = self.scheduler()
         for key in ('autoplays.before', 'autoplays.after'):
