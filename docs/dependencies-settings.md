@@ -244,6 +244,18 @@ installation test was attempted. Fixed video-plugin smoke ineligibility is not
 a diagnosis of this script/service add-on. Independent supervisor review is
 required before merge; no release/publication/distribution change is included.
 
+## Alpha A2: XMLTV logo opt-in
+
+`parseXMLTV` now uses XMLTV channel icons only when `xmltv.logos == 'true'`;
+the nonempty string `'false'` previously enabled them too. No setting is rewritten.
+`/usr/bin/python3 -B tests/check_xmltv_logos.py` executes the actual parser with
+inert VFS/logo fakes: true/false/empty values, missing icons, folder-match precedence,
+TheLogoDB opt-in/keep rules, and an in-memory raw-string negative control.
+The existing URL-source branch computes but does not assign a replacement logo;
+that limitation is preserved, not repaired or claimed working here.
+No cache invalidation/forced refresh is added. Native persistence/display testing
+and the full Toolkit gate remain pending; private evidence: `.git/modernization-evidence/alpha-A2-logos/`.
+
 [matrix-index]: https://mirrors.kodi.tv/addons/matrix/addons.xml.gz
 [nexus-index]: https://mirrors.kodi.tv/addons/nexus/addons.xml.gz
 [omega-index]: https://mirrors.kodi.tv/addons/omega/addons.xml.gz

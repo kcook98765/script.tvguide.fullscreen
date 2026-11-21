@@ -2369,7 +2369,7 @@ class XMLTVSource(Source):
                         if iconElement is not None:
                             icon = iconElement.get("src")
                         logo = ''
-                        if icon and ADDON.getSetting('xmltv.logos'):
+                        if icon and ADDON.getSetting('xmltv.logos') == 'true':
                             logo = icon
                         if logoFolder:
                             if self.logoSource == XMLTVSource.LOGO_SOURCE_URL:
