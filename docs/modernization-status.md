@@ -1,5 +1,90 @@
 # Current fork feature and qualification status
 
+## Current initial Alpha campaign — provisional, 21 November 2026
+
+**All four versions are owner-decided initial Alpha scope.** The previous
+Nexus-first recommendation is obsolete. Native qualifications are in progress.
+Final independently reviewed outcomes are pending for all four versions; no
+campaign PASS is claimed and no Alpha release is published yet.
+
+| Initial-scope native version | Current campaign outcome |
+| --- | --- |
+| Matrix **19.4** | **PENDING** actual native qualification and independent preservation audit. Historical reopen exit/SIGSEGV evidence remains unresolved. Static Matrix 19.5 is not native 19.4. |
+| Nexus **20.5** | **PENDING** full campaign outcome. The earlier bounded official-pytz startup is historical component evidence, not full-candidate acceptance. |
+| Omega **21.3** | **PENDING** actual native qualification and independent preservation audit. Earlier unrequested exit and callback limits remain recorded. |
+| Piers **22 RC2** | **PENDING** actual native qualification and independent preservation audit. Bounded RC2 only, not stable/future-stable support; earlier rapid-modal blank is not claimed repaired. |
+
+### Candidate and acceptance boundaries
+
+- Documentation base: clean main `4b2a83fbd98bc7aa7556bb19fa5f31401c32c0dc`,
+  full Git tree `61b859191c898c2ee07182d45ba7cec781677cb4`. The supplied campaign
+  plan establishes runtime equality with issue54 freeze
+  `023bf2670f0c6e910c49e5bd54e941fe8ee7d52a`, **317 files / 4,092,862 bytes before
+  this changelog addition**. This is not full-tree equality or a final ZIP hash.
+- Each version needs verified Program+service/dependencies and actual imports,
+  ordinary populated Run/close/reopen, usable XMLTV metadata/mappings and native
+  source/logo settings, advancing mapped video/Stop, navigation/context and
+  positive/empty/empty-programme behavior, preferences/rule retention, **fresh
+  actual background work**, exact provenance/logs/screens/receipts and final
+  supported Stop/preservation audit. Historical callbacks may supply only the
+  explicitly reviewed unchanged component portion, not current startup/imports
+  or all scheduling phases.
+- Required official **`script.module.pytz >= 2023.3.0+matrix.1`** replaces bundled
+  pytz. All four reviewed catalogs declare it; catalogs are not four native
+  installations. See [official pytz](official-pytz.md) for exact historical evidence.
+  Other manifest dependencies and both `addon.py`/`service.py` remain preserved;
+  background-service execution requires explicit consent.
+- One common TV Guide ZIP is planned for all four, with official repository
+  dependencies separate and **no `resources/lib/pytz`**. A clean 317-file local
+  inventory is distinct from retained native destinations with **595 old vendor
+  leftovers** (912 total runtime files). Copy/update does not prove pruning or a
+  clean install. Clean native installation remains unqualified.
+- Supported native **Program Info → Run** is distinct from the historical Lab
+  `launch_not_deployed` refusal. Fixed workspace smoke is not eligible for this
+  mixed Program+service manifest; workspace launch is unavailable under the
+  control-free client. Do not turn a tool refusal into either a runtime PASS or
+  an application defect, or redeploy/retry merely to work around it.
+
+### Static, release and publication status
+
+**No current final four-lane static result is available.** The historical GEN8
+gate below remains **FAIL**, not erased by native outcomes or focused checks.
+The final gate requires each explicit per-version interpreter to
+run `stub-lanes`, then that same interpreter to run validation with its matching
+branch and the existing offline index cache. All six stages (syntax, manifest,
+paths, package, types, official checker), warnings and negative controls must be
+retained. Current final static results and release-package qualification remain
+pending.
+
+The shared manifest version **`0.0.446~alpha1` is proposed only**; actual manifest
+**0.0.445 remains unchanged**. [Kodi Wiki ordering](https://kodi.wiki/view/Addon.xml#How_versioning_works)
+documents `~alpha` before the corresponding unsuffixed version. The separate
+proposed Git tag is **`v0.0.446-alpha1`**; Git tags cannot contain `~`.
+Subject to owner approval and a version-metadata rebuild, a proposed GitHub
+prerelease would carry **one common `script.tvguide.fullscreen-0.0.446~alpha1.zip`
+with a single `script.tvguide.fullscreen/` root**, final SHA-256, exact
+tag/source/candidate build notes and actual per-version results and limitations.
+A private qualification ZIP at unchanged **0.0.445** is not that release artifact.
+The prerelease is **planned and unpublished**, without invented asset URLs.
+Repository publication needs separate explicit approval. See [planned user
+installation](alpha-installation.md).
+
+No stable, future-stable Piers, all-platform, full-parity, clean-log or static-pass
+claim is made. Never publish private feed names/URLs, settings, credentials,
+private logs or unsanitized screenshots. Historical upstream attribution, GPL,
+translations, the full changelog tail and qualification receipts remain intact.
+
+## Historical snapshots below — superseded as the current overview
+
+Everything below this notice is retained verbatim from the documentation base.
+Its “current”, “final”, “authoritative”, owner-pending and Nexus-first wording,
+tables and source pins refer to those **older exact-source checkpoints**, not the
+current campaign. In particular, issue54 is no longer future work and the former
+912-file vendor-inclusive source is not today's clean source inventory. Historical
+results, failures, receipts and limitations remain evidence for their stated
+scope; none is silently promoted to a new four-version PASS. The current section
+above governs scope and pending outcomes.
+
 ## Dependency/package follow-up — issue #54
 
 The [official pytz follow-up](official-pytz.md) replaces the bundled module and

@@ -1,5 +1,36 @@
 # Official pytz dependency — issue #54
 
+## Current campaign context — provisional, 21 November 2026
+
+The owner has decided that **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2
+are all initial Alpha scope**. The former Nexus-first recommendation is
+superseded. Native qualifications are in progress in separately owned sessions;
+their final outcomes are **pending**, not inferred from this historical Nexus
+startup or four catalog declarations. See the [current overview](modernization-status.md).
+
+Required **`script.module.pytz >= 2023.3.0+matrix.1`** comes separately from the
+official Kodi repository. The planned common TV Guide ZIP must not bundle pytz.
+The supplied clean source/package inventory is **317 files / 4,092,862 bytes
+before the new documentation changelog lines**, without `resources/lib/pytz`;
+retained native deployments can still include **595 unused old vendor files**.
+That distinction remains mandatory: neither source removal nor a retained-copy
+startup proves a clean native install. Program+service and background consent
+remain preserved. Supported native GUI **Run** is distinct from the known Lab
+exact-launch refusal documented below.
+
+Manifest **0.0.445 remains unchanged**; **0.0.446~alpha1 is a proposal only**.
+Installation/release assets are [planned, not published](alpha-installation.md).
+Final native/static qualification and release-package results remain pending;
+no stable/all-platform/parity/clean-log/static-pass claim is made.
+
+## Historical issue54 record — retained verbatim
+
+The remainder is the original bounded follow-up, including its receipts,
+operational error/correction and limitations. Its owner-pending/Nexus-first and
+“all four stopped” statements describe that historical checkpoint, not today's
+owner scope or live session state. The current campaign context above supersedes
+those scope statements only; original evidence is not rewritten.
+
 This dependency/package follow-up has **accepted independent Codex source,
 dependency, license and package review**, four independently passed focused
 commands, and **one bounded ordinary native Nexus 20.5 guide/XMLTV startup PASS**
