@@ -940,8 +940,8 @@ class Database(object):
                           [channel.id, self.source.KEY, startTime, endTime, search, search])
                 except: return
             else:
-                try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND title LIKE ?',
-                          [channel.id, self.source.KEY,search])
+                try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND start_date>=? AND end_date<=? AND title LIKE ?',
+                          [channel.id, self.source.KEY, startTime, endTime, search])
                 except: return
             for row in c:
                 program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
