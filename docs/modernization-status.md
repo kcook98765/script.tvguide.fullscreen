@@ -57,8 +57,10 @@ release version and publication separately. No target is silently removed.
   supported same-profile Stop/Start rendered populated guide data. Fresh primary
   background update **01:01:17.733–01:01:18.526 UTC, 21 November 2026** mapped
   **246/246 feed IDs**: **244 XML channel icons / 0 database channel logos** with
-  `xmltv.logos=false` and other logo sources off. Missing two Logos widgets made
-  focused results **55/56**, not a parser-false regression. Secondary VFS pilot
+  `xmltv.logos=false` and other logo sources off. The two missing Logos widgets
+  were the visibility defect tracked in [#55](https://github.com/kcook98765/script.tvguide.fullscreen/issues/55)
+  and corrected by [PR56](https://github.com/kcook98765/script.tvguide.fullscreen/pull/56),
+  not a parser-false regression. Secondary VFS pilot
   was never saved or offset-parsed; the viewer disconnected during long text,
   followed by an unrequested native exit. No causal diagnosis, restart/crash
   investigation or final successful Stop is claimed for that terminal exit.
@@ -128,9 +130,9 @@ Fresh data: **247 channels / 2,075 programmes / 249 maps**, **246/246 feed IDs**
 **0 logos / 244 XML icons** with the false flag. Actual background update:
 **02:49:14.202–02:49:14.740 UTC, 21 November 2026**. Complete focused logs:
 current **1,405 lines / 769 errors**, old **478 / 157**, no Python-exception/fatal
-markers; not clean logs. This accepts the focused visibility correction, not a
-new full core/native cycle. #55 can close after independent native acceptance;
-this documentation change closes no issue. Broader issues retain their exact scopes.
+markers; not clean logs. The focused visibility defect in #55 is resolved with
+Codex-accepted source and native audit evidence, not a new full core/native cycle.
+Broader issues retain their exact scopes.
 
 ### Final static gate — exact frozen runtime
 
@@ -157,7 +159,7 @@ annotation diagnostic at `source.py:1054`, `programList`, belongs to
 **`_channelSearch`**; that entire function's AST is identical to starting
 `95c031`. No attributable runtime failure
 or new code finding was established. Hundreds of unresolved diagnostics are
-**not all false positives**; this is not permission for a broad typing campaign.
+**not all false positives**; the typing debt remains unresolved.
 Normalized checker errors/warnings are unchanged: Georgian, Haitian (Creole) and
 Vietnamese variant identities still require owner/translator decisions. Preserve
 **69 catalogs / 2,492 entries**, with no destructive locale guesses.
@@ -290,15 +292,15 @@ Phase5's separate XML visibility proof remain distinct from that integrated run.
 
 The bounded adjacent review established no further small empty-selection or
 scheduler [#21](https://github.com/kcook98765/script.tvguide.fullscreen/issues/21)
-defect. Deferred scheduler limitations are not a request for a new framework.
+defect. The documented scheduler limitations remain unresolved.
 [Owner #54](https://github.com/kcook98765/script.tvguide.fullscreen/issues/54) is
 **owner-approved small cleanup for the next batch**, explicitly deferred by the
 freeze rule—not a blocker or a new integration. No work on pytz is included.
 Large gaps remain: FFmpeg/arbitrary capture, external AutoPlayWith/player,
 complex skins/providers/migrations, old scheduler collision/horizon/in-flight
-behavior and preservation-sensitive cache invalidation. No full-parity promise,
-unsafe downloaded code/raw-command restoration or permanent additional feature
-deletion is authorized.
+behavior and preservation-sensitive cache invalidation. There is no full-parity
+claim, unsafe downloaded code/raw-command restoration or permanent additional
+feature deletion.
 
 [Initial docs PR53](https://github.com/kcook98765/script.tvguide.fullscreen/pull/53)
 already finalized the [changelog](../changelog.txt): its **26,296 historical bytes
@@ -306,8 +308,7 @@ plus 3,252-byte Unreleased prefix** remain untouched. This final qualification u
 is README/docs only; no runtime/test/manifest/GPL/translation/asset/dependency or
 version changes, release ZIP, repository package, tag or publication. Older
 exact-source reports, their failed results and historical header notices are
-retained rather than rewritten as passes. No further native work is authorized
-for this documentation task; Codex review/normal merge remains separate.
+retained rather than rewritten as passes.
 
 [overall]: https://github.com/kcook98765/script.tvguide.fullscreen/issues/1
 [preservation]: https://github.com/kcook98765/script.tvguide.fullscreen/issues/14

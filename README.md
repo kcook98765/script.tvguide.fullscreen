@@ -6,8 +6,8 @@ streams, search listings, and set reminders or ordinary AutoPlay. This is an
 of full legacy feature parity.
 
 Intended targets are **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2**.
-Final qualification is **PARTIAL; the four-lane static gate FAILED**. Supervisor
-Codex's independent review supports bounded core Alpha owner review, not a stable
+Final qualification is **PARTIAL; the four-lane static gate FAILED**. Independent
+review supports consideration as a limited core Alpha candidate, not a stable
 release: Nexus has the strongest current core evidence; Omega has bounded
 core/settings evidence and a recorded unrequested exit; Piers is a bounded Linux
 RC2 preview; Matrix's current candidate is native **UNRUN**, with its historical
@@ -60,7 +60,7 @@ also need owner/translator decisions; no catalogs were discarded.
 
 ## Trying reviewed development source
 
-There is **no qualified release ZIP or repository package offered by this work**.
+There is **no published Alpha, release ZIP or repository package from this work**.
 A GitHub source snapshot is not a validated Kodi installer; inherited tags are
 history, not Alpha release certification.
 
@@ -88,9 +88,7 @@ for the exact target/profile; do not bypass missing permissions or enablement.
 Start with the [deterministic local fixtures](docs/native-fixtures.md), then
 observe guide navigation, settings persistence, actual playback progression/Stop
 and background work separately. A successful copy, enabled flag or launch
-acknowledgement is not functional acceptance. This documentation update ran no
-native checks, tests or static gates; it records supplied supervisor-independent
-audit results. No published Alpha, ZIP or repository package was created.
+acknowledgement is not functional acceptance.
 
 ## Feedback, history and license
 
