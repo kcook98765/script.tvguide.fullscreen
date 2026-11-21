@@ -6,12 +6,13 @@ streams, search listings, and set reminders or ordinary AutoPlay. This is an
 of full legacy feature parity.
 
 Intended targets are **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2**.
-Historical native checks have exercised core guide/playback and background/timer
-paths, but with version-specific exceptions—including a deferred Matrix
-native-exit investigation and an unexplained Piers modal problem. The new
-consolidated native round and four-lane static gate are **PENDING**.
-Earlier full static validation failed;
-Piers is an exact Linux RC2 preview, not stable or all-platform qualification.
+Final qualification is **PARTIAL; the four-lane static gate FAILED**. Supervisor
+Codex's independent review supports bounded core Alpha owner review, not a stable
+release: Nexus has the strongest current core evidence; Omega has bounded
+core/settings evidence and a recorded unrequested exit; Piers is a bounded Linux
+RC2 preview; Matrix's current candidate is native **UNRUN**, with its historical
+crash investigation deferred. These are recommendations, not an approved support
+scope or all-four-version compatibility claim.
 See the **[current feature and qualification overview](docs/modernization-status.md)**
 for precise sources, results and remaining limits.
 
@@ -23,12 +24,13 @@ for precise sources, results and remaining limits.
   identities and bounded reconstruction/cancellation behavior.
 - Additive M3U channel updates that preserve programmes and schedules;
   source-aware XMLTV caching; guide labels, native control actions and empty-list
-  navigation repairs. Core paths have historical bounded native evidence—not
-  acceptance of every feature or of the latest source batch.
+  navigation repairs. Core paths have bounded native evidence, with distinct
+  per-version and exact-source limits—not acceptance of every feature.
 - Reviewed Alpha source fixes for independent secondary/tertiary XMLTV offsets,
   XMLTV logo opt-in and explicit URL logos, title-search date windows, and
-  source-scoped channel/catchup listings. Their focused regressions pass;
-  consolidated native verification is still pending.
+  source-scoped channel/catchup listings, plus restored logo-setting visibility.
+  Focused regressions pass; the overview separates the broad primary native
+  round from the final Omega resource-only settings retest.
 
 Other bounded restorations include JSON image matches, passive guide styling,
 closed-catalog action customization and typed media/folder mappings. The
@@ -62,17 +64,18 @@ There is **no qualified release ZIP or repository package offered by this work**
 A GitHub source snapshot is not a validated Kodi installer; inherited tags are
 history, not Alpha release certification.
 
-Obtain this fork and pin the reviewed implementation commit named in the
-[status overview](docs/modernization-status.md), rather than testing an arbitrary
-moving branch tip. For that reviewed source baseline:
+Obtain this fork and pin the reviewed frozen runtime in the
+[status overview](docs/modernization-status.md), rather than an arbitrary moving
+branch tip:
 
 ```sh
 git clone https://github.com/kcook98765/script.tvguide.fullscreen.git tvguide-fullscreen-development
-git -C tvguide-fullscreen-development checkout --detach ca198d4ffc498f23ffdfae59d815d84177b10f1f
+git -C tvguide-fullscreen-development checkout --detach 965ee470e80abaaf13788ff921852ecdf6f0cfda
 ```
 
-This is a source checkout, not an installation step or a final runtime-freeze
-pin. Check the overview for a later reviewed frozen candidate before testing.
+This is a source checkout, not a Kodi installation step. A later documentation
+merge inherits this qualification only after supervisor verification that its
+protected runtime tree is identical to this pin.
 
 For development testing, use a reviewed commit in an isolated checkout and a
 separate disposable Kodi development profile—not your everyday setup. Review
@@ -85,8 +88,9 @@ for the exact target/profile; do not bypass missing permissions or enablement.
 Start with the [deterministic local fixtures](docs/native-fixtures.md), then
 observe guide navigation, settings persistence, actual playback progression/Stop
 and background work separately. A successful copy, enabled flag or launch
-acknowledgement is not functional acceptance. The current pending round has not
-been performed by this documentation update.
+acknowledgement is not functional acceptance. This documentation update ran no
+native checks, tests or static gates; it records supplied supervisor-independent
+audit results. No published Alpha, ZIP or repository package was created.
 
 ## Feedback, history and license
 
