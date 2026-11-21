@@ -34,14 +34,31 @@ Normalized semantic diagnostics have **zero additions and zero removals versus
 Alpha 1**. Warnings, negative controls and genuine typing/locale debt remain.
 Matrix static 19.5 is not native 19.4; Piers evidence is RC2-only.
 
-**Alpha2 affected-behavior native acceptance on Matrix 19.4, Nexus 20.5, Omega
-21.3 and Piers 22 RC2: PENDING.** Native/preservation outcomes await independent
-supervisor evidence; no new native PASS or final acceptance is asserted here.
+**Three bounded Alpha2 affected-behavior rounds are independently audited by
+Codex; Piers 22 RC2 and final Current-selection restoration remain PENDING.**
+Nexus 20.5 observed padding 10/10 Save/reopen, distinct Quick selection and an
+independently established exact-full-page Up wrap (246 visible channels, last
+page 243). Omega 21.3 observed distinct Quick selection, but wrap was refused
+before dispatch and is **UNOBSERVED**. Matrix 19.4 observed a three-channel
+dateless fixture guide and Quick selection returning playback, but distinct
+channel identity is **UNOBSERVED** with shared fixture media. Empty-detail clearing
+and metadata prefill remain **UNOBSERVED** natively. This is not a repeat of the
+old eight-point gate or full four-version qualification. See the
+[native observations and preservation limits](alpha2-development.md#bounded-native-observations--piers-pending).
+
+All three ended supported Stopped with owned browsers closed. Independent
+stopped-archive/second-copy audits matched GEN10 runtime and protected channels,
+mappings and rule fields; ordinary programme refreshes and generated preferences
+changed. **Whole profiles/all setting bytes are not unchanged.** Logs retain
+caught control/environment/audio errors, despite no Python exception/import
+markers in the audited complete current/old logs. No clean-log, motion/audio,
+new timer/provider or release-ready claim follows.
 The source freeze is `be9c64141161e671604a4876404e6aaf64778ccb`, tree
 `a339971aa620f667eec988173b31d751be303add`, **317 runtime files / 4,094,697 bytes**.
 This documentation update adds only changelog metadata to those runtime bytes;
-independent final preservation reconciliation remains pending. No tests, static
-gates or native actions were rerun to author it.
+independent final four-round preservation reconciliation and original Current
+Nexus selection restoration remain pending. No tests, static gates or native
+actions were rerun to author it.
 
 Keep **#2/#4/#5/#8/#14/#21 OPEN**. The historical Matrix crash is unresolved;
 `Control.getPosition` is preserved. No broad static cleanup, locale guessing,

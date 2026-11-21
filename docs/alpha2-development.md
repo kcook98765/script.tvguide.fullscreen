@@ -23,6 +23,13 @@ The separate Quick left-button discrepancy remains latent/unqualified and was
 **not selected**: no bundled Default/Dark/CatBar control **17027** establishes
 reachability. No button or skin redesign was added to manufacture it.
 
+The [primary XMLTV DTD](https://github.com/XMLTV/xmltv/blob/master/xmltv.dtd)
+requires programme `start` and `channel` attributes, while `stop` is optional.
+A missing stop can therefore be valid XMLTV yet unrepresentable by this add-on's
+timed grid. The row guard skips it without inventing an end time. Existing
+source/fixtures prove the three-slot guard; no native bad-feed switch or setup
+was needed, and arbitrary malformed XML is not repaired.
+
 ## Why automatic cache invalidation is deferred
 
 The seventh group is real but not a safe small patch. Eleven parse-affecting
@@ -76,19 +83,63 @@ owner/translator decisions; **all 69 catalogs / 2,492 entries are preserved**.
 No broad typing cleanup, warning suppression or locale guessing was performed.
 Matrix static **19.5 is not native 19.4**; Piers is bounded **RC2-only** evidence.
 
-## Native acceptance and preservation — PENDING
+## Bounded native observations — Piers PENDING
 
-Affected-behavior native acceptance remains **PENDING** for **Matrix 19.4,
-Nexus 20.5, Omega 21.3 and Piers 22 RC2**. No new per-version PASS, final stopped
-state or completed preservation audit is claimed here. Actual outcomes must come
-from supervisor-reviewed native observations and exact-byte/preservation facts.
-Historical Alpha 1 bounded four-version results remain historical, not acceptance
-of these changed behaviours. The historical Matrix crash remains unresolved.
+The following three affected-behavior rounds and preservation audits are actual
+results independently reviewed by Codex, supplied for this documentation. They
+are **not full four-version qualification or a release-ready guarantee**.
+**Piers 22 RC2 and final original Current Nexus selection restoration remain
+PENDING**; all original targets are retained. Historical Alpha 1 aggregate passes
+remain historical, not substitute acceptance for changed behaviour.
+
+| Native build | Observed affected behaviour | Explicit limits / UNOBSERVED |
+| --- | --- | --- |
+| **Nexus 20.5**, Debian `2:20.5+dfsg-1ubuntu1`, code `20.5.0`, Git `20240927-nogitfound` | Padding **10/10 Save/reopen**; original **1/1** restored and saved. Current populated guide; Quick first → last page. While A played, selected B; Select requested B with its named loading overlay and a different frame; ordinary Stop/close. **Exact-multiple Up wrap PASS** independently established from stopped DB/pixels: 246 visible XMLTV channels, no category/sort filter, first/last three title boundaries match, last page starts at **243**. | OpenCode's original channel count was unobserved; Codex's archive/pixel consolidation establishes the wrap result. Numeric saved **6** was **not directly read**: official tagged enum contract plus unchanged XML establish index semantics; 49 actual consumer pairs are deterministic source evidence. Empty-detail clearing and metadata prefill **UNOBSERVED**. No motion/audio/timer qualification. |
+| **Omega 21.3**, Debian `2:21.3+dfsg-1ubuntu1`, code `21.3.0`, Git `20260315-nogitfound` | Current populated guide/Quick; selected B while A played, Select showed B's matching loading overlay; ordinary Stop/close. | Up-wrap input **refused before dispatch** because viewer control expired: **UNOBSERVED**, not a failed wrap or a retried test. One supported viewer renewal served selection; no infrastructure changes. No padding writes/repeated Save cycle, new provider, empty-detail or native callback acceptance. |
+| **Matrix 19.4**, Debian `2:19.4+dfsg1-2`, code `19.4.0`, Git `20220409-nogitfound` | Three-channel **dateless** guide with old fixture dates unchanged; brief existing mapped clip; Quick highlighted-cell selection returned playback; ordinary Stop/close. | Shared fixture media does **not** independently prove distinct B-channel identity: **UNOBSERVED**. Historical crash/SIGSEGV did not recur here but remains **UNRESOLVED**; no debugger/reopen/crash campaign. No new padding UI/timer/provider qualification. |
+| **Piers 22 RC2** | **PENDING** | Final short-pass facts and audit not yet incorporated; no outcome inferred. |
+
+Empty-detail label clearing and metadata prefill have no new native acceptance;
+their deterministic source evidence remains separate. These rounds did not
+repeat ten-minute waits, recurrence/reconstruction, sound/races, the old
+eight-point acceptance gate or full skin/provider work. No new official add-on
+was installed.
+
+### Three completed stopped-profile preservation audits
+
+All three ran exact **GEN10**, the frozen `be9c641` runtime: **317 files /
+4,094,697 bytes**, checked by Codex against stopped after-archives and a second
+live copy. All **595 original unused vendor files** were retained, all **611
+official pytz payloads** were exact, and other add-on payloads were unchanged.
+
+| Protected data / ordinary guide refresh | Nexus | Omega | Matrix |
+| --- | --- | --- | --- |
+| All channel rows exact | 247 | 247 | 4 |
+| Primary maps exact; alternates also exact | 249 | 249 | 3 |
+| Reminder + AutoPlay rules: all fields/associations exact | 0 + 0 | 0 + 0 | 1 + 1 |
+| Programmes before → after | 2,266 → 2,037 | 2,234 → 2,000 | 24 → 24 |
+
+Database integrity passed and foreign-key checks were clean. Nexus/Omega
+programme counts changed through ordinary refresh/aging, not preservation loss
+of protected channel/map/rule rows. Original preferences, including padding
+**1/1** and `channelIdx` **0**, were restored unchanged. Generated `last.channel`
+history, the existing version marker **0.0.445 → 0.0.446~alpha1**,
+`last.background.update` and core uptime changed. **Do not infer byte-identical
+whole profiles or all settings bytes.** No profile/cache/database reset or manual
+deletion/restoration was used.
+
+All three ended with **supported Stopped** and owned browsers closed. Codex
+checked complete stopped current/old logs: no Python traceback,
+`PythonToCppException` or import-failure markers in these rounds. Caught
+missing-control diagnostics and many environment/audio errors persist:
+**logs are not clean**. Limited-tail and invalid-scan receipts remain retained,
+not substitutes for the full-log audit or evidence of clean logs.
 
 README/docs do not change the runtime inventory; this update's neutral changelog
 prefix is its sole runtime-byte difference from the source freeze. Independent
-final reconciliation remains pending. No native actions, additional tests or
-static gates were performed to prepare this documentation.
+four-round reconciliation and final Current-selection restoration remain pending.
+No native actions, additional tests or static gates were performed to prepare
+this documentation update.
 
 ## Recommended next scope
 
