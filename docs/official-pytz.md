@@ -80,7 +80,7 @@ The original tracked vendor inventory is **595 files / 801,521 logical bytes**
 (not the approximate issue estimate). All are removed. Using the same raw runtime
 inventory boundary (all tracked resources, root Python, manifest, changelog,
 artwork, GPL license and commands.txt), the count falls from **912 files /
-4,894,184 bytes** to **317 files / 4,092,944 bytes**: net reduction **801,240
+4,894,184 bytes** to **317 files / 4,092,862 bytes**: net reduction **801,322
 bytes**, including the small manifest/import/changelog changes. Docs/tests are
 outside that runtime boundary; no TV Guide installer ZIP is produced or
 published. The official dependency occupies its own separate,
