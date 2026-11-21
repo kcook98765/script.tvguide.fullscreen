@@ -71,8 +71,8 @@
         <setting id="logos.url" label="Logos Url" type="text" visible="eq(-3,true) + eq(-2,2)" />
         <setting id="logos.keep" label="Keep Last Channel Logo Mapping" type="bool" default="false" />
         <setting type="sep"/>
-        <setting id="xmltv.logos" label="Use xmltv Logos" type="bool" visible="eq(-5,true)" default="false" />
-        <setting id="addon.logos" label="Use Addon Folder Logos" type="bool" visible="eq(-6,true)" default="false" />
+        <setting id="xmltv.logos" label="Use xmltv Logos" type="bool" visible="eq(-6,true)" default="false" />
+        <setting id="addon.logos" label="Use Addon Folder Logos" type="bool" visible="eq(-7,true)" default="false" />
         <setting type="sep"/>
         <setting id="thelogodb" label="Use TheLogoDB.com Logos" type="enum" default="0" values="Never|If Missing|Always" />
         <setting label="Delete TheLogoDB.com Cache" type="action" action="RunScript($CWD/ResetDatabase.py, 4)" />
