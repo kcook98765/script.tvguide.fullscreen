@@ -1,9 +1,12 @@
 # Planned Alpha installation — not yet published
 
 **Planned and unpublished.** There is no Alpha release asset to download yet.
-Native qualifications are in progress; final per-version outcomes and static
-results are pending. Do not treat a GitHub source archive, inherited tag or
-development checkout as a validated installer.
+As of **21 November 2026 UTC**, the independently reviewed bounded aggregate
+native gate passed on all four initial-scope versions, with explicit historical
+component reuse; the final static gate remains **FAIL**. See [qualification and
+limits](modernization-status.md), including unverified current Nexus/Omega LAN
+picture motion. Do not treat a GitHub source archive, inherited tag or development
+checkout as a validated installer.
 
 The owner-decided initial scope is **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers
 22 RC2**, using one common TV Guide ZIP, not a Nexus-first rollout. Piers is bounded
@@ -83,17 +86,18 @@ separate from this proposed release and is not a published prerelease.
 
 ## Packaging and retained-install limits
 
-The supplied pre-documentation clean runtime inventory is **317 files /
-4,092,862 bytes before the latest changelog addition**; no release ZIP is available.
-Final changelog/version edits will require new inventory/hashes. The planned ZIP
+The clean qualification export is **317 files / 4,093,191 bytes**, including the
+329-byte changelog addition; no release ZIP is available. Approved release-version
+metadata will require a rebuild and new inventory/hashes. The planned ZIP
 excludes `resources/lib/pytz`, tests, tools, docs, agent configuration, evidence,
 logs, caches and bytecode. Official modules remain separately installed in Kodi.
 
-Retained-copy development installations can contain the **317 reviewed files +
-595 old unused vendor files**. Do not call that clean installation or assume a ZIP
-update prunes leftovers. Do not delete files or uninstall on rule-bearing profiles
-to force cleanliness; use a separate supported test installation for clean-install
-evaluation.
+All four native tests used retained installations with **317 reviewed files +
+595 unchanged unused old vendor files**. A private **0.0.445** qualification
+preview is not a release installer or proof of native clean installation.
+Do not assume a ZIP update prunes leftovers. Do not delete files or uninstall on
+rule-bearing profiles to force cleanliness; use a separate supported test
+installation for clean-install evaluation.
 
 The planned prerelease will identify one reviewed common ZIP, SHA-256,
 exact tag/candidate build notes and actual results/limits for all four targets.

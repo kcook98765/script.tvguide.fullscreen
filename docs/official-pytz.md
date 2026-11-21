@@ -1,27 +1,45 @@
 # Official pytz dependency — issue #54
 
-## Current campaign context — provisional, 21 November 2026
+## Current four-version qualification — 21 November 2026 UTC
 
 The owner has decided that **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2
 are all initial Alpha scope**. The former Nexus-first recommendation is
-superseded. Native qualifications are in progress in separately owned sessions;
-their final outcomes are **pending**, not inferred from this historical Nexus
-startup or four catalog declarations. See the [current overview](modernization-status.md).
+superseded. The independently reviewed **bounded aggregate native gate passed
+on all four**, including fresh official-dependency imports, ordinary guide
+startup/reopen and actual service work. Every installed **611-file official
+module payload** matched its reviewed package. This extends beyond the original
+Nexus-only startup recorded below, without turning catalog declarations into
+native proof. See the [current overview](modernization-status.md) for historical
+component reuse and each build's exact limits.
 
 Required **`script.module.pytz >= 2023.3.0+matrix.1`** comes separately from the
 official Kodi repository. The planned common TV Guide ZIP must not bundle pytz.
-The supplied clean source/package inventory is **317 files / 4,092,862 bytes
-before the new documentation changelog lines**, without `resources/lib/pytz`;
-retained native deployments can still include **595 unused old vendor files**.
+The clean qualification export is **317 files / 4,093,191 bytes**, including the
+329-byte neutral changelog addition, without `resources/lib/pytz`;
+all four retained native deployments still include **595 unchanged unused old vendor files**.
 That distinction remains mandatory: neither source removal nor a retained-copy
 startup proves a clean native install. Program+service and background consent
 remain preserved. Supported native GUI **Run** is distinct from the known Lab
-exact-launch refusal documented below.
+exact-launch refusal documented below; this is not clean native installation.
+
+All **19 focused core scripts passed**, including real official-module imports
+and ordinary conversions; the final four-lane static gate nevertheless remains **FAIL**.
+Current type errors are **606/606/606/580**, with **3 checker errors** per lane and
+**6/7/7/7 warnings**. Each lane adds one `source.py` `pytz` **`import-untyped`**
+error plus three advisory notes because the locked validator lacks `types-pytz`.
+This is a static coverage gap, **not a runtime ImportError**. Compared with GEN8,
+36 errors and 22 notes disappear solely with removed vendor code; the remaining
+605/605/605/579 type errors are inherited, not all false positives. Checker locale
+errors are unchanged; only the three old vendor `.tab` warnings disappear.
+No type-package installation, configuration workaround or gate rerun was used.
 
 Manifest **0.0.445 remains unchanged**; **0.0.446~alpha1 is a proposal only**.
 Installation/release assets are [planned, not published](alpha-installation.md).
-Final native/static qualification and release-package results remain pending;
-no stable/all-platform/parity/clean-log/static-pass claim is made.
+The separate proposed Git tag is **`v0.0.446-alpha1`**. A private **0.0.445**
+qualification preview is not a release installer or native clean-install proof;
+owner-approved version metadata, rebuild/new hash and explicit publication
+authorization are still required. No stable/all-platform/parity/clean-log/static
+pass or official-repository intake readiness is claimed.
 
 ## Historical issue54 record — retained verbatim
 

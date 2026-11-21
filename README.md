@@ -6,13 +6,19 @@ streams, search listings, and set reminders or ordinary AutoPlay. This is an
 of full legacy feature parity.
 
 The owner-decided **initial Alpha scope includes all four versions: Matrix 19.4,
-Nexus 20.5, Omega 21.3 and Piers 22 RC2**. The former Nexus-first recommendation
-is superseded. Native qualification is in progress in separately owned sessions;
-**actual campaign outcomes are pending for every version**, not claimed PASS here.
-No Alpha release is published yet. The historical
-four-lane static gate failed on older bytes; the current candidate still needs
-its final static gate. Piers means the bounded RC2 build, not a stable release or
-a promise of future stable support. No all-platform or full-parity claim is made.
+Nexus 20.5, Omega 21.3 and Piers 22.0-RC2**. The former Nexus-first recommendation
+is superseded. As of **21 November 2026 UTC**, the independently reviewed
+**bounded aggregate native gate passed on all four; the final four-lane static
+gate remains FAIL**. No Alpha release is published yet.
+
+The native result combines fresh guide/import/service/preservation observations
+with exact, reviewed historical component evidence. Nexus/Omega reuse historical
+moving local clips and callbacks: **current LAN picture motion remains unverified**,
+even though playback clocks advanced. This is not current full-stream/audio
+acceptance or proof of whole historical GUI identity. Matrix's old crash is not
+resolved. Piers is the exact tested RC2, not a future stable-support promise;
+Matrix native **19.4** is distinct from static **19.5**. No all-platform, clean-log
+or full-parity claim is made.
 See the **[current feature and qualification overview](docs/modernization-status.md)**
 for precise sources, results and remaining limits.
 
@@ -29,8 +35,8 @@ for precise sources, results and remaining limits.
 - Reviewed Alpha source fixes for independent secondary/tertiary XMLTV offsets,
   XMLTV logo opt-in and explicit URL logos, title-search date windows, and
   source-scoped channel/catchup listings, plus restored logo-setting visibility.
-  Historical focused regressions have recorded results; the overview separates
-  those receipts from the pending current four-version campaign.
+  The final focused core batch passed all 19 scripts; broader static typing and
+  official-checker failures remain disclosed in the overview.
 
 Other bounded restorations include JSON image matches, passive guide styling,
 closed-catalog action customization and typed media/folder mappings. The
@@ -48,7 +54,7 @@ automatic episode matching or guide plot/art replacement.
 recording backend and enabled Kodi PVR client; future scheduling also needs its
 EPG. An arbitrary XMLTV/M3U stream or IPTV Simple installation is not a recording
 backend. This is a partial replacement, not old FFmpeg/external AutoPlayWith parity.
-Neither optional integration is new to the five Alpha fixes, and those fixes do
+Neither optional integration is new to these focused fixes, and those fixes do
 not require installing another optional add-on.
 
 Complex third-party skins, external players, legacy action/provider templates,
@@ -71,20 +77,21 @@ optional and must not be bundled in the TV Guide ZIP. The other declared module
 dependencies remain required. Both the Program (`addon.py`) and background service
 (`service.py`) are preserved, with explicit consent for background execution.
 
-**Proposed only:** shared manifest version `0.0.446~alpha1`, subject to owner
-approval; the current manifest remains **0.0.445, unchanged**. A later approved
-GitHub prerelease would identify the exact tag/source and candidate build, one
-single-add-on-root ZIP, its SHA-256 and actual qualification limits. No release
-asset is available yet. Repository publication requires separate explicit
-approval. See the [planned installation steps](docs/alpha-installation.md)
+**Proposed only:** shared Kodi manifest version `0.0.446~alpha1` and separate Git
+tag `v0.0.446-alpha1`; the current manifest remains **0.0.445, unchanged**. The
+eventual common asset would be `script.tvguide.fullscreen-0.0.446~alpha1.zip`, with
+one add-on root, SHA-256 and exact source/candidate build notes. Owner-approved
+version metadata, a rebuild/new hash and explicit publication authorization are
+required first. No release asset is available yet. Repository publication requires
+separate explicit approval. See the [planned installation steps](docs/alpha-installation.md)
 and [current status](docs/modernization-status.md) before any future installation.
 
-The supplied clean local package inventory is **317 files / 4,092,862 bytes before
-this changelog addition**, with no `resources/lib/pytz`. A retained installation
-can still contain **595 old vendor files**; that is not a clean-install result.
-Supported ordinary Kodi **Program add-on Info → Run** is distinct from the known
-Lab exact-launch refusal. A copy, enabled flag or launch acknowledgement is not
-functional acceptance.
+The clean qualification export is **317 files / 4,093,191 bytes**, including the
+329-byte changelog addition, with no `resources/lib/pytz`. A private **0.0.445**
+qualification preview is not a release installer or native clean-install proof.
+All native tests used retained installations containing **595 unchanged unused
+old vendor files** as well as the reviewed source. No clean native installation
+or official-repository intake readiness is claimed.
 
 ## Feedback, history and license
 
