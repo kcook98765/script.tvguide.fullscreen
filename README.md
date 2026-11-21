@@ -5,14 +5,20 @@ streams, search listings, and set reminders or ordinary AutoPlay. This is an
 **actively developed modernization fork**, not a qualified release or a promise
 of full legacy feature parity.
 
-Intended targets are **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2**.
-Final qualification is **PARTIAL; the four-lane static gate FAILED**. Independent
-review supports consideration as a limited core Alpha candidate, not a stable
-release: Nexus has the strongest current core evidence; Omega has bounded
-core/settings evidence and a recorded unrequested exit; Piers is a bounded Linux
-RC2 preview; Matrix's current candidate is native **UNRUN**, with its historical
-crash investigation deferred. These are recommendations, not an approved support
-scope or all-four-version compatibility claim.
+The owner-decided **initial Alpha scope includes all four versions: Matrix 19.4,
+Nexus 20.5, Omega 21.3 and Piers 22.0-RC2**. The former Nexus-first recommendation
+is superseded. As of **21 November 2026 UTC**, the independently reviewed
+**bounded aggregate native gate passed on all four; the final four-lane static
+gate remains FAIL**. No Alpha release is published yet.
+
+The native result combines fresh guide/import/service/preservation observations
+with exact, reviewed historical component evidence. Nexus/Omega reuse historical
+moving local clips and callbacks: **current LAN picture motion remains unverified**,
+even though playback clocks advanced. This is not current full-stream/audio
+acceptance or proof of whole historical GUI identity. Matrix's old crash is not
+resolved. Piers is the exact tested RC2, not a future stable-support promise;
+Matrix native **19.4** is distinct from static **19.5**. No all-platform, clean-log
+or full-parity claim is made.
 See the **[current feature and qualification overview](docs/modernization-status.md)**
 for precise sources, results and remaining limits.
 
@@ -29,8 +35,8 @@ for precise sources, results and remaining limits.
 - Reviewed Alpha source fixes for independent secondary/tertiary XMLTV offsets,
   XMLTV logo opt-in and explicit URL logos, title-search date windows, and
   source-scoped channel/catchup listings, plus restored logo-setting visibility.
-  Focused regressions pass; the overview separates the broad primary native
-  round from the final Omega resource-only settings retest.
+  The final focused core batch passed all 19 scripts; broader static typing and
+  official-checker failures remain disclosed in the overview.
 
 Other bounded restorations include JSON image matches, passive guide styling,
 closed-catalog action customization and typed media/folder mappings. The
@@ -48,7 +54,7 @@ automatic episode matching or guide plot/art replacement.
 recording backend and enabled Kodi PVR client; future scheduling also needs its
 EPG. An arbitrary XMLTV/M3U stream or IPTV Simple installation is not a recording
 backend. This is a partial replacement, not old FFmpeg/external AutoPlayWith parity.
-Neither optional integration is new to the five Alpha fixes, and those fixes do
+Neither optional integration is new to these focused fixes, and those fixes do
 not require installing another optional add-on.
 
 Complex third-party skins, external players, legacy action/provider templates,
@@ -58,44 +64,41 @@ in-flight cancellation have documented limits. Font glyph boxes, audio coverage
 and partial timer evidence remain qualification limits. Translation identities
 also need owner/translator decisions; no catalogs were discarded.
 
-## Trying reviewed development source
+## Planned Alpha installation — unpublished
 
 There is **no published Alpha, release ZIP or repository package from this work**.
 A GitHub source snapshot is not a validated Kodi installer; inherited tags are
 history, not Alpha release certification.
 
-Obtain this fork and pin the reviewed frozen runtime in the
-[status overview](docs/modernization-status.md), rather than an arbitrary moving
-branch tip:
+The plan is **one common TV Guide ZIP for all four initial-scope versions**, with
+dependencies obtained separately from the official Kodi repository. Required
+`script.module.pytz >= 2023.3.0+matrix.1` replaces the old bundled copy; it is not
+optional and must not be bundled in the TV Guide ZIP. The other declared module
+dependencies remain required. Both the Program (`addon.py`) and background service
+(`service.py`) are preserved, with explicit consent for background execution.
 
-```sh
-git clone https://github.com/kcook98765/script.tvguide.fullscreen.git tvguide-fullscreen-development
-git -C tvguide-fullscreen-development checkout --detach 965ee470e80abaaf13788ff921852ecdf6f0cfda
-```
+**Proposed only:** shared Kodi manifest version `0.0.446~alpha1` and separate Git
+tag `v0.0.446-alpha1`; the current manifest remains **0.0.445, unchanged**. The
+eventual common asset would be `script.tvguide.fullscreen-0.0.446~alpha1.zip`, with
+one add-on root, SHA-256 and exact source/candidate build notes. Owner-approved
+version metadata, a rebuild/new hash and explicit publication authorization are
+required first. No release asset is available yet. Repository publication requires
+separate explicit approval. See the [planned installation steps](docs/alpha-installation.md)
+and [current status](docs/modernization-status.md) before any future installation.
 
-This is a source checkout, not a Kodi installation step. A later documentation
-merge inherits this qualification only after supervisor verification that its
-protected runtime tree is identical to this pin.
-
-For development testing, use a reviewed commit in an isolated checkout and a
-separate disposable Kodi development profile—not your everyday setup. Review
-`addon.xml` and make its declared Kodi dependencies available through supported
-Kodi installation paths. Keep **both** `addon.py` and `service.py`, with explicit
-consent for background execution; do not strip the service to make a test pass.
-
-Use the existing authorized Toolkit/Lab source validation and deployment workflow
-for the exact target/profile; do not bypass missing permissions or enablement.
-Start with the [deterministic local fixtures](docs/native-fixtures.md), then
-observe guide navigation, settings persistence, actual playback progression/Stop
-and background work separately. A successful copy, enabled flag or launch
-acknowledgement is not functional acceptance.
+The clean qualification export is **317 files / 4,093,191 bytes**, including the
+329-byte changelog addition, with no `resources/lib/pytz`. A private **0.0.445**
+qualification preview is not a release installer or native clean-install proof.
+All native tests used retained installations containing **595 unchanged unused
+old vendor files** as well as the reviewed source. No clean native installation
+or official-repository intake readiness is claimed.
 
 ## Feedback, history and license
 
 Report reproducible problems to [this fork's issues](https://github.com/kcook98765/script.tvguide.fullscreen/issues),
 including the reviewed source revision, Kodi build/platform and steps with safe
-synthetic data. Do not post credentials, private feeds/stream URLs or raw private
-logs. Track [overall acceptance (#1)](https://github.com/kcook98765/script.tvguide.fullscreen/issues/1),
+synthetic data. Never publish credentials, private feed names/URLs, private logs
+or settings. Track [overall acceptance (#1)](https://github.com/kcook98765/script.tvguide.fullscreen/issues/1),
 [feature preservation (#14)](https://github.com/kcook98765/script.tvguide.fullscreen/issues/14)
 and the [development changelog](changelog.txt).
 

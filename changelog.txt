@@ -1,4 +1,8 @@
 Unreleased — Alpha development
+- Document initial Alpha qualification and known limits for Matrix 19.4, Nexus
+  20.5, Omega 21.3 and Piers 22 RC2; see docs/modernization-status.md for results.
+- Document common-ZIP installation, official repository dependencies and first-use
+  configuration, without bundled pytz; preserve the Program and background service.
 - Replace bundled pytz 2015.7 with Kodi's official script.module.pytz dependency
   (minimum 2023.3.0+matrix.1); preserve existing timezone calls and scheduling.
 - Actively developed Python 3 / modern Kodi API fork; preserve the original

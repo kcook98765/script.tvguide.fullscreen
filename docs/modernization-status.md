@@ -1,5 +1,147 @@
 # Current fork feature and qualification status
 
+## Current initial Alpha qualification — 21 November 2026 UTC
+
+**All four versions are owner-decided initial Alpha scope. Bounded aggregate
+native gate: PASS on all four. Final four-lane static gate: FAIL.** The former
+Nexus-first recommendation is obsolete. No Alpha release is published, and no
+official-repository intake readiness or stable/all-platform qualification follows.
+
+Native inputs were executed in separately assigned OpenCode sessions; Codex
+independently reviewed the functional observations, exact installed bytes,
+receipts, logs and before/after stopped-profile archives. The aggregate result
+uses explicit historical **component** reuse, not a claim that every criterion
+was repeated from scratch on each build.
+
+| Initial-scope native version | Independently reviewed bounded outcome and limits |
+| --- | --- |
+| Matrix **19.4** | **PASS**: fresh populated current guide, metadata, close/reopen, context, positive/empty search, logo settings, moving mapped local clip/Stop and service work; historical actual reconstructed AutoPlay/NOW reminder and same-profile restart evidence reused. Original nonempty rules, mappings and preferences restored/audited. Historical SIGSEGV/ordinary-reopen crash did not recur in this bounded pass; **not resolved**. Static 19.5 is not native 19.4. |
+| Nexus **20.5** | **PASS aggregate with historical reuse**: fresh post-dependency-change guide/imports, mapped start/Stop, close/reopen, service and preservation; new navigation/context/positive search plus verified earlier empty-edge/logo observations and unchanged focused regressions. **Current LAN picture motion unverified**, despite advancing clock; that current playback round remains PARTIAL. Independently verified historical moving local mapped clip and actual callbacks supply only the unchanged critical component portion. |
+| Omega **21.3** | **PASS aggregate with historical reuse**: fresh post-dependency-change guide/imports, mapped start/Stop, close/reopen, service and preservation; verified earlier navigation/search/context/logo observations and unchanged focused regressions. **Current LAN picture motion unverified**, despite advancing clock; that current playback round remains PARTIAL. Historical moving local mapped clip and reconstructed AutoPlay reused; historical post-restart NOW reminder remains unobserved. Earlier unrequested exit is not claimed resolved. |
+| Piers **22.0-RC2** | **PASS on exact tested RC2**: fresh current populated guide, metadata, close/reopen, context, positive/empty search, logo settings, moving mapped local clip/Stop and service; historical actual reconstructed AutoPlay/NOW reminder reused. Original nonempty rules, mappings and preferences restored/audited. Exact build **21.90.902**, Git **20261109-d686683a-dirty**. Earlier occasional blank modal did not recur in tested menus; **not resolved**, and no future stable-Piers promise. |
+
+### Eight-point acceptance and provenance
+
+All four aggregate results cover the same eight criteria: (1) preserved
+Program+service manifest, dependencies and actual imports; (2) ordinary populated
+GUI Run/close/reopen; (3) usable XMLTV metadata, offsets/cache and logo behavior;
+(4) M3U mapping, actual video progression and ordinary Stop; (5) navigation,
+selection/context, positive/empty search and empty-programme safety; (6) guide,
+preferences, mappings and original-rule persistence; (7) **fresh actual background
+work** plus actual reminder **or** ordinary AutoPlay; (8) exact provenance,
+screens/logs/receipts, supported terminal Stop and independent preservation audit.
+
+- Native functional source:
+  `4b2a83fbd98bc7aa7556bb19fa5f31401c32c0dc`, tree
+  `61b859191c898c2ee07182d45ba7cec781677cb4`, workspace **GEN9**. Frozen static
+  candidate `85b931bf2a351549b20271a3038877938fb7f83e`, tree
+  `fb378fa5f9519cd9e832fc8e23bb44c5bed0973c`, differs in runtime only by **329
+  neutral changelog bytes**. Python/manifest/resources are unchanged; later
+  README/docs-only edits do not change the tested runtime.
+- Historical moving clips/callbacks were independently observed and reused only
+  after matching the critical playback/scheduler functions and original runtime
+  identity. This does **not** prove whole historical GUI/importer identity or
+  current LAN picture motion/audio/full-stream behavior. Fresh imports/guide and
+  actual service work bridge the official dependency change on all four targets.
+  No exhaustive recurrence/cancellation or every reminder-phase result is implied.
+- Required official **`script.module.pytz >= 2023.3.0+matrix.1`** is separately
+  installed/enabled and actually used on all four; each installed **611-file
+  module payload** exactly matches its reviewed official package. Catalog checks
+  alone were not used as installation proof. Both `addon.py` and `service.py`,
+  all other dependencies and explicit background consent are preserved.
+- Native tests used retained installations: **317 reviewed files + 595 unchanged
+  unused old vendor files**, not clean replacement/pruning. The clean static
+  export is **317 files / 4,093,191 bytes**, with no `resources/lib/pytz` and the
+  329-byte changelog addition included. Neither the export nor a private unchanged
+  **0.0.445** qualification preview establishes native clean-install success or
+  provides a public release installer.
+- Original saved rules/mappings and preference values were independently audited
+  after restoration; ordinary service timestamps, caches/search history and guide
+  refreshes can change. Whole profiles are **not byte-identical**. All four tests
+  ended stopped with original identities preserved; no cleanup/Reset was used.
+- Ordinary native **Program Info → Run** is distinct from the known Lab
+  `launch_not_deployed` refusal. Fixed video-plugin smoke is ineligible for this
+  Program+service manifest; workspace launch was unavailable under the testing
+  client. Functional acceptance comes from observed ordinary GUI behavior, not
+  from a refused tool, enabled flag, copy or launch acknowledgement.
+
+### Final focused and static results — same frozen runtime
+
+One final focused core batch passed **19 scripts: 97 unittest cases plus three
+assertion scripts**, including real official-pytz imports/conversions and retained
+negative controls. Existing invalid-escape `SyntaxWarning` diagnostics remain in
+the raw evidence. No optional provider/recording/skin or Toolkit/Lab suite was
+substituted for this bounded scope.
+
+One integrated four-lane CLI gate completed on the clean 317-file export. In
+**every lane**, all six stages are accounted for: **syntax PASS, manifest PASS,
+paths PASS, package PASS, types FAIL, official checker FAIL**.
+
+| Static lane | Kodistubs | Current type errors (GEN8 baseline) | Current checker errors / warnings (GEN8) | Process / JSON exit |
+| --- | --- | --- | --- | --- |
+| Matrix **19.5** | **19.0.3** | **606 (641)** | **3 / 6 (3 / 9)** | **1 / 1** |
+| Nexus **20.5** | **20.0.1** | **606 (641)** | **3 / 7 (3 / 10)** | **1 / 1** |
+| Omega **21.3** | **21.0.0** | **606 (641)** | **3 / 7 (3 / 10)** | **1 / 1** |
+| Piers **22.0-RC2** | **22.0.1rc1** | **580 (615)** | **3 / 7 (3 / 10)** | **1 / 1** |
+
+Each explicit lane interpreter ran `stub-lanes` then validation with its matching
+branch and unchanged offline index cache; `--branch` did not select stubs. All
+stub reports exited 0; host tooling was **CPython 3.12.3 / mypy 2.4.0 / checker 0.0.36**,
+not proof of Kodi's embedded Python patch version. Matrix static 19.5 differs from
+native 19.4. Piers retains exact-RC2/prerelease-stub coverage limits and checker
+advice. Source/export/cache hashes were preserved through the one gate; warnings,
+negative controls, full diagnostics and actual exits were retained, not suppressed.
+
+Compared with GEN8/`965ee470`, each lane has **one new type error plus three notes**:
+`source.py` imports official `pytz`, but `types-pytz` stubs are not installed in
+the locked toolchain (`import-untyped`). This is a real **static typing coverage
+gap**, not a native `ImportError`; real-module focused checks and native imports
+passed. **36 errors and 22 notes disappeared solely with deleted vendor code**,
+not 36 runtime fixes. The remaining **605/605/605/579 type errors are inherited**,
+unresolved debt—not all false positives. No environment/config update was made.
+
+After normalizing both validator and checker random temporary paths, all **three
+checker errors are identical inherited locale-directory findings**: Georgian,
+Haitian (Haitian Creole) and Vietnamese (Viet Nam). All **69 catalogs / 2,492
+entries** remain intact pending owner/translator decisions. **No new checker
+warning** was introduced; only three removed vendor `.tab` files account for the
+warning reduction. This disclosed debt may inform an Alpha decision, but the
+static gate stays **FAIL** and does not establish official-repository intake
+readiness. No new functional regression was demonstrated by these deltas.
+
+### Planned release — still unpublished
+
+The shared manifest version **`0.0.446~alpha1` is proposed only**; actual manifest
+**0.0.445 remains unchanged**. [Kodi Wiki ordering](https://kodi.wiki/view/Addon.xml#How_versioning_works)
+documents `~alpha` before the corresponding unsuffixed version. The separate
+proposed Git tag is **`v0.0.446-alpha1`**; Git tags cannot contain `~`.
+Subject to owner approval and a version-metadata rebuild, a proposed GitHub
+prerelease would carry **one common `script.tvguide.fullscreen-0.0.446~alpha1.zip`
+with a single `script.tvguide.fullscreen/` root**, final SHA-256, exact
+tag/source/candidate build notes and actual per-version results and limitations.
+A private qualification ZIP at unchanged **0.0.445** is not that release artifact.
+The prerelease is **planned and unpublished**, without invented asset URLs.
+Repository publication needs separate explicit approval. See [planned user
+installation](alpha-installation.md).
+
+No stable, future-stable Piers, all-platform, full-parity, clean-log or static-pass
+claim is made. Font/glyph limitations, caught control diagnostics and environment/
+audio errors remain; no prolonged-stream or broad stability campaign is implied.
+Never publish private feed names/URLs, settings, credentials,
+private logs or unsanitized screenshots. Historical upstream attribution, GPL,
+translations, the full changelog tail and qualification receipts remain intact.
+
+## Historical snapshots below — superseded as the current overview
+
+Everything below this notice is retained verbatim from the documentation base.
+Its “current”, “final”, “authoritative”, owner-pending and Nexus-first wording,
+tables and source pins refer to those **older exact-source checkpoints**, not the
+current campaign. In particular, issue54 is no longer future work and the former
+912-file vendor-inclusive source is not today's clean source inventory. Historical
+results, failures, receipts and limitations remain evidence for their stated
+scope; none is silently promoted to a new four-version PASS. The current section
+above governs current scope, outcomes and remaining limits.
+
 ## Dependency/package follow-up — issue #54
 
 The [official pytz follow-up](official-pytz.md) replaces the bundled module and
