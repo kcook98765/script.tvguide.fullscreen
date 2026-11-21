@@ -2172,10 +2172,10 @@ class XMLTVSource(Source):
             for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset2), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset3)):
                 yield v
         elif (ADDON.getSetting('xmltv3.enabled') == 'true') and xbmcvfs.exists(self.xmltv3File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset2)):
+            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset3)):
                 yield v
         elif (ADDON.getSetting('xmltv2.enabled') == 'true') and xbmcvfs.exists(self.xmltv2File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset)):
+            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset2)):
                 yield v
         else:
             for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset)):
