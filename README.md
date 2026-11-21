@@ -11,12 +11,12 @@ is superseded. As of **21 November 2026 UTC**, the independently reviewed
 **bounded aggregate native gate passed on all four; the final four-lane static
 gate remains FAIL**. No Alpha release is published yet.
 
-The native result combines fresh guide/import/service/preservation observations
-with exact, reviewed historical component evidence. Nexus/Omega reuse historical
-moving local clips and callbacks: **current LAN picture motion remains unverified**,
-even though playback clocks advanced. This is not current full-stream/audio
-acceptance or proof of whole historical GUI identity. Matrix's old crash is not
-resolved. Piers is the exact tested RC2, not a future stable-support promise;
+That prior retained-install result combines fresh guide/import/service/preservation
+observations with exact, reviewed historical component evidence. Nexus/Omega reuse
+historical moving local clips and callbacks: **current LAN picture motion remains
+unverified**, even though playback clocks advanced. This is not current
+full-stream/audio acceptance or proof of whole historical GUI identity. Matrix's
+old crash is not resolved. Piers is the exact tested RC2, not a future stable-support promise;
 Matrix native **19.4** is distinct from static **19.5**. No all-platform, clean-log
 or full-parity claim is made.
 See the **[current feature and qualification overview](docs/modernization-status.md)**
@@ -81,19 +81,32 @@ The shared Kodi manifest version is now **`0.0.446~alpha1`**, an unpublished
 candidate for independent review. Git tag **`v0.0.446-alpha1` remains proposed
 only and has not been created**. The private candidate build is named
 `script.tvguide.fullscreen-0.0.446~alpha1.zip`, with one add-on root, SHA-256 and
-exact source/candidate build notes. Metadata preparation is not a new runtime
-regression result or clean-install proof. No release asset is available yet;
-tag/release creation, ZIP upload and repository publication require separate
-explicit approval. See the [planned installation steps](docs/alpha-installation.md)
+exact source/candidate build notes. Metadata changes alone do not establish
+runtime behavior; the separate clean-install observation is bounded below.
+No release asset is available yet; tag/release creation, ZIP upload and
+repository publication require separate explicit approval. See the
+[planned installation steps](docs/alpha-installation.md)
 and [current status](docs/modernization-status.md) before any future installation.
 
 The prior clean qualification export was **317 files / 4,093,191 bytes**, including
 the 329-byte changelog addition. The candidate keeps the same **317 runtime paths**,
 with only manifest/changelog bytes changed and no `resources/lib/pytz`. A private
 **0.0.445** qualification preview is not a release installer or native clean-install proof.
-All native tests used retained installations containing **595 unchanged unused
-old vendor files** as well as the reviewed source. No clean native installation
-or official-repository intake readiness is claimed.
+The prior all-four qualification used retained installations containing **595
+unchanged unused old vendor files** as well as the reviewed source.
+
+Separately, the **actual Alpha candidate ZIP** passed ordinary **Install from zip
+file** in one new, clean, isolated **Nexus 20.5** environment, with official
+dependency resolution. Ordinary **Program Info → Run** displayed a populated
+synthetic guide with two visible fixture channels/two programmes, titles, times
+and description, independently viewed by Codex. Actual background-service work
+also independently passed after one ordinary restart of the same disposable instance, without
+manual service execution. **The bounded clean-install smoke passed**, including
+graceful final Stop and Codex's independent stopped-file/provenance/log audit.
+All 317 installed payloads matched the tested ZIP; no old bundled pytz remained.
+Logs were not clean, despite no import failures or Python tracebacks.
+This is one representative clean installation, not four clean installs, proof
+that an upgrade prunes old files, or official-repository intake readiness.
 
 ## Feedback, history and license
 

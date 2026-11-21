@@ -2,11 +2,11 @@
 
 **Planned and unpublished.** There is no Alpha release asset to download yet.
 As of **21 November 2026 UTC**, the independently reviewed bounded aggregate
-native gate passed on all four initial-scope versions, with explicit historical
-component reuse; the final static gate remains **FAIL**. See [qualification and
-limits](modernization-status.md), including unverified current Nexus/Omega LAN
-picture motion. Do not treat a GitHub source archive, inherited tag or development
-checkout as a validated installer.
+retained-install native gate passed on all four initial-scope versions, with
+explicit historical component reuse; the final static gate remains **FAIL**.
+See [qualification and limits](modernization-status.md), including unverified
+current Nexus/Omega LAN picture motion. Do not treat a GitHub source archive,
+inherited tag or development checkout as a validated installer.
 
 The owner-decided initial scope is **Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers
 22 RC2**, using one common TV Guide ZIP, not a Nexus-first rollout. Piers is bounded
@@ -18,7 +18,7 @@ RC2 only. This is not stable, all-platform or full legacy-feature qualification.
    Preserve its settings, mappings and saved rules before any installation/update.
    Obtain the eventual GitHub **prerelease** asset and build notes.
    Match its exact tag, source/candidate revision, version and published SHA-256.
-   No asset URL or checksum is available yet.
+   No public asset URL or release checksum is available yet.
 2. Keep the official Kodi repository available for the declared required modules:
 
    | Dependency | Minimum version |
@@ -90,28 +90,56 @@ or have its checksum reused as this candidate's identity.
 ## Packaging and retained-install limits
 
 The prior clean qualification export was **317 files / 4,093,191 bytes**, including
-the 329-byte changelog addition. This candidate retains those **317 paths**;
-only manifest/changelog payloads change, requiring new inventory/hashes. No public
-release ZIP is available. The candidate excludes `resources/lib/pytz`, README,
-tests, tools, docs, configuration, agent/development/CI files, reports, evidence,
+the 329-byte changelog addition. This candidate retains those **317 paths**,
+totaling **4,093,446 logical bytes**; only manifest/changelog payloads change,
+requiring new inventory/hashes. No public release ZIP is available. The candidate
+excludes `resources/lib/pytz`, README, tests, tools, docs, configuration,
+agent/development/CI files, reports, evidence,
 logs, caches and bytecode. Root GPL and embedded third-party notices remain in
 the payload. The reference-only `docs/pytz-LICENSE.txt` need not be added: no pytz
 implementation is bundled, and the separately installed official module carries
 its own notice. Official modules remain separately installed in Kodi.
 
-All four native tests used retained installations with **317 reviewed files +
-595 unchanged unused old vendor files**. A private **0.0.445** qualification
-preview is not a release installer or proof of native clean installation.
+The prior all-four native qualification used retained installations with **317
+reviewed files + 595 unchanged unused old vendor files**. A private **0.0.445**
+qualification preview is not a release installer or proof of native clean
+installation.
 Do not assume a ZIP update prunes leftovers. Do not delete files or uninstall on
 rule-bearing profiles to force cleanliness; use a separate supported test
 installation for clean-install evaluation.
 
-The **actual candidate ZIP** still needs native **Install from zip file** in a
-new, genuinely clean, isolated Kodi environment with official dependency
-resolution, populated synthetic XMLTV, ordinary Program **Info → Run**, and
-observed background service work. Source-copy deployment is not a substitute.
-No original retained profile may be reset, uninstalled or pruned to manufacture
-that result. This metadata/package preparation performs no native testing.
+### Representative clean-install smoke — PASS on Nexus 20.5 only
+
+The **actual `0.0.446~alpha1` candidate ZIP** passed ordinary Kodi **Install from
+zip file** in a new, genuinely clean, isolated **Nexus 20.5** environment; this was
+not source-copy deployment. The installed Alpha was enabled. Kodi automatically
+installed required official requests **2.31.0**, dateutil **2.8.2**, pytz
+**2023.3.0+matrix.1** and BeautifulSoup **4.12.2**; PIL **5.1.0** was already bundled
+with that Kodi environment, not bundled in the TV Guide ZIP.
+
+Ordinary Program **Info → Run**, after synthetic XMLTV configuration, displayed
+**two visible fixture channels and two programmes**, with titles, times and
+description. Codex independently viewed the populated guide. **Actual background
+service work also independently passed** after one ordinary restart of the same disposable instance:
+the background update started and finished, and its saved update timestamp
+advanced. The service was not executed manually. This is separate work evidence,
+not an inference from enabled state or foreground parsing. Final Stop exited
+gracefully with no forced kill. **Codex accepted the complete bounded installation
+smoke after independent stopped-file, provenance and log review.**
+
+All **317 installed file payloads and modes** matched the tested ZIP, all **69
+catalogs** were preserved, and no `resources/lib/pytz` remained; the only extra
+runtime files were generated bytecode. Required downloaded modules were enabled
+with official Kodi repository origin; the separate pytz module's **611 files**
+matched the reviewed official package. Complete current and previous logs had no
+`ImportError`, `ModuleNotFoundError` or Python traceback, but **were not clean**:
+audio/environment errors and existing syntax warnings remained.
+
+This is one representative clean Nexus installation, not clean-install testing on
+all four versions, a new playback/timer qualification, or proof that an update
+prunes old vendor files. No original retained profile may be reset, uninstalled
+or pruned to manufacture cleanliness. The candidate's 317 runtime payloads remain
+frozen; this checkpoint changes nonpackaged documentation only.
 
 The planned prerelease will identify one reviewed common ZIP, SHA-256,
 exact tag/candidate build notes and actual results/limits for all four targets.
