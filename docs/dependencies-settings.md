@@ -204,13 +204,11 @@ provider services or dialogs still function. Existing downloaded-code and
 arbitrary-command protections remain in place; no generic user command action
 is restored.
 
-One adjacent **deferred finding** is `autoplays.before/after`: their enum labels
-end in `10` but consumers currently use the stored index directly, making that
-last option six minutes. This predates Task14 and lies in the separately owned
-autoplay/schedule work. No setting retype, value migration or scheduling edit is
-made here; coordinate a separate preservation fix/review rather than collide
-with Task11/13. This audit is not a proof that every legacy provider setting or
-data path is otherwise correct.
+One adjacent finding deferred by Task14 was `autoplays.before/after`: their enum
+labels end in `10` but the consumers used the stored index directly, making that
+last option six minutes. [Alpha2 S1](alpha2-autoplay-padding.md) corrects only the
+runtime mapping without retyping settings or migrating values. This audit is not
+a proof that every legacy provider setting or data path is otherwise correct.
 
 Task18 separately owns service-time / last-update / service-type **consumer**
 robustness and journal/lock cleanup after its SQLite ownership proof. Task14
