@@ -1,5 +1,12 @@
 # Current fork feature and qualification status
 
+## Alpha2 U1 source-only follow-up — 21 November 2026
+
+[Guide correctness U1](quick-guide-correctness.md) records focused Quick selection,
+page wrapping, label clearing and retained metadata-focus fixes. Deterministic
+source fixtures are not new native acceptance; the initial Alpha results and
+feature inventory below retain their original scope and provenance.
+
 ## Current initial Alpha qualification — 21 November 2026 UTC
 
 **All four versions are owner-decided initial Alpha scope. Bounded aggregate
