@@ -94,8 +94,9 @@ class PackageMetadataTests(unittest.TestCase):
         # Dependency correctness has its own check_dependencies_settings suite;
         # task-specific non-owned byte preservation is proved in private Git trees.
         old, new = ET.fromstring(before), ET.fromstring(after)
-        self.assertEqual(old.attrib, new.attrib)
-        self.assertEqual(new.get('version'), '0.0.445')
+        self.assertEqual({k: v for k, v in old.attrib.items() if k != 'version'},
+                         {k: v for k, v in new.attrib.items() if k != 'version'})
+        self.assertEqual(new.get('version'), '0.0.446~alpha1')
         self.assertEqual([(e.get('point'), e.get('library')) for e in new.findall('extension')],
                          [('xbmc.python.script', 'addon.py'), ('xbmc.service', 'service.py'),
                           ('xbmc.addon.metadata', None)])

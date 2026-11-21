@@ -3,9 +3,10 @@
 ## Current initial Alpha qualification — 21 November 2026 UTC
 
 **All four versions are owner-decided initial Alpha scope. Bounded aggregate
-native gate: PASS on all four. Final four-lane static gate: FAIL.** The former
-Nexus-first recommendation is obsolete. No Alpha release is published, and no
-official-repository intake readiness or stable/all-platform qualification follows.
+native gate: PASS on all four retained installations. Final four-lane static gate:
+FAIL.** The former Nexus-first recommendation is obsolete. No Alpha release is
+published, and no official-repository intake readiness or stable/all-platform
+qualification follows.
 
 Native inputs were executed in separately assigned OpenCode sessions; Codex
 independently reviewed the functional observations, exact installed bytes,
@@ -49,10 +50,11 @@ screens/logs/receipts, supported terminal Stop and independent preservation audi
   module payload** exactly matches its reviewed official package. Catalog checks
   alone were not used as installation proof. Both `addon.py` and `service.py`,
   all other dependencies and explicit background consent are preserved.
-- Native tests used retained installations: **317 reviewed files + 595 unchanged
-  unused old vendor files**, not clean replacement/pruning. The clean static
-  export is **317 files / 4,093,191 bytes**, with no `resources/lib/pytz` and the
-  329-byte changelog addition included. Neither the export nor a private unchanged
+- The prior all-four native tests used retained installations: **317 reviewed
+  files + 595 unchanged unused old vendor files**, not clean replacement/pruning.
+  The clean static export is **317 files / 4,093,191 bytes**, with no
+  `resources/lib/pytz` and the 329-byte changelog addition included. Neither the
+  export nor a private unchanged
   **0.0.445** qualification preview establishes native clean-install success or
   provides a public release installer.
 - Original saved rules/mappings and preference values were independently audited
@@ -109,20 +111,56 @@ warning reduction. This disclosed debt may inform an Alpha decision, but the
 static gate stays **FAIL** and does not establish official-repository intake
 readiness. No new functional regression was demonstrated by these deltas.
 
-### Planned release — still unpublished
+### Alpha release candidate preparation — still unpublished
 
-The shared manifest version **`0.0.446~alpha1` is proposed only**; actual manifest
-**0.0.445 remains unchanged**. [Kodi Wiki ordering](https://kodi.wiki/view/Addon.xml#How_versioning_works)
+The shared manifest version is now **`0.0.446~alpha1`**, prepared for independent
+candidate review. Only version/news and changelog runtime metadata change;
+Python logic, dependency floors, settings, artwork and catalogs are unchanged.
+Metadata changes alone are not a runtime regression result. [Kodi Wiki ordering](https://kodi.wiki/view/Addon.xml#How_versioning_works)
 documents `~alpha` before the corresponding unsuffixed version. The separate
 proposed Git tag is **`v0.0.446-alpha1`**; Git tags cannot contain `~`.
-Subject to owner approval and a version-metadata rebuild, a proposed GitHub
-prerelease would carry **one common `script.tvguide.fullscreen-0.0.446~alpha1.zip`
+The tag is **not created**. The private candidate build contains
+**one common `script.tvguide.fullscreen-0.0.446~alpha1.zip`
 with a single `script.tvguide.fullscreen/` root**, final SHA-256, exact
-tag/source/candidate build notes and actual per-version results and limitations.
+source/candidate build notes and actual per-version results and limitations.
 A private qualification ZIP at unchanged **0.0.445** is not that release artifact.
-The prerelease is **planned and unpublished**, without invented asset URLs.
-Repository publication needs separate explicit approval. See [planned user
-installation](alpha-installation.md).
+The same **317 runtime paths** are retained, with new manifest/changelog hashes;
+GPL and embedded notices remain, while official pytz and its notice stay in its
+separate official module. Focused manifest/package/metadata checks do not replace
+the recorded six-stage FAIL above; no full four-lane gate is rerun here.
+Separately from the prior all-four retained-install gate, the **actual candidate
+ZIP** passed ordinary Kodi **Install from zip file** in one new, genuinely clean,
+isolated **Nexus 20.5** environment. Version **`0.0.446~alpha1`** was enabled;
+required official requests **2.31.0**, dateutil **2.8.2**, pytz
+**2023.3.0+matrix.1** and BeautifulSoup **4.12.2** were automatically installed,
+with PIL **5.1.0** already bundled by that environment. Ordinary **Program Info →
+Run** displayed **two visible synthetic fixture channels and two programmes**,
+with titles, times and description, independently viewed by Codex. This tests the
+private ZIP from source **`7e5e76518553ee42024549448e15eb996e4ebd0a`**, not a source-copy
+substitute; its **317 files / 4,093,446 logical bytes** remain frozen.
+
+**Actual background-service work independently passed** after one ordinary
+restart of the same disposable instance, without manual service execution.
+The update started and finished and its saved update timestamp advanced; this is
+not inferred from enabled state or foreground parsing. Final Stop exited
+gracefully with no forced kill. **The complete bounded clean-install smoke is
+PASS**, accepted by Codex after independent stopped-file, provenance and log
+audit. All **317 installed payloads and modes** matched the tested ZIP; all **69
+catalogs** were preserved, no bundled `resources/lib/pytz` remained, and the only
+extra runtime files were generated bytecode. Downloaded required modules were
+enabled with official Kodi repository origin; the separate official pytz module
+matched all **611 reviewed package files**. Complete current and previous logs
+contained no `ImportError`, `ModuleNotFoundError` or Python traceback. **Logs were
+not clean**: audio/environment errors and existing syntax warnings remained.
+
+This is one representative clean Nexus installation, not four clean installs,
+upgrade-pruning proof, new playback/timer qualification or
+a new four-version runtime gate. The prior retained-install evidence, static
+FAIL and limitations above remain unchanged.
+
+The prerelease is **planned and unpublished**, without invented asset URLs;
+tag/release creation, ZIP upload and repository publication need separate explicit
+approval. See [planned user installation](alpha-installation.md).
 
 No stable, future-stable Piers, all-platform, full-parity, clean-log or static-pass
 claim is made. Font/glyph limitations, caught control diagnostics and environment/

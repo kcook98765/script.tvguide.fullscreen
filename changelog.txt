@@ -1,4 +1,6 @@
-Unreleased — Alpha development
+version 0.0.446~alpha1 — Alpha
+- Prepare shared Alpha version/news metadata for all four initial-scope versions;
+  no runtime logic or dependency changes.
 - Document initial Alpha qualification and known limits for Matrix 19.4, Nexus
   20.5, Omega 21.3 and Piers 22 RC2; see docs/modernization-status.md for results.
 - Document common-ZIP installation, official repository dependencies and first-use
