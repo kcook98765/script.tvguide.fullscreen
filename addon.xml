@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.tvguide.fullscreen" name="TV Guide Fullscreen"
-version="0.0.446~alpha1"
+version="0.1.0"
 provider-name="primaeval">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -15,16 +15,16 @@ provider-name="primaeval">
     </extension>
     <extension point="xbmc.service" library="service.py"/>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en_GB">Fullscreen TV guide with XMLTV listings.</summary>
-        <description lang="en_GB">Possibly the most powerful TV Guide in the world. ;) Thanks for the major contributions from: iainmacleod, im85288, RayW1986, bluezed, andy, Zomboided, tycoo, kjb86, Doctor-Eggs</description>
+        <summary lang="en_GB">Fullscreen XMLTV guide — maintained modernization Beta.</summary>
+        <description lang="en_GB">Maintained modernization Beta of TV Guide Fullscreen: XMLTV listings, stream mappings, search, reminders and ordinary AutoPlay. Bounded Nexus 20.5 core evidence is reused for unchanged code; audio, timer delivery and broader compatibility remain limited. Thanks for the major contributions from: iainmacleod, im85288, RayW1986, bluezed, andy, Zomboided, tycoo, kjb86, Doctor-Eggs</description>
         <disclaimer lang="en_GB">Based on the original TV Guide addon by twinther, FTV Guide and Midraal's fork.</disclaimer>
         <platform>all</platform>
         <license>GPLv2</license>
         <forum>http://forum.kodi.tv/showthread.php?tid=282157</forum>
         <source>https://github.com/kcook98765/script.tvguide.fullscreen</source>
-        <website>https://github.com/primaeval/script.tvguide.fullscreen</website>
+        <website>https://github.com/kcook98765/script.tvguide.fullscreen</website>
         <email>primaeval</email>
-        <news>Four-version Alpha: Matrix 19.4, Nexus 20.5, Omega 21.3 and Piers 22 RC2 have bounded aggregate native qualification, with historical component reuse and known limits. Static typing/checker failures remain. Official pytz is required separately; Program and background service are preserved.</news>
+        <news>0.1.0 Beta: maintained modernization fork. Unchanged code reuses bounded Nexus 20.5 core evidence, not an exact beta ZIP native install. Audio untested; timed reminder delivery and actual AutoPlay firing unobserved. Static gate remains FAIL. Historical Matrix/Omega/Piers RC2 evidence is not current beta acceptance. Official pytz is required separately; Program and background service remain. See the maintained fork README for download and repository admission status.</news>
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>
