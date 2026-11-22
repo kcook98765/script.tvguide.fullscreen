@@ -59,9 +59,9 @@ as a promise that every legacy integration works. See the detailed
 3. Choose **Install from repository → kcook-lab-repo → Program add-ons →
    TV Guide Fullscreen 0.1.1**.
 
-**Published catalogs: Nexus 20.x and Omega 21.x**, both referencing the same approved
-ZIP. Evidence is finite Linux Nexus **20.5** / Omega **21.3**, not all platforms.
-Matrix 19.x is being prepared/reviewed but **not yet published**; Piers 22.x is excluded.
+**Published catalogs: Matrix 19.x, Nexus 20.x and Omega 21.x**, all referencing the
+same approved ZIP. Evidence is finite Linux Matrix **19.4** / Nexus **20.5** /
+Omega **21.3**, not all platforms. Piers 22.x is excluded.
 Direct GitHub ZIP availability is independent of repository admission.
 
 ### Direct GitHub Beta ZIP
