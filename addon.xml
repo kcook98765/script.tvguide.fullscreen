@@ -28,6 +28,11 @@ provider-name="primaeval">
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>
+            <screenshot>resources/screenshots/fullscreen-guide.png</screenshot>
+            <screenshot>resources/screenshots/programme-actions.png</screenshot>
+            <screenshot>resources/screenshots/on-now.png</screenshot>
+            <screenshot>resources/screenshots/search-results.png</screenshot>
+            <screenshot>resources/screenshots/channel-management.png</screenshot>
         </assets>
     </extension>
 </addon>

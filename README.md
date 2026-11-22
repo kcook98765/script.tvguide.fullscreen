@@ -40,6 +40,19 @@ or full-parity claim is made.
 See the **[current feature and qualification overview](docs/modernization-status.md)**
 for precise sources, results and remaining limits.
 
+## Screenshots
+
+Actual Kodi Nexus 20.5 captures using the Default TV Guide skin and real guide
+listings, with no playback. These unreleased development images may differ from
+published Alpha 1 and do not extend its qualification.
+
+![Fullscreen programme guide](resources/screenshots/fullscreen-guide.png)
+
+[Programme actions](resources/screenshots/programme-actions.png) ·
+[On Now](resources/screenshots/on-now.png) ·
+[Title search results](resources/screenshots/search-results.png) ·
+[Channel management](resources/screenshots/channel-management.png)
+
 ## What's been restored?
 
 - Python 3 / modern Kodi API groundwork, safer command/data handling, and both
