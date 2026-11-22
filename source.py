@@ -1681,29 +1681,18 @@ class Database(object):
         @type program: source.program
         """
         c = self.conn.cursor()
-        c.execute("SELECT * FROM notifications WHERE channel=? AND program_title=? AND source=?",
-                  [program.channel.id, program.title, self.source.KEY])
-        try:
-            (channel,program_title,source,start_date,type) = c.fetchone()
-
-            if type == "1":
-                return True
-
-            if start_date == program.startDate:
-                return True
-        except:
-            pass
-        c.execute("SELECT * FROM notifications WHERE ? LIKE program_title AND source=?",
-                  [program.title, self.source.KEY])
-        try:
-            (channel,program_title,source,start_date,type) = c.fetchone()
-            c.close()
-
-            if type == "4":
-                return True
-
-        except:
-            pass
+        # Match the selected event against every applicable rule. Historical
+        # "regex" reminders are source-wide SQL LIKE, not channel-bound regexes.
+        c.execute("SELECT 1 FROM notifications WHERE source=? AND ("
+                  "(channel=? AND program_title=? AND ("
+                  "(type=0 AND start_date=?) OR type=1 OR (type=2 AND ?='New') OR "
+                  "(type=3 AND time(start_date,'unixepoch')=time(?,'unixepoch')))) OR "
+                  "(type=4 AND ? LIKE program_title)) LIMIT 1",
+                  [self.source.KEY, program.channel.id, program.title, program.startDate,
+                   program.is_new, program.startDate, program.title])
+        result = c.fetchone()
+        c.close()
+        return result is not None
 
     def isAutoPlayRequiredForProgramStart(self, program):
         return self._invokeAndBlockForResult(self._isAutoPlayRequiredForProgramStart, program)
@@ -1713,19 +1702,14 @@ class Database(object):
         @type program: source.program
         """
         c = self.conn.cursor()
-        c.execute("SELECT * FROM autoplays WHERE channel=? AND program_title=? AND source=?",
-                  [program.channel.id, program.title, self.source.KEY])
-        try:
-            (channel,program_title,source,start_date,type) = c.fetchone()
-            c.close()
-
-            if type == "1":
-                return True
-
-            if start_date == program.startDate:
-                return True
-        except:
-            pass
+        c.execute("SELECT 1 FROM autoplays WHERE source=? AND channel=? AND program_title=? AND ("
+                  "(type=0 AND start_date=?) OR type=1 OR (type=2 AND ?='New') OR "
+                  "(type=3 AND time(start_date,'unixepoch')=time(?,'unixepoch'))) LIMIT 1",
+                  [self.source.KEY, program.channel.id, program.title, program.startDate,
+                   program.is_new, program.startDate])
+        result = c.fetchone()
+        c.close()
+        return result is not None
 
 
     def isAutoPlaywithRequiredForProgramStart(self, program):

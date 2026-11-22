@@ -24,6 +24,7 @@
 #  http://www.gnu.org/copyleft/gpl.html
 #
 import traceback
+import copy
 import datetime
 import _thread as thread
 import threading
@@ -1063,8 +1064,10 @@ class TVGuide(xbmcgui.WindowXML):
                             if when == 4:
                                 title = xbmcgui.Dialog().input("%s (%% is wildcard)" % program.title ,program.title)
                                 if title:
+                                    program = copy.copy(program)
                                     program.title = title
-                            self.notification.addNotification(program, when)
+                            if when != 4 or title:
+                                self.notification.addNotification(program, when)
                 elif what == 1:
                     if program.autoplayScheduled:
                         self.autoplay.removeAutoplay(program)
@@ -1955,7 +1958,7 @@ class TVGuide(xbmcgui.WindowXML):
         del d
 
         if buttonClicked == PopupMenu.C_POPUP_REMIND:
-            if program.notificationScheduled:
+            if self.database.isNotificationRequiredForProgramStart(program):
                 self.notification.removeNotification(program)
             else:
                 d = xbmcgui.Dialog()
@@ -1964,13 +1967,15 @@ class TVGuide(xbmcgui.WindowXML):
                     if play_type == 4:
                         title = xbmcgui.Dialog().input("%s (%% is wildcard)" % program.title,program.title)
                         if title:
+                            program = copy.copy(program)
                             program.title = title
-                    self.notification.addNotification(program, play_type)
+                    if play_type != 4 or title:
+                        self.notification.addNotification(program, play_type)
             if self.mode == MODE_EPG or ADDON.getSetting('redraw.epg') == 'true':
                 self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 
         elif buttonClicked == PopupMenu.C_POPUP_AUTOPLAY:
-            if program.autoplayScheduled:
+            if self.database.isAutoPlayRequiredForProgramStart(program):
                 self.autoplay.removeAutoplay(program)
             else:
                 d = xbmcgui.Dialog()
@@ -4581,6 +4586,9 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
         self.categories = categories
 
     def onInit(self):
+        # Popup navigation replaces self.program without reconstructing the dialog.
+        self.showRemind = not self.database.isNotificationRequiredForProgramStart(self.program)
+        self.showAutoplay = not self.database.isAutoPlayRequiredForProgramStart(self.program)
         labelControl = self.getControl(self.C_POPUP_LABEL)
         if xbmc.getCondVisibility('Control.IsVisible(77000)'):
             programdescriptionControl = self.getControl(self.C_POPUP_PROGRAM_DESCRIPTION_TEXTBOX)
