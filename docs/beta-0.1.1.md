@@ -1,7 +1,7 @@
 # TV Guide Fullscreen 0.1.1 Beta
 
 **Published prerelease:** [v0.1.1-beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.1-beta),
-numeric manifest version `0.1.1`. Also live in **kcook-lab-repo's Nexus and Omega catalogs**.
+numeric manifest version `0.1.1`. Also live in **kcook-lab-repo's Matrix, Nexus and Omega catalogs**.
 Historical public [0.1.0 Beta](beta-0.1.0.md) and [Alpha 1](alpha-installation.md), installers,
 tags and evidence are unchanged. Publication followed independent review and
 explicit owner approval; preparation alone did not authorize it.
@@ -78,15 +78,15 @@ is **1,318,170 bytes**, SHA-256
 `76533fcb570cd813e2deb885c919b59eea21171c6ce344d5a40ef5d8fba287b9`.
 Its [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.1-beta/SHA256SUMS)
 passed GNU strict checksum verification after anonymous download. The published
-Nexus and Omega catalogs list TV Guide Fullscreen `0.1.1`; both reference the
+Matrix, Nexus and Omega catalogs list TV Guide Fullscreen `0.1.1`; all reference the
 byte-identical GitHub installer, with valid catalog/package SHA-256 sidecars.
-Codex's supplied publication verification records the promoted 46-file site and
-anonymous HTTP checks; these were not rerun here. Matrix is being prepared/reviewed
-but is **not published** and needs separate new-site approval; Piers is excluded.
+Codex's supplied final publication verification records the promoted 49-file
+three-lane site and anonymous HTTP checks; these were not rerun here and are not
+new native acceptance. Piers is excluded; see [publication history](release-history.md#current-011-beta-identity-and-publication).
 
 See [README installation](../README.md#installation) for **both live routes**:
-recommended Nexus 20.x / Omega 21.x installation through kcook-lab-repo, or direct GitHub
-Releases ZIP plus `sha256sum --check --strict SHA256SUMS`, requiring
+recommended Matrix 19.x / Nexus 20.x / Omega 21.x installation through kcook-lab-repo,
+or direct GitHub Releases ZIP plus `sha256sum --check --strict SHA256SUMS`, requiring
 `script.tvguide.fullscreen-0.1.1.zip: OK` before Kodi's Install from zip file.
 The repository source is `https://kcook98765.github.io/kcook-lab-repo/`;
 its current `repository.ai.kodi-0.1.1.zip` installs the repository, not TV Guide.

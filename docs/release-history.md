@@ -20,15 +20,26 @@ channel-management capture is byte-identical. See [0.1.1 notes](beta-0.1.1.md) a
 - Source/tag target `f936c0a514e0de126e62e24fd3d24b66b0c74097`, tree
   `c6d014c332f6d24b219f4976518dcf2221ae6a88`. All 45 runtime Python files are
   unchanged from the preceding Beta. Documentation is outside the installer.
-- Nexus **20.x** and Omega **21.x** catalogs actually publish `0.1.1` and reference
-  the identical approved ZIP. Codex's existing anonymous publication verification
+- **Current three-lane publication:** Matrix **19.x**, Nexus **20.x** and Omega
+  **21.x** catalogs publish `0.1.1` and reference the identical approved ZIP through
+  the unchanged repository installer. Codex's supplied final anonymous verification
+  passed at **2026-11-22 11:11:14 UTC**: 50 positive URL checks (HEAD/GET for the 49
+  files and root) and four excluded 404s on the 49-file site, Pages
+  `bf76b1c407d48a3d7b8e93fede67bbff04b7cf6e`, canonical site SHA-256
+  `31e5f98ca19e12e1f42ba7a1f0bde719f25ec24f7b976c990012c04b84bb9de2`.
+  Its parent is the previous Pages commit below; Nexus/Omega/Piers catalog bytes
+  and existing packages/installers/sidecars are unchanged. Piers **22.x** is excluded.
+  These are existing Codex publication observations, not HTTP or native tests run
+  for this documentation update; no new native acceptance follows.
+- **Previous Nexus/Omega publication checkpoint:** Nexus **20.x** and Omega **21.x**
+  catalogs published `0.1.1` with the same ZIP. Codex's anonymous verification then
   recorded 47 positive HTTP responses and four excluded 404 checks on the 46-file
   site, Pages `f73bc7567083cdb39cb9cc049ac1795c2606327f`, digest
   `203722a6dde39239a1ca72bfce8195b573ba3ff6acdb3662b7d975d5d81041a5`.
   These are supplied publication records, not checks rerun for this documentation.
-- Matrix **19.x** is being prepared/reviewed, **not published**; a new Matrix-inclusive
-  site needs separate approval. Piers **22.x** is excluded. Direct release ZIP
-  availability is independent of repository admission. Catalog checks are not
+  Matrix was not yet published at that previous checkpoint; the subsequent
+  three-lane publication is recorded above. Direct release ZIP availability is
+  independent of repository admission. Catalog checks are not
   native repository UI or upgrade acceptance, or blanket content-rights certification.
 
 ## Historical 0.1.0 Beta — existing direct installer
