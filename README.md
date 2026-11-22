@@ -1,82 +1,89 @@
-# TV Guide Fullscreen — 0.1.0 Beta
+# TV Guide Fullscreen — 0.1.1 Beta candidate
 
 A fullscreen XMLTV programme guide for Kodi: browse what's on, map channels to
 streams, search listings, and set reminders or ordinary AutoPlay. This is the
 **maintained modernization fork** of primaeval's TV Guide Fullscreen, preserving
 its Program add-on and background service. It supplies no TV subscriptions or feeds.
 
-**0.1.0 Beta is available as a direct GitHub prerelease, not through kcook-lab-repo.**
-Use the [verified-download installation steps](#installation) below. The beta reuses
+**0.1.1 is prepared for independent review, NOT published.** Proposed tag:
+`v0.1.1-beta` (not created). This is an **artwork-only successor; runtime unchanged**:
+original geometric icon/fanart replace the Earth images, and four promotional
+screenshots are omitted. The channel-management capture remains byte-identical.
+See [0.1.1 scope](docs/beta-0.1.1.md) and [artwork provenance](docs/artwork-provenance.md).
+The beta reuses
 independently accepted, bounded Nexus 20.5 core evidence for unchanged code. This
 is not stable/full legacy parity, a clean static gate, or current four-version
 beta native qualification. See
-[Beta scope, evidence and release notes](docs/beta-0.1.0.md).
+[historical 0.1.0 Beta evidence and release notes](docs/beta-0.1.0.md).
 The bounded beta recommendation is **Nexus 20.5**; Matrix/Omega/Piers beta acceptance
 is deferred, with historical evidence only, not fresh beta PASS. This scope decision
 supplies neither content rights nor repository admission.
 
-**Repository admission is blocked:** the existing repository controls require a
-verified redistribution basis for all bundled material. The inherited artwork
-and screenshots remain **unverified**, and owner acknowledgement does not satisfy
-that requirement. The owner accepts this uncertainty for the one-time source
-GitHub beta only; this supplies no third-party permission or legal clearance.
-Correcting the MIT notice did not clear broader artwork rights. Repository
-safeguards remain enforced, with no TV Guide catalog listing or Pages promotion.
+**Repository publication remains pending separate review and approval.** This
+candidate addresses the identified promotional-artwork blockers, not a blanket
+rights certification or automatic repository admission. No live 0.1.1 download,
+TV Guide catalog entry or Pages promotion is claimed. The public **0.1.0 Beta**
+and **Alpha 1** releases, their assets and historical evidence remain unchanged.
 
 <a id="installation--two-proposed-methods-after-publication"></a>
 
 ## Installation
 
-### Direct GitHub beta installer
+### kcook-lab-repo — only after approved Nexus-only publication
 
-1. Open the [0.1.0 Beta prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.0-beta)
-   and download **both** the [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.0-beta/script.tvguide.fullscreen-0.1.0.zip)
-   and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.0-beta/SHA256SUMS).
-   Do not use GitHub's source-snapshot ZIPs as installers.
-2. Save both assets together, keep the ZIP's published filename, and run
-   `sha256sum -c SHA256SUMS` in that directory. Require
-   `script.tvguide.fullscreen-0.1.0.zip: OK`. If verification fails, do not install.
-3. Back up your **Kodi profile, TV Guide settings, channel/stream mappings and
-   saved reminder/AutoPlay rules**; prefer a separate test profile.
-4. In Kodi, use **Add-ons → Install from zip file** and select the verified ZIP.
-   If prompted, explicitly consent to Kodi's standard **Unknown sources** setting
-   for this trusted ZIP source. If supported source installation is unavailable,
-   ask your Kodi administrator; do not bypass policy. **No Kodi Reset is required.**
+This is a **future 0.1.1 route**, not a current TV Guide catalog claim. Once the
+exact candidate is reviewed, admitted and published for Nexus:
 
-Installer: **2,137,274 bytes, 322 files**, SHA-256
+1. In Kodi **File manager → Add source**, add
+   `https://kcook98765.github.io/kcook-lab-repo/`, naming it `kcook-lab-repo`.
+2. Use **Add-ons → Install from zip file** to select the current repository
+   installer, `repository.ai.kodi-0.1.1.zip`, from that source. This installs the
+   repository, not TV Guide itself. If prompted, explicitly consent to Kodi's
+   standard **Unknown sources** setting for this trusted source; if unavailable,
+   ask your Kodi administrator rather than bypassing policy.
+3. After approved **Nexus-only** listing, use **Install from repository →
+   kcook-lab-repo → Program add-ons → TV Guide Fullscreen 0.1.1**.
+
+Repository updates follow Kodi's update/origin settings; no automatic migration
+or updates of an existing ZIP installation are guaranteed.
+
+### Direct GitHub Releases — only once 0.1.1 is released
+
+1. Once published, open tag `v0.1.1-beta` in the
+   [Releases index](https://github.com/kcook98765/script.tvguide.fullscreen/releases)
+   and download **both** `script.tvguide.fullscreen-0.1.1.zip` and `SHA256SUMS`.
+   Proposed release URL (not live):
+   `https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.1-beta`.
+   Do not use GitHub source-snapshot ZIPs as installers.
+2. Save the two assets together without renaming the ZIP. Run
+   `sha256sum --check --strict SHA256SUMS` in that directory and require
+   `script.tvguide.fullscreen-0.1.1.zip: OK`. If verification fails, do not install.
+3. Back up the profile/settings/mappings/rules as below; then use **Add-ons →
+   Install from zip file** to select the verified ZIP. Give explicit consent to
+   Kodi's standard Unknown sources prompt if needed; ask your administrator if
+   supported installation is unavailable. **No Kodi Reset is required.**
+
+### Historical 0.1.0 Beta — existing direct installer
+
+The public [historical 0.1.0 Beta release](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.0-beta),
+[installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.0-beta/script.tvguide.fullscreen-0.1.0.zip)
+and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.0-beta/SHA256SUMS)
+remain unchanged: **2,137,274 bytes, 322 files**, SHA-256
 `da5f38eed4707aa6de9ac7d9648008565ac332f51e93dc6cc5dab6f11f00f82e`.
-The frozen reviewed ZIP is unchanged; these source documentation updates are
-outside the installer and do not require retagging or rebuilding it.
-Other versions remain in the [fork Releases index](https://github.com/kcook98765/script.tvguide.fullscreen/releases).
-
-### Existing repository installer — TV Guide beta is absent
-
-The live [kcook-lab-repo source page](https://kcook98765.github.io/kcook-lab-repo/)
-offers [repository.ai.kodi-0.1.1.zip](https://kcook98765.github.io/kcook-lab-repo/repository.ai.kodi-0.1.1.zip).
-To install **the existing repository only**:
-
-1. Add `https://kcook98765.github.io/kcook-lab-repo/` in Kodi **File manager → Add
-   source**, naming it `kcook-lab-repo`.
-2. Use **Add-ons → Install from zip file** to select the repository installer
-   listed at that source. If prompted, explicitly consent to Kodi's standard
-   **Unknown sources** setting for this trusted ZIP source.
-3. **Install from repository → kcook-lab-repo** browses its existing compatible
-   add-ons. It does **not** offer TV Guide Fullscreen 0.1.0 Beta.
-
-The route **Install from repository → kcook-lab-repo → Program add-ons → TV Guide
-Fullscreen** is pending genuine TV Guide admission and listing for your Kodi lane,
-not a current beta installation route. Only after that could repository updates
-follow your **Kodi update and origin settings**; this does not establish automatic
-updates or migration for an existing ZIP installation.
+It is not listed in kcook-lab-repo; see the detailed
+[historical installation, evidence and capture history](docs/beta-0.1.0.md).
+Historical [Alpha 1 links and identity](#historical-alpha-1-download-and-installation)
+are retained below. Neither historical release is rebuilt or retagged here.
 
 ### Updating and first use
 
 Back up your **Kodi profile, TV Guide settings, channel/stream mappings and saved
 reminder/AutoPlay rules** first; prefer a separate test profile. Numeric manifest
-version **`0.1.0` sorts above `0.0.446~alpha1`**. A normal in-place update is the
+version **`0.1.1` sorts above `0.1.0` and `0.0.446~alpha1`**. A normal in-place update is the
 intended route; no Kodi profile Reset is required. Actual Alpha-to-beta upgrade,
 migration, obsolete-file pruning and ZIP-installed automatic updates have **not**
-been verified. No native upgrade test was performed for this beta; original
+been verified, including removal of the four omitted screenshots from an existing
+installation. No 0.1.1 native install, upgrade or repository UI test was performed; original
 profiles were untouched by preparation. Installing the existing repository does
 not itself make TV Guide available or guarantee an existing ZIP install will auto-update.
 
@@ -145,9 +152,10 @@ clean GUI ZIP installation with official dependencies; direct/plugin moving
 frames (including exact-source reused evidence); explicit alternative and
 automatic fallback; Stop; reminder/AutoPlay creation and selective cancellation
 preserving unrelated rules; saved reminder restart persistence; actual service
-startup work; graceful exits status 0. The beta preparation changed metadata/docs
-and added a notice, not behavior, so that evidence is reused. **It is not native
-installation of the new 0.1.0 ZIP.**
+startup work; graceful exits status 0. Accepted source:
+`cc411d933a269d4cba080a3bdf646b5eddc71e22`. This successor changes artwork and
+metadata/docs, not runtime behavior, so that evidence is reused. **It is not new
+0.1.1 native installation, upgrade or repository UI acceptance.**
 
 - **Audio UNTESTED**, accepted beta limitation: clips were video-only. Optional
   timed reminder delivery and actual AutoPlay firing were **not observed**.
@@ -167,22 +175,19 @@ installation of the new 0.1.0 ZIP.**
   recurrence horizons, collisions and in-flight cancellation have limits. No new
   external-player branch, provider feature or settings-refresh redesign is implied.
 
-## Screenshots
+## Current screenshot
 
-Existing actual Nexus 20.5 captures, Default TV Guide skin, no playback. They show
-development UI, not proof of every beta feature or the published Alpha 1 UI.
-
-![Fullscreen programme guide](resources/screenshots/fullscreen-guide.png)
-
-![Programme actions](resources/screenshots/programme-actions.png)
-
-![On Now](resources/screenshots/on-now.png)
-
-![Title search results](resources/screenshots/search-results.png)
+Retained owner-authored actual Nexus 20.5 channel-management capture, Default TV
+Guide skin, no playback; exact published 0.1.0 bytes. Ordinary channel labels/UI
+have no separately identified artwork blocker in Codex's individual visual review.
+Not a new capture or proof of every beta feature. Four other promotional captures
+were omitted, not replaced or simulated; their capture history remains in the
+[historical 0.1.0 notes](docs/beta-0.1.0.md) and immutable published source/release.
+See [the per-image dispositions](docs/artwork-provenance.md).
 
 ![Channel management](resources/screenshots/channel-management.png)
 
-## Alpha 1 download and installation
+## Historical Alpha 1 download and installation
 
 The existing public prerelease remains [0.0.446 Alpha 1](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1):
 [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/script.tvguide.fullscreen-0.0.446.alpha1.zip)

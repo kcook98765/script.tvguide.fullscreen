@@ -1,10 +1,9 @@
-"""Source-only Task15 checks. Run with the existing Toolkit Omega interpreter.
+"""Source-only package checks. Run with the selected Toolkit tooling interpreter.
 
 Requires the preserved Git baseline and installed polib/Pillow; imports no add-on
 or Kodi modules. Does not connect to Kodi, install dependencies or publish.
 """
 import hashlib
-import io
 import json
 import os
 from pathlib import Path
@@ -96,7 +95,7 @@ class PackageMetadataTests(unittest.TestCase):
         old, new = ET.fromstring(before), ET.fromstring(after)
         self.assertEqual({k: v for k, v in old.attrib.items() if k != 'version'},
                          {k: v for k, v in new.attrib.items() if k != 'version'})
-        self.assertEqual(new.get('version'), '0.1.0')
+        self.assertEqual(new.get('version'), '0.1.1')
         self.assertEqual([(e.get('point'), e.get('library')) for e in new.findall('extension')],
                          [('xbmc.python.script', 'addon.py'), ('xbmc.service', 'service.py'),
                           ('xbmc.addon.metadata', None)])
@@ -116,20 +115,19 @@ class PackageMetadataTests(unittest.TestCase):
         self.assertTrue(0 < len(meta.findtext('news').strip()) <= 1500)
         for asset in meta.findall('assets/*'):
             self.assertTrue((ROOT / asset.text).is_file())
-        for path in ('LICENSE.txt', 'fanart.jpg'):
+        for path in ('LICENSE.txt',):
             self.assertEqual(original(path), (ROOT / path).read_bytes())
 
-    def test_icon_exact_black_matte(self):
-        old = Image.open(io.BytesIO(original('icon.png'))).convert('RGBA')
-        new = Image.open(ROOT / 'icon.png')
-        self.assertEqual(old.size, (512, 512))
-        self.assertEqual(new.size, old.size)
-        self.assertEqual(new.mode, 'RGB')
-        expected = Image.alpha_composite(Image.new('RGBA', old.size, (0, 0, 0, 255)), old).convert('RGB')
-        self.assertEqual(new.tobytes(), expected.tobytes())
-        self.assertEqual(old.getpixel((0, 0)), (0, 0, 0, 92))
-        # A simple convert('RGB') would discard rather than composite alpha.
-        self.assertNotEqual(old.convert('RGB').tobytes(), expected.tobytes())
+    def test_original_artwork_keeps_runtime_asset_contract(self):
+        for path, size, fmt in (('icon.png', (512, 512), 'PNG'),
+                                ('fanart.jpg', (1920, 1080), 'JPEG')):
+            with Image.open(ROOT / path) as image:
+                image.load()
+                self.assertEqual(image.size, size)
+                self.assertEqual(image.mode, 'RGB')
+                self.assertEqual(image.format, fmt)
+                self.assertNotIn('transparency', image.info)
+            self.assertNotEqual(original(path), (ROOT / path).read_bytes())
 
     def test_ambiguous_variants_not_discarded(self):
         for name in ('Georgian', 'Haitian (Haitian Creole)', 'Vietnamese (Viet Nam)'):
