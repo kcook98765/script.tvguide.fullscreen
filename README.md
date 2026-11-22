@@ -97,8 +97,10 @@ in-flight cancellation have documented limits. Font glyph boxes, audio coverage
 and partial timer evidence remain qualification limits. Translation identities
 also need owner/translator decisions; no catalogs were discarded.
 
-Next work is event-scoped once cancellation and a separately reviewed,
-preserving XMLTV settings-refresh design. Dynamic control 3019 needs a reproduced
+The [event-scoped once source correction](docs/schedule-ownership.md#once-cancellation-follow-up-21-november-2026-campaign)
+is complete and independently accepted; the subsequent Nexus launch attempt was
+blocked, leaving native cancellation unobserved. Remaining work includes a separately
+reviewed, preserving XMLTV settings-refresh design. Dynamic control 3019 needs a reproduced
 symptom or useful context before a fix; fewer caught control diagnostics in the
 latest round reflect coverage, not repair. Logs remain **non-clean**. Historical
 Matrix crash and Piers input work remain deferred, not resolved or retried.

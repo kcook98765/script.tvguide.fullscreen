@@ -102,11 +102,15 @@ class Autoplay(object):
             return
         self._scheduleAutoplay(program.channel.id, program.title, program.startDate, program.endDate)
 
-    def removeAutoplay(self, program):
+    def removeAutoplay(self, program, rule=None):
+        if rule is None:
+            rule = (program.channel.id, program.title, self.database.source.KEY, program.startDate, '0')
         before = self.database.getFullAutoplays()
-        self.database.removeAutoplay(program)
+        self.database.removeAutoplay(program, rule)
         remaining = {self.createAlarmClockName(p.title, p.startDate, p.channel.id)
                      for p in self.database.getFullAutoplays()}
+        if self.database.isAutoPlayRequiredForProgramStart(program):
+            remaining.add(self.createAlarmClockName(program.title, program.startDate, program.channel.id))
         for previous in before + [program]:
             if self.createAlarmClockName(previous.title, previous.startDate, previous.channel.id) not in remaining:
                 self._unscheduleAutoplay(previous.title, previous.startDate, previous.channel.id)

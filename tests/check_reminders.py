@@ -181,8 +181,10 @@ class Reminders(unittest.TestCase):
         n.database = SimpleNamespace(getFullNotifications=lambda: list(programs),
                                      source=SimpleNamespace(KEY='fixture'),
                                      addNotification=lambda p, t: programs.append(p),
-                                     removeNotification=lambda p: programs.__setitem__(
-                                         slice(None), [item for item in programs if item.title != p.title]),
+                                     removeNotification=lambda p, rule: programs.__setitem__(
+                                          slice(None), [item for item in programs if item.title != p.title]),
+                                     isNotificationRequiredForProgramStart=lambda p: any(
+                                         item.title == p.title and item.startDate == p.startDate for item in programs),
                                      clearAllNotifications=programs.clear)
         n.scheduleNotifications()
         name = n.createAlarmClockName(title, start, program.channel.id)
@@ -195,7 +197,9 @@ class Reminders(unittest.TestCase):
         survivor = SimpleNamespace(title='Other title', channel=program.channel, startDate=start)
         n.addNotification(recurring, 1)
         n.addNotification(survivor, 0)
-        n.removeNotification(program)
+        # These two reconstructed occurrences belong to the selected recurring
+        # rule. Real independent-rule ownership is covered by SQLite regressions.
+        n.removeNotification(program, (program.channel.id, title, 'fixture', recurring.startDate, '1'))
         self.assertEqual(calls[-2:], ['CancelAlarm(%s-5mins,True)' % name, 'CancelAlarm(%s-now,True)' % name])
         recurring_name = n.createAlarmClockName(recurring.title, recurring.startDate, recurring.channel.id)
         self.assertIn('CancelAlarm(%s-now,True)' % recurring_name, calls)

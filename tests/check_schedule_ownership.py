@@ -58,6 +58,7 @@ START = NOW + datetime.timedelta(days=1)
 class Ownership(unittest.TestCase):
     def setUp(self):
         names = ['adapt_datetime', 'convert_datetime', '_getFullNotifications', '_getFullAutoplays',
+                 '_isNotificationRequiredForProgramStart', '_isAutoPlayRequiredForProgramStart',
                  '_addNotification', '_removeNotification', '_clearAllNotifications',
                  '_addAutoplay', '_removeAutoplay', '_clearAllAutoplays', '_getAutoplayAlarmIdentities']
         self.env = extract('source.py', names, dict(datetime=datetime, time=time, **models), 'Database')
@@ -76,6 +77,10 @@ class Ownership(unittest.TestCase):
             self.conn.execute('CREATE TABLE ' + table + '(channel TEXT, program_title TEXT, source TEXT, '
                               'start_date TIMESTAMP, type TEXT)')
         self.db = SimpleNamespace(conn=self.conn, source=SimpleNamespace(KEY='active'))
+        for public in ('isNotificationRequiredForProgramStart', 'isAutoPlayRequiredForProgramStart'):
+            private = '_' + public
+            if private in self.env:
+                setattr(self.db, public, lambda p, private=private: self.env[private](self.db, p))
         self.db.getAutoplayAlarmIdentities = lambda: self.env['_getAutoplayAlarmIdentities'](self.db)
         for public, private in [('getFullNotifications', '_getFullNotifications'),
                                 ('getFullAutoplays', '_getFullAutoplays')]:
@@ -177,7 +182,9 @@ class Ownership(unittest.TestCase):
                 self.assertEqual({p.startDate for p in rows}, {START, START + datetime.timedelta(days=1)})
                 (n.scheduleNotifications if kind == 'notification' else n.scheduleAutoplays)()
                 self.calls.clear()
-                (n.removeNotification if kind == 'notification' else n.removeAutoplay)(rows[0])
+                # Explicitly select the one stored always rule, not a bare once intent.
+                (n.removeNotification if kind == 'notification' else n.removeAutoplay)(
+                    rows[0], ('one', 'Show', 'active', START, '1'))
                 for p in rows:
                     name = n.createAlarmClockName(p.title, p.startDate, p.channel.id)
                     self.assertTrue(any(name in c for c in self.calls))
@@ -251,7 +258,13 @@ class Ownership(unittest.TestCase):
             self.conn.execute('UPDATE notifications SET program_title=?', ['sh_w%'])
             self.assertEqual({p.channel.id for p in self.rows('notifications')}, {'one', 'two'})
         # Actual removal deliberately removes this source-wide LIKE rule via channel two.
-        self.env['_removeNotification'](self.db, next(p for p in rows if p.channel.id == 'two'))
+        clicked = next(p for p in rows if p.channel.id == 'two')
+        if BASELINE:
+            self.env['_removeNotification'](self.db, clicked)
+        else:
+            # Source-wide selection may be cancelled from a different channel,
+            # but it must carry the exact stored pattern (including the update above).
+            self.env['_removeNotification'](self.db, clicked, ('one', 'sh_w%', 'active', START, '4'))
         self.assertEqual(self.conn.execute('SELECT count(*) FROM notifications').fetchone()[0], 0)
 
     def scheduler(self, kind, store):

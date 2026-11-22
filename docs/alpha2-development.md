@@ -9,6 +9,42 @@ correction merged as `439b8b7`. Its ZIP, SHA-256 and tag are unchanged; use the
 The manifest stays **`0.0.446~alpha1`**. No Alpha2 version, ZIP, release or
 repository distribution is prepared.
 
+## Once-cancellation follow-up
+
+Source correction **`efac84a234c9ecbf90013dacd7eb6323b83cecf4`** is independently
+accepted in [PR70](https://github.com/kcook98765/script.tvguide.fullscreen/pull/70).
+Its [ownership contract](schedule-ownership.md#once-cancellation-follow-up-21-november-2026-campaign)
+has retained source evidence: **10 scripts / 60 unittest methods + three assertion
+scripts**, including 14 new methods, pinned-original 48 assertion failures and six
+failing narrow mutations (no fixture errors). These are not native UI results;
+the documentation follow-up reruns no product tests, types or full static gate.
+Inherited static **FAIL**, warnings and historical scopes remain unchanged.
+
+The subsequent single **Nexus20.5** attempt used one explicit Start request
+(observation with the same UUID was not another Start). GEN11→**GEN12** capture,
+structural validation and guarded deployment succeeded. Exact GEN12 target/workspace
+script0 launch was then **refused before dispatch: `launch_not_deployed`**. Testing
+stopped immediately: no menu fallback, redeployment or retry. File deployment
+does **not** establish fresh-code execution. Codex independently checked 23 actual
+MCP events and the **Home-only** PNG: no guide launch, no rules created, and all
+native once transitions/callback behavior **UNOBSERVED**, not failed or accepted.
+Viewer/browser closed and Stop was confirmed. Native authority has ended.
+
+Codex's stopped-archive plus second-read audit verified protected table fields
+**and rowids** exactly: 247 channels, 249 primary mappings, reminder/AutoPlay rules
+**0/0**, other schedule/alternative mapping rows and the original one event JSON.
+All **322 candidate + 595 retained vendor + 611 official pytz files** were exact;
+other add-ons were unchanged. Only `last.background.update` preference changed;
+programmes **2,209→2,090** through normal refresh, not a byte-identical Nexus profile.
+The other three whole profiles were exact. All four original identities remain
+**stopped**, original Current Nexus selection **46**, no pending work.
+
+Current/old logs: **585/552 lines, 199/177 ERROR, 0/0 FATAL**; selected exception
+and playback markers are zero. Logs remain **non-clean**, with **no guide UI
+coverage**; reduced diagnostics are not a fix. No further native/tooling
+investigation is authorized. Broader #21 remains open. The earlier campaign and
+GEN11/GEN10 evidence below retain their own exact sources and historical limits.
+
 ## Four further corrections, two merged PRs
 
 Both PRs were independently reviewed by Codex and normally merged:
@@ -110,9 +146,12 @@ skins, `Control.getPosition` or log-suppression changes were made.
 Broad trackers **#2/#4/#5/#8/#14/#21 remain OPEN** for their remaining scope.
 No issue closure or automatic publication is recommended.
 
-1. Define **event-scoped once cancellation** when same-title once and recurring/
-   wildcard rules overlap, before changing DELETE policy. Current removal can
-   delete both independent same-title once rows on the same source/channel.
+1. **Once-cancellation source follow-up:** the [narrow ownership contract](schedule-ownership.md#once-cancellation-follow-up-21-november-2026-campaign)
+   now isolates exact once intent and explicitly selected recurring/LIKE rules,
+   retains shared clicked-event actions beyond the normal reconstruction horizon,
+   and uses a minimal rule chooser when several owners match. Actual-schema and
+   inert producer/UI regressions are source evidence, **not native cancellation
+   or callback acceptance**. Broad #21 and historical recovery/race limits remain.
 2. Separately review a **preserving XMLTV settings-refresh design**: distinguish
    parse changes from channel replacement, retain rules/mappings/identities,
    account for source-less programme uniqueness and committed postprocessing,
