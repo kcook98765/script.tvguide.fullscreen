@@ -1,3 +1,15 @@
+Unreleased — continued practical development
+- Correct existing reminder/AutoPlay event matching and current-popup dispatch;
+  cancelled wildcard input saves no rule and retains redraw/selection metadata.
+- Fall back to the existing normalized XMLTV channel ID only for an absent
+  display-name; preserve explicit empty names, identities, valid tails and offsets.
+- Development evidence: 23 focused scripts pass; types-only checks add two
+  unresolved errors per lane. Inherited full static gate FAIL, not rerun.
+  One bounded Nexus UI round exercised wildcard Cancel without creating rules;
+  actual timers and other native versions were not tested in this campaign.
+  Continue development; no new version, package or publication recommendation.
+  See docs/alpha2-development.md for evidence, preservation and remaining limits.
+
 Unreleased — Alpha2 development
 - Correct AutoPlay before/after padding: saved enum index 6 uses the displayed
   10 minutes at both runtime consumers; saved choices, indices and defaults stay.

@@ -1,85 +1,85 @@
 # Current fork feature and qualification status
 
-## Current Alpha2 development — 21 November 2026
+## Current continued development — 21 November 2026 campaign
 
-**Alpha 1 is publicly published; Alpha2 is unreleased development only.** The
-existing [Alpha 1 prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1)
-is tagged at `fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`; the later download-documentation
-correction merged as `439b8b7`. Its public ZIP, checksum and tag are unchanged.
-The manifest remains **`0.0.446~alpha1`**; there is no Alpha2 package, version bump
-or repository distribution.
+**Continue practical development, not automatic publication.** The existing
+[Alpha 1 prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),
+tagged at `fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`, public installer and checksum are
+unchanged. Manifest **`0.0.446~alpha1`**, settings, GPL/upstream history and the
+original feature inventory remain preserved. No new version, package or
+distribution is prepared. The campaign finished across 22 November UTC.
 
-Seven confirmed user-visible defect groups were investigated; **six improved in
-three independently reviewed, normally merged PRs #62/#63/#64**. These cover
-AutoPlay padding, Quick selection, exact-full-page Up wrap, explicit label
-clearing, Quick metadata focus and unusable XMLTV programme rows. Automatic
-cache invalidation is deferred at a reproduced persistence boundary; the separate
-latent left-button discrepancy was not selected because no bundled control 17027
-exists. See [Alpha2 development](alpha2-development.md) for contracts and limits.
+Following the earlier six Alpha2 improvements in #62/#63/#64, independently
+reviewed, normally merged [PR66](https://github.com/kcook98765/script.tvguide.fullscreen/pull/66)
+and [PR67](https://github.com/kcook98765/script.tvguide.fullscreen/pull/67) add four
+practical corrections: existing reminder/AutoPlay event matching across all
+applicable once/always/new/daily rows and source-wide LIKE reminders; current-popup
+state/authoritative DB dispatch instead of stale listing flags; wildcard Cancel
+creating no rule/action on either route while retaining redraw/metadata; and
+absent-only XMLTV display-name fallback to the existing normalized channel ID.
+No scheduling removal-policy, provider or unsafe/parity expansion is included.
+See [continued scope and evidence](alpha2-development.md) for exact boundaries.
 
-The final frozen-source batch passed **21 focused scripts: 114 reported unittest
-methods plus three assertion scripts**, including real official-pytz checks.
-Codex independently verified the raw receipts/counters. The one four-lane gate
-is **FAIL**, not static acceptance: syntax/manifest/paths/package PASS,
-types/official checker FAIL in every lane, process and JSON exits **1 / 1**.
+Functional freeze **`ce8fe0fdf75a4622c767a95a1a322d626b3ae46f`**, tree
+**`f7135e7f0df191b841f644320613b5a78b5ffacc`**: **317 runtime files / 4,096,555
+bytes**. Codex independently audited source/runtime/raw-output hashes and replayed
+the diagnostic comparison. **23 focused scripts PASS: 128 unittest methods plus
+three assertion scripts**; affected Python 3.8 grammar PASS. Per-PR negative
+proof and warnings remain retained. These are saved results, not new doc-authoring
+tests. The neutral changelog prefix is this PR's only runtime-byte difference.
 
-| Static lane | Type errors | Inherited locale errors / warnings |
+| Static lane | Fresh private types: before → after | Inherited locale errors / warnings |
 | --- | --- | --- |
-| Matrix 19.5 | 606 | 3 / 6 |
-| Nexus 20.5 | 606 | 3 / 7 |
-| Omega 21.3 | 606 | 3 / 7 |
-| Piers 22.0 RC2 | 580 | 3 / 7 |
+| Matrix 19.5 | 606 → 608 | 3 / 6 |
+| Nexus 20.5 | 606 → 608 | 3 / 7 |
+| Omega 21.3 | 606 → 608 | 3 / 7 |
+| Piers 22.0 RC2 | 580 → 582 | 3 / 7 |
 
-Normalized semantic diagnostics have **zero additions and zero removals versus
-Alpha 1**. Warnings, negative controls and genuine typing/locale debt remain.
-Matrix static 19.5 is not native 19.4; Piers evidence is RC2-only.
+Only the original Toolkit private types stage ran freshly per pinned interpreter:
+**two added / zero removed errors per lane**. The context DB rechecks expose the
+existing Optional model; the constructor already dereferences DB earlier and
+valid-DB fixtures pass, but no new `None` runtime path is demonstrated. These
+remain **unresolved static failures**, not automatic false positives or zero
+delta. Duplicate-`getControl` embedded line 439 → 440 is relocation only.
+Worker exit **0** is collection success; returned mypy exit **1** is types FAIL.
+**Full gate/checker NOT RERUN; inherited full gate FAIL** (syntax/manifest/paths/
+package PASS, types/checker FAIL at its older source). Warnings/negative controls
+remain; no static PASS or broad typing cleanup. Matrix static 19.5 differs from
+native 19.4; Piers evidence remains bounded RC2-only.
 
-**Final bounded Alpha2 observations and all-four preservation/stopped-state
-audits are independently reviewed by Codex; original Current Nexus selection
-is restored. Piers Run/guide/playback/Quick remain UNOBSERVED.**
-Nexus 20.5 observed padding 10/10 Save/reopen, distinct Quick selection and an
-independently established exact-full-page Up wrap (246 visible channels, last
-page 243). Omega 21.3 observed distinct Quick selection, but wrap was refused
-before dispatch and is **UNOBSERVED**. Matrix 19.4 observed a three-channel
-dateless fixture guide and Quick selection returning playback, but distinct
-channel identity is **UNOBSERVED** with shared fixture media. Empty-detail clearing
-and metadata prefill remain **UNOBSERVED** natively. This is not a repeat of the
-old eight-point gate or full four-version qualification. See the
-[native observations and preservation limits](alpha2-development.md#final-bounded-native-observations).
+One **Nexus 20.5 / GEN11** round has independently viewed populated guide/context,
+Remind/AutoPlay labels, wildcard chooser/keyboard Cancel returning to guide/redraw,
+ordinary close, closed owned viewer/browser and confirmed Stop. **No rules
+created: 0/0 and one event JSON preserved.** Listing once cancellation, new/daily,
+the second key route and actual timers remain **native UNOBSERVED**. XMLTV fallback
+is deterministic only. Other three versions were **UNRUN** this campaign; no
+Piers attempt or Matrix crash work. No full four-version/callback acceptance.
 
-Piers' initial attempt and one supervisor-authorized bounded supplement are
-retained separately. The supplement reached Add-ons only; two pre-input refusals
-around one supported viewer renewal ended optional checks permanently. This is
-not an add-on failure; no further runtime attempts or infrastructure work follow.
-The background updater started/finished. Targeted Piers UI verification remains
-outstanding before a confidence claim, not authority to retry it now.
+Codex's fresh stopped Nexus audit matched 317 candidate payloads/modes plus 595
+retained unused vendor files, all 611 official pytz payloads and unchanged other
+add-ons. All 247 channel rowids/fields, 249 mapping values, schedule associations
+and event JSON were exact; internal mapping rowids changed. Only generated update
+time/core uptime preferences differed, with normal programmes **2,037 → 1,760**;
+Nexus is not whole-profile byte-identical. The other three **whole profiles are
+exact before/after**. All four ended **STOPPED**, no pending operations; original
+Current Nexus binding unchanged, same source/workspace now **GEN11**.
 
-All four original profiles/identities are independently verified **STOPPED**, with
-no pending operations. Original Current Nexus selection **46**, same source/workspace
-**GEN10**, is restored; browser closed, **no Nexus startup**. Independent
-stopped-archive/second-copy audits matched GEN10 runtime, channel identifiers and
-schedule rows/associations, plus all mapping values. Internal primary-mapping
-rowids changed on Matrix/Nexus/Omega, not protected channel/schedule identities;
-ordinary programme refreshes and generated preferences changed.
-**Whole profiles/all setting bytes are not unchanged.** Logs retain
-caught control/environment/audio errors, despite no selected Python traceback,
-PythonToCppException or import-failure markers in the audited complete current/old
-logs. Nexus has **23 caught missing-control EXCEPTION entries**; these are
-retained, not a zero-exceptions claim. No clean-log, motion/audio,
-new timer/provider or release-ready claim follows.
-The source freeze is `be9c64141161e671604a4876404e6aaf64778ccb`, tree
-`a339971aa620f667eec988173b31d751be303add`, **317 runtime files / 4,094,697 bytes**.
-This documentation update adds only changelog metadata to those runtime bytes;
-the final original-profile preservation/selection audit is complete, not a
-functional pass for unobserved cases. No tests, static gates or native actions
-were rerun to author it. There is no native scheduler qualification claim.
+Nexus complete current/old logs: **3,166/552 lines, 1,927/177 ERROR, 0/0 FATAL**;
+**7/0 caught optional-control EXCEPTIONs**, no selected traceback/PythonToCpp/
+import/UnboundLocal markers. **NON-CLEAN logs**. Prior 23-entry triage classified
+22 guarded optional static hooks and one unresolved dynamic **3019**. Fewer entries
+mean different exercise coverage, not a fix. No control/skin/`getPosition` or
+log-suppression changes. [Detailed preservation and log limits](alpha2-development.md#independently-verified-stopped-preservation-and-logs).
 
-Keep **#2/#4/#5/#8/#14/#21 OPEN**. The historical Matrix crash is unresolved;
-`Control.getPosition` is preserved. No broad static cleanup, locale guessing,
-unsafe execution restoration or additional feature work is included. Recommend
-only these six improvements for the smallest future Alpha2 scope, without
-packaging yet. The complete feature inventory and historical records below are
-retained, not new acceptance of their older claims.
+Broad trackers **#2/#4/#5/#8/#14/#21 remain OPEN** for their remaining scope.
+Next: event-scoped once cancellation; separately reviewed preserving XMLTV
+settings refresh; dynamic 3019 only if reproduced with useful context. Defer
+invasive/speculative legacy/VOD/dateless-OSD/provider/FFmpeg/skin, Matrix crash and
+Piers input work. This docs PR runs only focused doc checks, no product tests,
+types, gates or native stages. Older Alpha2/GEN10 observations are
+[historical](alpha2-development.md#historical-alpha2-checkpoint--superseded-as-current-status),
+not current acceptance; the original feature inventory and reports below remain
+intact under their historical scope notices.
 
 ## Historical Alpha2 U1 implementation checkpoint
 

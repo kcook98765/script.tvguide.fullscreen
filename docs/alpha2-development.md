@@ -1,12 +1,138 @@
-# Alpha2 development: practical improvements
+# Continued practical TV Guide development
 
-As of 21 November 2026, **Alpha2 is development only**, not a release or a
-four-version acceptance result. [Alpha 1 is already public](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1)
+The **21 November 2026 continued-development campaign** (completed across the
+22 November UTC boundary) remains development only, not a release or four-version
+acceptance result. [Alpha 1 is already public](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1)
 at `fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`, with the later README download
 correction merged as `439b8b7`. Its ZIP, SHA-256 and tag are unchanged; use the
 [existing download instructions](../README.md#alpha-1-download-and-installation).
 The manifest stays **`0.0.446~alpha1`**. No Alpha2 version, ZIP, release or
 repository distribution is prepared.
+
+## Four further corrections, two merged PRs
+
+Both PRs were independently reviewed by Codex and normally merged:
+
+| PR | Practical correction | Preserved boundary |
+| --- | --- | --- |
+| [#66](https://github.com/kcook98765/script.tvguide.fullscreen/pull/66) | Match the existing once/always/new/daily rules across all applicable rows, plus source-wide SQL LIKE reminders. Refresh popup scheduling labels after navigation; dispatch against the current selected programme's authoritative database state, so a listing's stale flags do not turn “Don't Remind/AutoPlay” into duplicate registration. Cancelled/empty wildcard input creates no rule/action on either route, retaining redraw and selected metadata. | Existing programme handlers are the selected small restoration. No recurrence, removal-policy, callback, provider or unsafe-execution expansion. |
+| [#67](https://github.com/kcook98765/script.tvguide.fullscreen/pull/67) | Use the existing normalized channel ID only when XMLTV display-name is `None`, retaining the channel and valid trailing rows/later sources. | All-valid output, explicit empty/whitespace names, identities, programme links, offsets and logo precedence preserved. No feed repair, cache invalidation or settings refresh. |
+
+Final functional source: **`ce8fe0fdf75a4622c767a95a1a322d626b3ae46f`**, tree
+**`f7135e7f0df191b841f644320613b5a78b5ffacc`**. Its runtime freeze is **317 files /
+4,096,555 bytes**. These are the tested source bytes, not a new installer. This
+docs update preserves every functional/runtime file except a neutral changelog
+prefix; that prefix changes the runtime byte total, not the tested Python.
+
+## Final continued-development evidence — static failures retained
+
+These are retained results, not tests rerun to author documentation. Codex
+independently checked 378 source files, 317 runtime files and 64 raw-output hashes,
+and replayed the semantic diagnostic comparison.
+
+- **23 scripts PASS: 128 unittest methods plus three assertion scripts**; methods
+  are not subcase/assertion counts. Affected files pass **Python 3.8 grammar**,
+  a separate host check, not the full CLI syntax stage or embedded-Python proof.
+- Per-PR original-failure and mutation negatives remain retained, as do earlier
+  failed harness results; none is rewritten into a product PASS.
+- Only the original Toolkit **private types stage** was freshly run per pinned
+  interpreter, after its `stub-lanes` report. This was **not a full CLI gate**.
+
+| Static target | Kodistubs | Type errors before → after | Semantic additions / removals | Inherited checker locale errors / warnings |
+| --- | --- | --- | --- | --- |
+| Matrix 19.5 | 19.0.3 | 606 → 608 | +2 / −0 | 3 / 6 |
+| Nexus 20.5 | 20.0.1 | 606 → 608 | +2 / −0 | 3 / 7 |
+| Omega 21.3 | 21.0.0 | 606 → 608 | +2 / −0 | 3 / 7 |
+| Piers 22.0 RC2 | 22.0.1rc1 | 580 → 582 | +2 / −0 | 3 / 7 |
+
+Both new `union-attr` errors are at the context-menu DB rechecks
+(`gui.py:1961/1978`), exposing the existing optional database model. The unchanged
+popup constructor already dereferences that database earlier; valid-DB fixtures
+pass and no new `None` runtime path has been demonstrated. **Static uncertainty
+remains**: these are genuine new diagnostics, not automatic false positives,
+zero delta or typing cleanup. The inherited duplicate-`getControl` message's
+embedded line **439 → 440** is relocation only; both method ASTs are unchanged.
+Each collecting worker exited **0**, but returned mypy exit **1**: types **FAIL**.
+
+The **full six-stage gate and official checker were NOT RERUN**. Inherited
+syntax/manifest/paths/package PASS and types/checker FAIL retain their earlier
+exact-source scope; no fresh CLI validation exit or static PASS is claimed.
+All warnings and negative diagnostics remain retained, including the three locale
+errors per lane and warnings **6/7/7/7**. Tool host CPython 3.12.3, mypy 2.4.0 and
+checker 0.0.36 do not identify embedded Kodi Python; branch selection does not
+switch stubs. Matrix static **19.5 ≠ native 19.4**; Piers remains bounded RC2-only.
+
+## One bounded Nexus native round — not scheduler acceptance
+
+Only **Nexus 20.5**, on the same source/workspace at **GEN11**, ran in this campaign.
+Codex independently viewed meaningful pixels: populated guide/context, ordinary
+Remind/AutoPlay labels, recurrence chooser, wildcard keyboard **Cancel** returning
+to a populated guide/redraw, and ordinary close. The owned viewer/browser closed
+and supported **Stop was confirmed**. No rule was created: saved reminders and
+AutoPlay remained **0/0**, and the existing event JSON remained unchanged.
+
+**Native UNOBSERVED:** listing once cancellation, new/daily matching and the second
+key-input route. Selected query/handler behavior has focused actual-method/SQLite
+evidence, not native acceptance. **Actual Kodi timer/callback delivery remains
+unobserved and unqualified.** XMLTV fallback is deterministic parser
+evidence only, with no native malformed-feed/settings switch. Matrix, Omega and
+Piers were **UNRUN this campaign**; no Piers retry or Matrix crash work occurred.
+Historical Alpha2 and Alpha 1 observations below do not fill these gaps.
+
+### Independently verified stopped preservation and logs
+
+Codex's fresh stopped-file audit matched all **317 candidate payloads/modes**,
+**595 retained unused vendor files**, **611 official pytz payloads** and unchanged
+other add-ons on Nexus. All **247 channel rowids/fields**, **249 primary mapping
+values**, alternative mappings, schedule tables/associations and the one existing
+event JSON were exact. Internal primary-mapping rowids changed through ordinary
+refresh; not every database rowid was preserved. Integrity passed and FK checks
+were clean. Normal programme refresh changed **2,037 → 1,760** rows. Only generated
+`last.background.update` and core uptime preferences differed; **Nexus's whole
+profile is not byte-identical**. No manual profile/cache/DB reset or restoration.
+
+The untouched Matrix/Omega/Piers **whole profiles matched before/after exactly**.
+All four original identities were retained and independently verified **stopped**,
+with no pending operations. Original Current Nexus selection/binding stayed
+unchanged; Nexus alone advanced from historical GEN10 to **GEN11**. No new runtime
+authority follows from that final state.
+
+Complete Nexus current/old logs contain **3,166 / 552 lines**, **1,927 / 177 ERROR**
+and **0 / 0 FATAL**. Neither has the selected traceback, `PythonToCppException`,
+import-failure or `UnboundLocalError` markers. Current has **7 caught optional-control
+EXCEPTION entries**, old **0**: logs are **NON-CLEAN**. Prior triage classified
+**22 of 23** entries as guarded optional static hooks and **one dynamic control
+3019 unresolved**. The count drop is exercise coverage, not a fix. No controls,
+skins, `Control.getPosition` or log-suppression changes were made.
+
+## Next work: continue practical development
+
+Broad trackers **#2/#4/#5/#8/#14/#21 remain OPEN** for their remaining scope.
+No issue closure or automatic publication is recommended.
+
+1. Define **event-scoped once cancellation** when same-title once and recurring/
+   wildcard rules overlap, before changing DELETE policy. Current removal can
+   delete both independent same-title once rows on the same source/channel.
+2. Separately review a **preserving XMLTV settings-refresh design**: distinguish
+   parse changes from channel replacement, retain rules/mappings/identities,
+   account for source-less programme uniqueness and committed postprocessing,
+   and test failure/rollback without destructive first-open snapshot handling.
+3. Investigate **dynamic control 3019 only if reproduced with useful context** or
+   a user symptom, not to suppress an isolated diagnostic.
+
+Defer invasive/speculative legacy, VOD, dateless-OSD reachability, provider,
+FFmpeg, complex-skin, Matrix crash and Piers input work. No source/test/settings/
+manifest/version changes, new artifact or distribution are part of this docs PR.
+Only focused documentation checks run here: no new product tests, types, full
+gates or native stages. The original feature inventory and historical reports
+remain [in the overview](modernization-status.md#feature-inventory).
+
+## Historical Alpha2 checkpoint — superseded as current status
+
+The following earlier record is retained with its failures and limits. Its
+“final”, “current”, GEN10, zero-delta, Piers follow-up and future-Alpha2
+recommendations refer **only to that older checkpoint**, not the continued
+`ce8fe0f` campaign above. In particular, no new Piers attempt is recommended here.
 
 ## Six improvements, three merged PRs
 
