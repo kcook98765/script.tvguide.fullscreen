@@ -57,9 +57,15 @@ and fresh native manager non-action remain **unobserved**. Supported lifecycle S
 completed; independent administrator status confirms all four originals stopped,
 no pending requests/actions/operations, original Current Nexus selection46/binding
 unchanged and viewer stopped. No settings/mappings/schedules or network/VPN changes
-were requested. Stopped-profile archive comparison is still pending: no byte-exact
-Nexus preservation claim is made, and destination-only files may remain after
-deployment. Deterministic tests are not full GUI-import/native playback acceptance.
+were requested. Independent stopped-profile audit verifies channels/mappings/all
+schedule tables (including rowids) and callback JSON preserved, DB integrity/FKs
+clean, and three untouched profiles exact. Nexus adds the developer note and has
+16 modified files: normal programme refresh (2090→2015), background-update time,
+Kodi default metadata on unchanged true VPN values, generated logs/cache/state and
+core uptime (other core preferences unchanged). All 322 payload files match the
+implementation Git; 596 destination-only files are unchanged, including old,
+unreferenced `vpnapi.py`. No whole-byte-exact Nexus or installed-pruning claim is
+made. Deterministic tests are not full GUI-import/native playback acceptance.
 No second round or launch workaround is authorized by this documentation update.
 
 The complete manifest/version/dependencies/artwork, GPL/source notices, historical
