@@ -2359,7 +2359,10 @@ class XMLTVSource(Source):
                 elif elem.tag == "channel":
                     logo = ''
                     cid = elem.get("id").replace("'", "").replace("=","-")  # Make ID safe to use as ' can cause crashes!
-                    title = elem.findtext("display-name").replace("=","-")
+                    title = elem.findtext("display-name")
+                    if title is None:
+                        title = cid
+                    title = title.replace("=","-")
                     use_thelogodb = False
                     if ADDON.getSetting('thelogodb') == "2":
                         use_thelogodb = True
