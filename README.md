@@ -14,6 +14,20 @@ The bounded beta recommendation is **Nexus 20.5**; current beta lane admission
 for Matrix/Omega/Piers is unapproved, with historical evidence only, not fresh
 beta PASS. This scope decision supplies neither content rights nor repository admission.
 
+**Notice-only successor for review:** the original unpublished private 0.1.0 ZIP
+is retained historically at SHA-256
+`0b25379c9eb71bd6e9014704114e5b3a7104c6fbbd9e209a97f5e189f7464492`.
+This successor supersedes it for review by adding the missing OrderedDict
+backport MIT notice in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
+Measured successor `script.tvguide.fullscreen-0.1.0.zip`: **2,137,274 bytes**,
+SHA-256 `da5f38eed4707aa6de9ac7d9648008565ac332f51e93dc6cc5dab6f11f00f82e`.
+All 321 original payloads, including all 45 runtime Python files, are unchanged;
+the notice is the sole added installer member. The owner authorized the same
+numeric `0.1.0` only because the retained original is unpublished. Runtime and
+qualification limits below are unchanged; no rights approval is supplied,
+artwork/screenshots provenance remains pending, and repository admission and
+publication remain pending. See the [successor disclosure](docs/beta-0.1.0.md#notice-only-successor).
+
 ## Installation — two proposed methods after publication
 
 Neither path below currently supplies TV Guide Fullscreen 0.1.0. Repository
@@ -181,3 +195,6 @@ kjb86, Doctor-Eggs and the other credited contributors. Original provider,
 contributors, source notices and upstream history are preserved; no upstream
 endorsement is implied. [LICENSE.txt](LICENSE.txt) contains GNU GPL v2; source
 notices permit **GPL v2 or later**. This software comes without warranty.
+The separate [third-party notice](THIRD-PARTY-NOTICES.txt) preserves Raymond
+Hettinger's OrderedDict MIT terms; the distinct Marti Raudsepp 2010 MIT notice
+remains embedded unchanged in `pyaes.py`.
