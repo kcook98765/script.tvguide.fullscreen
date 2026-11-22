@@ -19,6 +19,8 @@ is retained historically at SHA-256
 `0b25379c9eb71bd6e9014704114e5b3a7104c6fbbd9e209a97f5e189f7464492`.
 This successor supersedes it for review by adding the missing OrderedDict
 backport MIT notice in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
+Measured successor `script.tvguide.fullscreen-0.1.0.zip`: **2,137,274 bytes**,
+SHA-256 `da5f38eed4707aa6de9ac7d9648008565ac332f51e93dc6cc5dab6f11f00f82e`.
 All 321 original payloads, including all 45 runtime Python files, are unchanged;
 the notice is the sole added installer member. The owner authorized the same
 numeric `0.1.0` only because the retained original is unpublished. Runtime and

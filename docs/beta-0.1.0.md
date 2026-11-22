@@ -49,6 +49,12 @@ in `pyaes.py` are unchanged. No changelog or manifest change is needed for this
 notice correction. Same numeric `0.1.0` is explicitly authorized because the
 original candidate is unpublished; no existing release is modified.
 
+Measured successor `script.tvguide.fullscreen-0.1.0.zip`: **2,137,274 bytes**,
+SHA-256 `da5f38eed4707aa6de9ac7d9648008565ac332f51e93dc6cc5dab6f11f00f82e`.
+Two complete Git-blob builds are byte-identical. This subsequent documentation-only
+hash disclosure does not change the payload; separate final source-binding evidence
+verifies every one of the 322 ZIP members against the final source Git blobs.
+
 Only this disclosure, the README, the notice and a focused preservation test are
 source changes. Original private preparation reports/artifacts remain immutable;
 separate successor command receipts, per-file inventory, deterministic Git-blob
