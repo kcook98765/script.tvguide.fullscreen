@@ -71,8 +71,11 @@ class AutoPlay(unittest.TestCase):
                                                for p in self.programs],
             getFullAutoplays=lambda: list(self.programs),
             addAutoplay=lambda p, t: (self.programs.append(p), self.added.append((p, t))),
-            removeAutoplay=lambda p: self.programs.__setitem__(slice(None), [
+            removeAutoplay=lambda p, rule: self.programs.__setitem__(slice(None), [
                 item for item in self.programs if (item.title, item.channel.id) != (p.title, p.channel.id)]),
+            isAutoPlayRequiredForProgramStart=lambda p: any(
+                (item.title, item.channel.id, item.startDate) == (p.title, p.channel.id, p.startDate)
+                for item in self.programs),
             clearAllAutoplays=self.programs.clear)
         return self.n
 
@@ -322,11 +325,15 @@ class AutoPlay(unittest.TestCase):
     def test_remove_recurring_and_clear_cancel_selected_occurrences(self):
         n = self.scheduler()
         p, repeat, other = self.program(), self.program(days=1), self.program(title='Other show')
-        for program, kind in [(p, 0), (repeat, 1), (other, 3)]:
+        for program, kind in [(p, 1), (other, 3)]:
             n.addAutoplay(program, kind)
-        self.assertEqual([kind for _, kind in self.added], [0, 1, 3])
+        # Model a second reconstructed occurrence of the selected always rule,
+        # not an independent once rule that cancellation must now preserve.
+        self.programs.append(repeat)
+        n._scheduleAutoplay(repeat.channel.id, repeat.title, repeat.startDate, repeat.endDate)
+        self.assertEqual([kind for _, kind in self.added], [1, 3])
         self.calls.clear()
-        n.removeAutoplay(p)
+        n.removeAutoplay(p, (p.channel.id, p.title, 'fixture', p.startDate, '1'))
         self.assertEqual(self.programs, [other])
         for program in (p, repeat):
             for phase in ('start', 'stop'):
@@ -344,18 +351,18 @@ class AutoPlay(unittest.TestCase):
         self.assertEqual(self.calls, [])
 
     def test_db_rows_and_retained_selection_service_gui_contracts(self):
-        # Task13 deliberately corrects selectors; all other DB/service contracts
-        # from task11 stay unchanged. Real selector acceptance is in ownership tests.
+        # Intentional selector/removal corrections have behavioral DB acceptance;
+        # the other task11 DB/service contracts remain byte-for-byte AST checks.
         baseline = ast.parse(subprocess.check_output(['git', 'show', BASE + ':source.py'], cwd=ROOT))
         source = ast.parse((ROOT / 'source.py').read_text())
-        for name in ('_addAutoplay', '_removeAutoplay', '_clearAllAutoplays', '_getFullAutoplaywiths'):
+        for name in ('_addAutoplay', '_clearAllAutoplays', '_getFullAutoplaywiths'):
             def selection(tree):
                 return next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == name)
             self.assertEqual(ast.dump(selection(source)), ast.dump(selection(baseline)))
         gui = (ROOT / 'gui.py').read_text()
         self.assertIn('times = ["once","always","new","daily"]', gui)
         self.assertIn('self.autoplay.addAutoplay(program, when)', gui)
-        self.assertIn('self.autoplay.removeAutoplay(program)', gui)
+        self.assertIn('self.autoplay.removeAutoplay(program, rule)', gui)
         self.assertIn('n.scheduleAutoplays()', (ROOT / 'service.py').read_text())
         autoplay = (ROOT / 'autoplay.py').read_text()
         self.assertIn("Autoplay(database, ADDON.getAddonInfo('path')).clearAutoplays()", autoplay)
@@ -368,15 +375,17 @@ class AutoPlay(unittest.TestCase):
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'DB:three-methods-only', 'exec'), env)
         conn = sqlite3.connect(':memory:')
         self.addCleanup(conn.close)
-        conn.execute('CREATE TABLE autoplays(channel, program_title, source, start_date, type)')
+        conn.execute('CREATE TABLE autoplays(channel TEXT, program_title TEXT, source TEXT, start_date TEXT, type TEXT)')
         holder = SimpleNamespace(conn=conn, source=SimpleNamespace(KEY='fixture'))
         p = SimpleNamespace(channel=SimpleNamespace(id=VALUES[0]), title='Title', startDate='date')
         for kind in (0, 1, 3):
             env['_addAutoplay'](holder, p, kind)
         self.assertEqual(conn.execute('SELECT channel, type FROM autoplays').fetchall(),
-                         [(VALUES[0], k) for k in (0, 1, 3)])
+                         [(VALUES[0], str(k)) for k in (0, 1, 3)])
         env['_removeAutoplay'](holder, p)
-        self.assertEqual(conn.execute('SELECT * FROM autoplays').fetchall(), [])
+        self.assertEqual(conn.execute('SELECT type FROM autoplays').fetchall(), [('1',), ('3',)])
+        env['_removeAutoplay'](holder, p, (VALUES[0], 'Title', 'fixture', 'date', '1'))
+        self.assertEqual(conn.execute('SELECT type FROM autoplays').fetchall(), [('3',)])
         env['_addAutoplay'](holder, p, 0)
         env['_clearAllAutoplays'](holder)
         self.assertEqual(conn.execute('SELECT * FROM autoplays').fetchall(), [])

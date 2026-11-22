@@ -104,6 +104,7 @@ class Clock(datetime.datetime):
 
 
 METHODS = {'_createTables', 'adapt_datetime', 'convert_datetime', '_getFullNotifications', '_getFullAutoplays',
+           '_getNotificationRulesForProgram', '_getAutoplayRulesForProgram',
            '_isNotificationRequiredForProgramStart', '_isAutoPlayRequiredForProgramStart',
            '_removeNotification', '_removeAutoplay', '_addNotification', '_addAutoplay', '_getChannelListing'}
 
@@ -133,6 +134,10 @@ class SchedulerPopup(unittest.TestCase):
                                 (channel, src+'/'+channel, '', 'inert.mp4', src, '', 1, 0))
         db.isNotificationRequiredForProgramStart = db._isNotificationRequiredForProgramStart
         db.isAutoPlayRequiredForProgramStart = db._isAutoPlayRequiredForProgramStart
+        for public, private in (('getNotificationRulesForProgram', '_getNotificationRulesForProgram'),
+                                ('getAutoplayRulesForProgram', '_getAutoplayRulesForProgram')):
+            if hasattr(db, private):
+                setattr(db, public, getattr(db, private))
         db.isAutoPlaywithRequiredForProgramStart = lambda _: False
         db.getNextProgram = db.getPreviousProgram = lambda _: None
         db.getCustomStreamUrl = lambda _: 'inert.mp4'
@@ -245,7 +250,7 @@ class SchedulerPopup(unittest.TestCase):
             self.prompts.append(args)
             return next(selection)
         guide_scope['xbmcgui'] = NS(Dialog=lambda: NS(select=select, input=lambda *a: answer))
-        Guide = extract('gui.py', 'TVGuide', {'_showContextMenu', 'onActionEPGMode'}, guide_scope)
+        Guide = extract('gui.py', 'TVGuide', {'_showContextMenu', 'onActionEPGMode', '_selectScheduleRule'}, guide_scope)
         guide = Guide()
         guide.database = self.db
         guide.tvdb_urls = {}
@@ -262,9 +267,12 @@ class SchedulerPopup(unittest.TestCase):
             def add_capture(p, kind, name=name, add=add):
                 self.calls.append((name, 'add', p, kind))
                 add(p, kind)
-            def remove_capture(p, name=name, remove=remove):
+            def remove_capture(p, rule=None, name=name, remove=remove):
                 self.calls.append((name, 'remove', p))
-                remove(p)
+                if rule is None:
+                    remove(p)
+                else:
+                    remove(p, rule)
             setattr(guide, name, NS(addNotification=add_capture, removeNotification=remove_capture)
                     if name == 'notification' else NS(addAutoplay=add_capture, removeAutoplay=remove_capture))
         return guide, popup, guide_scope

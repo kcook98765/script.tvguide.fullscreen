@@ -1608,21 +1608,44 @@ class Database(object):
         self.conn.commit()
         c.close()
 
-    def removeNotification(self, program):
-        self._invokeAndBlockForResult(self._removeNotification, program)
+    def removeNotification(self, program, rule=None):
+        self._invokeAndBlockForResult(self._removeNotification, program, rule)
         # no result, but block until operation is done
 
-    def _removeNotification(self, program):
+    def _removeNotification(self, program, rule=None):
         """
         @type program: source.program
         """
+        # A bare programme always means this once event, even on repeated removal.
+        # Explicit recurring/LIKE selection carries the exact stored rule fields.
+        if rule is None:
+            rule = (program.channel.id, program.title, self.source.KEY, program.startDate, '0')
+        if rule[2] != self.source.KEY:
+            return
         c = self.conn.cursor()
-        c.execute("DELETE FROM notifications WHERE channel=? AND program_title=? AND source=?",
-                  [program.channel.id, program.title, self.source.KEY])
-        c.execute("DELETE FROM notifications WHERE ? LIKE program_title AND source=? AND type=4",
-                  [program.title, self.source.KEY])
+        c.execute("DELETE FROM notifications WHERE channel IS ? AND program_title=? AND source=? "
+                  "AND start_date IS ? AND type=?", rule)
         self.conn.commit()
         c.close()
+
+    def getNotificationRulesForProgram(self, program):
+        return self._invokeAndBlockForResult(self._getNotificationRulesForProgram, program)
+
+    def _getNotificationRulesForProgram(self, program):
+        assert self.conn is not None  # Initialized DB-thread query, like alarm identities.
+        c = self.conn.cursor()
+        # Same event predicates as the popup; LIKE remains source-wide. Exact
+        # duplicate stored rows are indistinguishable copies of one logical rule.
+        c.execute("SELECT DISTINCT channel, program_title, source, start_date, type FROM notifications "
+                  "WHERE source=? AND ((channel=? AND program_title=? AND ("
+                  "(type=0 AND start_date=?) OR type=1 OR (type=2 AND ?='New') OR "
+                  "(type=3 AND time(start_date,'unixepoch')=time(?,'unixepoch')))) OR "
+                  "(type=4 AND ? LIKE program_title)) ORDER BY type, program_title, channel, start_date",
+                  [self.source.KEY, program.channel.id, program.title, program.startDate,
+                   program.is_new, program.startDate, program.title])
+        rules = [tuple(row) for row in c]
+        c.close()
+        return rules
 
     def getFullNotifications(self, daysLimit=5):
         return self._invokeAndBlockForResult(self._getFullNotifications, daysLimit)
@@ -1777,19 +1800,40 @@ class Database(object):
         self.conn.commit()
         c.close()
 
-    def removeAutoplay(self, program):
-        self._invokeAndBlockForResult(self._removeAutoplay, program)
+    def removeAutoplay(self, program, rule=None):
+        self._invokeAndBlockForResult(self._removeAutoplay, program, rule)
         # no result, but block until operation is done
 
-    def _removeAutoplay(self, program):
+    def _removeAutoplay(self, program, rule=None):
         """
         @type program: source.program
         """
+        if rule is None:
+            rule = (program.channel.id, program.title, self.source.KEY, program.startDate, '0')
+        if rule[2] != self.source.KEY:
+            return
         c = self.conn.cursor()
-        c.execute("DELETE FROM autoplays WHERE channel=? AND program_title=? AND source=?",
-                  [program.channel.id, program.title, self.source.KEY])
+        c.execute("DELETE FROM autoplays WHERE channel IS ? AND program_title=? AND source=? "
+                  "AND start_date IS ? AND type=?", rule)
         self.conn.commit()
         c.close()
+
+    def getAutoplayRulesForProgram(self, program):
+        return self._invokeAndBlockForResult(self._getAutoplayRulesForProgram, program)
+
+    def _getAutoplayRulesForProgram(self, program):
+        assert self.conn is not None
+        c = self.conn.cursor()
+        c.execute("SELECT DISTINCT channel, program_title, source, start_date, type FROM autoplays "
+                  "WHERE source=? AND channel=? AND program_title=? AND ("
+                  "(type=0 AND start_date=?) OR type=1 OR (type=2 AND ?='New') OR "
+                  "(type=3 AND time(start_date,'unixepoch')=time(?,'unixepoch'))) "
+                  "ORDER BY type, program_title, channel, start_date",
+                  [self.source.KEY, program.channel.id, program.title, program.startDate,
+                   program.is_new, program.startDate])
+        rules = [tuple(row) for row in c]
+        c.close()
+        return rules
 
     def getFullAutoplays(self, daysLimit=5):
         return self._invokeAndBlockForResult(self._getFullAutoplays, daysLimit)

@@ -1056,7 +1056,9 @@ class TVGuide(xbmcgui.WindowXML):
             if what > -1:
                 if what == 0:
                     if program.notificationScheduled:
-                        self.notification.removeNotification(program)
+                        rule = self._selectScheduleRule(program)
+                        if rule is not None:
+                            self.notification.removeNotification(program, rule)
                     else:
                         times = ["once","always","new","daily","regex"]
                         when = d.select("%s When" % schedulers[what], times)
@@ -1070,7 +1072,9 @@ class TVGuide(xbmcgui.WindowXML):
                                 self.notification.addNotification(program, when)
                 elif what == 1:
                     if program.autoplayScheduled:
-                        self.autoplay.removeAutoplay(program)
+                        rule = self._selectScheduleRule(program, autoplay=True)
+                        if rule is not None:
+                            self.autoplay.removeAutoplay(program, rule)
                     else:
                         times = ["once","always","new","daily"]
                         when = d.select("%s When" % schedulers[what], times)
@@ -1940,6 +1944,23 @@ class TVGuide(xbmcgui.WindowXML):
         from pvr_recording import PVRRecording
         PVRRecording(xbmc.executeJSONRPC, xbmcgui.Dialog()).run('timers')
 
+    def _selectScheduleRule(self, program, autoplay=False):
+        # Programme listings carry events, not rule identities. Never guess one
+        # owner or bulk-delete distinct patterns when several rules select it.
+        assert self.database is not None  # Active guide/listing; database initialized before use.
+        rules = (self.database.getAutoplayRulesForProgram(program) if autoplay
+                 else self.database.getNotificationRulesForProgram(program))
+        if len(rules) == 1:
+            return rules[0]
+        if not rules:
+            return None
+        kinds = {'0': 'once', '1': 'always', '2': 'new', '3': 'daily', '4': 'regex (all channels)'}
+        labels = ['%s: %s / %s / %s' % (kinds[rule[4]], rule[1], rule[0], rule[3]) for rule in rules]
+        index = xbmcgui.Dialog().select('Remove AutoPlay rule' if autoplay else 'Remove reminder rule', labels)
+        if 0 <= index < len(rules):
+            return rules[index]
+        return None
+
     def _showContextMenu(self, program):
         self._hideControl(self.C_MAIN_MOUSE_CONTROLS)
         self._hideControl(self.C_MAIN_OSD_MOUSE_CONTROLS)
@@ -1959,7 +1980,9 @@ class TVGuide(xbmcgui.WindowXML):
 
         if buttonClicked == PopupMenu.C_POPUP_REMIND:
             if self.database.isNotificationRequiredForProgramStart(program):
-                self.notification.removeNotification(program)
+                rule = self._selectScheduleRule(program)
+                if rule is not None:
+                    self.notification.removeNotification(program, rule)
             else:
                 d = xbmcgui.Dialog()
                 play_type = d.select("Notification play_type", ["once","always","new","daily","regex"]) #TODO ,"same time","same day"
@@ -1976,7 +1999,9 @@ class TVGuide(xbmcgui.WindowXML):
 
         elif buttonClicked == PopupMenu.C_POPUP_AUTOPLAY:
             if self.database.isAutoPlayRequiredForProgramStart(program):
-                self.autoplay.removeAutoplay(program)
+                rule = self._selectScheduleRule(program, autoplay=True)
+                if rule is not None:
+                    self.autoplay.removeAutoplay(program, rule)
             else:
                 d = xbmcgui.Dialog()
                 play_type = d.select("AutoPlay play_type", ["once","always","new","daily"]) #TODO ,"same time","same day"

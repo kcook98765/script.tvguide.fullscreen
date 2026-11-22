@@ -1,5 +1,64 @@
 # Intended reminder and ordinary AutoPlay event ownership (#21)
 
+## Once cancellation follow-up (21 November 2026 campaign)
+
+The former title-wide DELETE also removed a second once event at a different
+start, every same-channel recurring rule and all matching source-wide patterns.
+Actual-schema SQLite/producer/context reproduction on `41593d1` confirmed this;
+it is not native Kodi evidence. The historical Task13 record below predates this
+follow-up and does not imply that removal breadth was already corrected.
+
+* Bare `removeNotification(program)` / `removeAutoplay(program)` now mean **only
+  that once event**: source, channel, exact title/start and type0. Repeating that
+  intent cannot fall through to recurring/pattern deletion.
+* Context/listing and Schedulers Menu actions resolve applicable stored rules.
+  One logical rule is unambiguous; several require the existing `Dialog.select`
+  UI to choose **one**, with type/title/channel/saved start shown. Cancel, empty
+  results or invalid selection do not remove anything. Distinct matching SQL
+  LIKE patterns are not guessed or bulk-deleted. Wildcards still match all
+  channels **in their source**, including `%`/`_` and existing case behavior.
+* An explicit selection carries the exact five stored fields, not a transient
+  list index or a title-only fallback. Exact duplicate rows have no distinct
+  logical identity and are shown/removed as one rule. Historical NULL channel/
+  start values can be explicitly matched with SQL `IS`; no missing identity is
+  inferred, no row is migrated, and an intent from another source is declined.
+* Existing before/after event cancellation retains shared scoped alarms and
+  reminder JSON/token/phase claims when another rule still owns the event.
+  The **clicked** event additionally uses the authoritative event predicate,
+  so an eight-day-out once overlapped by a recurring rule stays armed even
+  outside the normal five-day reconstruction horizon. Nonmatching new/daily
+  rules survive, but do not keep an otherwise unowned once action armed.
+* Explicit recurring/pattern cancellation removes that rule's occurrences under
+  the existing reconstruction horizon, not independent once/rule owners. Global
+  Clear All deliberately retains its broader all-source behavior. No unclicked
+  horizon expansion, registry, schema/migration, timing, settings, callback-format
+  or alarm-identity change. Already delivered/in-flight work cannot be undone.
+
+`tests/check_once_cancellation.py` uses actual FK-on schema1.4.1, timestamp
+adapters, model/query/producer methods and the existing inert popup/key adapters.
+`--baseline` reads exact `41593d1` and must fail behavioral assertions;
+`--mutation once-scope|event-scope|clicked-owner|clicked-autoplay-owner|selection|explicit-rule`
+reverts one narrow production property in memory. No native command/callback runs.
+Tests include exact survivor alarm-command/callback-byte comparisons in fresh
+per-scheduler fixtures, both UI routes, shared ownership inside/outside the
+horizon, and duplicates/NULL/stale-source controls.
+
+Inherited recurrence tests now carry an explicit selected-rule tuple; their
+occurrence cancellation, source-wide wildcard and Clear All assertions remain.
+The old AutoPlay AST freeze excludes **only** the deliberately changed
+`_removeAutoplay`; real DB tests replace that freeze with once/explicit recurring
+behavior. The other original AST contracts and all padding/callback controls stay.
+
+**Source-only follow-up. Native cancellation/delivery remains unverified.** Full
+static gate/checker not rerun; inherited FAIL/warnings remain. New helper asserts
+state existing initialized-DB/active-window preconditions, not new lifecycle
+handling. The two prior context optional-DB diagnostics remain unresolved under
+#2; no suppression or broad typing cleanup. Already-collided unscoped legacy
+reminder owners remain unknowable: shared old data/claims are retained while
+owned, but explicit final cancellation can invalidate the ambiguous old key.
+This is not lost-identity recovery or a precise-second/race guarantee; #21 stays
+open for its broader scope. Manifest, Program+service, release and assets unchanged.
+
 > Historical task record: old activation-blocker / whole-campaign UNRUN statements
 > below are superseded by the [current overview](modernization-status.md).
 > Original failures and feature-specific unverified limits remain; later core

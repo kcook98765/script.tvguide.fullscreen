@@ -110,9 +110,12 @@ skins, `Control.getPosition` or log-suppression changes were made.
 Broad trackers **#2/#4/#5/#8/#14/#21 remain OPEN** for their remaining scope.
 No issue closure or automatic publication is recommended.
 
-1. Define **event-scoped once cancellation** when same-title once and recurring/
-   wildcard rules overlap, before changing DELETE policy. Current removal can
-   delete both independent same-title once rows on the same source/channel.
+1. **Once-cancellation source follow-up:** the [narrow ownership contract](schedule-ownership.md#once-cancellation-follow-up-21-november-2026-campaign)
+   now isolates exact once intent and explicitly selected recurring/LIKE rules,
+   retains shared clicked-event actions beyond the normal reconstruction horizon,
+   and uses a minimal rule chooser when several owners match. Actual-schema and
+   inert producer/UI regressions are source evidence, **not native cancellation
+   or callback acceptance**. Broad #21 and historical recovery/race limits remain.
 2. Separately review a **preserving XMLTV settings-refresh design**: distinguish
    parse changes from channel replacement, retain rules/mappings/identities,
    account for source-less programme uniqueness and committed postprocessing,

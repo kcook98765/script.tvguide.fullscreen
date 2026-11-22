@@ -101,11 +101,17 @@ class Notification(object):
             return  # Save the rule, but do not arm the selected rerun.
         self._scheduleNotification(program.channel.title, program.title, program.startDate, program.channel.id)
 
-    def removeNotification(self, program):
+    def removeNotification(self, program, rule=None):
+        if rule is None:
+            rule = (program.channel.id, program.title, self.database.source.KEY, program.startDate, '0')
         before = self.database.getFullNotifications()
-        self.database.removeNotification(program)
+        self.database.removeNotification(program, rule)
         remaining = {self.createAlarmClockName(p.title, p.startDate, p.channel.id)
                      for p in self.database.getFullNotifications()}
+        # A directly scheduled clicked event may be outside reconstruction's
+        # horizon. Do not invalidate its shared token while another rule owns it.
+        if self.database.isNotificationRequiredForProgramStart(program):
+            remaining.add(self.createAlarmClockName(program.title, program.startDate, program.channel.id))
         for previous in before + [program]:
             if self.createAlarmClockName(previous.title, previous.startDate, previous.channel.id) not in remaining:
                 self._unscheduleNotification(previous.title, previous.startDate, previous.channel.id)
