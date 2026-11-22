@@ -1,3 +1,8 @@
+UNRELEASED — intentional legacy VPN Manager removal
+- Remove bundled VPN API, GUI/scheduled-play integration and VPN settings only;
+  retain current media routing, fallback and Kodi Player/PVR behavior. Connectivity
+  is managed independently. Native verification is a separate pending handoff.
+
 Unreleased — continued practical development
 - Correct existing reminder/AutoPlay event matching and current-popup dispatch;
   cancelled wildcard input saves no rule and retains redraw/selection metadata.

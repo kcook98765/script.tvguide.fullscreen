@@ -107,13 +107,17 @@ def check():
     assert set(bad_defaults(old)) == {'channel.shortcut', 'service.type', 'catchup.type'}
     print('DETECTED baseline invalid enum/labelenum defaults:', sorted(bad_defaults(old)))
     assert bad_defaults(new) == [], bad_defaults(new)
-    assert set(old) == set(new), 'Setting IDs added/removed'
+    removed = {'vpnmgr.connect', 'vpnmgr.default'}
+    assert set(old) - removed == set(new), 'Only the two VPN settings may be removed'
+    assert not removed.intersection(new)
     changed = {'channel.shortcut': '0', 'service.type': '0', 'catchup.type': 'Meta?'}
     # NF1: only these two visibility attributes intentionally change. Separators
     # occupy legacy condition slots; both widgets must reference logos.enabled.
     visibility_changes = {'xmltv.logos': ('eq(-5,true)', 'eq(-6,true)'),
                           'addon.logos': ('eq(-6,true)', 'eq(-7,true)')}
     for key in old:
+        if key in removed:
+            continue
         expected = dict(old[key].attrib)
         if key in changed:
             expected['default'] = changed[key]
@@ -122,7 +126,7 @@ def check():
             assert expected['visible'] == before, key
             expected['visible'] = after
         assert new[key].attrib == expected, key
-    print('PASS all setting attributes retained except three reviewed defaults and two NF1 visibility offsets')
+    print('PASS all setting attributes retained except three reviewed defaults, two NF1 visibility offsets and only two removed VPN IDs')
 
     text = (ROOT / 'resources/settings.xml').read_text()
     visible = catchup_visible_values(text)

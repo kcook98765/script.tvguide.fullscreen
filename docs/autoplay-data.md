@@ -1,5 +1,10 @@
 # Ordinary AutoPlay data preservation (task11)
 
+> Current notice (2026-11-21, unreleased): historical VPN-preservation statements
+> below no longer describe current behavior. The scheduled VPN-only block is
+> intentionally removed; callback guards, markers and verbatim media URLs remain.
+> See [removal scope and limits](vpn-manager-removal.md).
+
 > Historical task record: old activation-blocker / whole-campaign UNRUN statements
 > below are superseded by the [current overview](modernization-status.md).
 > Original failures and feature-specific unverified limits remain; later core

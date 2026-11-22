@@ -201,9 +201,7 @@ class Mappings(unittest.TestCase):
         ui = NS(database=NS(getStreamUrl=lambda ch: value, getAltStreamUrl=lambda ch: [],
                             getCurrentProgram=lambda ch: None), currentChannel=None,
                 player=player, alt_urls=[value], mode=1, osdActive=False, tryingToPlay=True,
-                vpnswitch=True, vpndefault=True, osdEnabled=True,
-                api=NS(filterAndSwitch=lambda *args: events.append('vpn-plugin'),
-                       defaultVPN=lambda *args: events.append('vpn-default')),
+                osdEnabled=True,
                 clear_catchup=lambda: events.append('clear'),
                 channelIdx=0, viewStartDate=None,
                 onRedrawEPG=lambda *args: None,
@@ -226,7 +224,7 @@ class Mappings(unittest.TestCase):
                 call = body('gui.py', 'TVGuide', method, scope)
                 call(ui, NS(title='Demo')) if method == 'playChannel' else call(ui, 'Demo')
                 self.assertIn(('play', dict(item=value, windowed=True)), events)
-                self.assertIn('vpn-plugin' if value == URI else 'vpn-default', events)
+                self.assertFalse(any('vpn' in str(event).lower() for event in events))
                 self.assertIn('hide', events)
                 self.assertEqual(cap.calls, [])
 
@@ -275,7 +273,7 @@ class Mappings(unittest.TestCase):
             self.assertIs(call(ui, ui.C_STREAM_STRM_PREVIEW), expected)
             self.assertEqual(events, [])
 
-    def test_actual_scheduled_guard_precedes_settings_vpn_and_player(self):
+    def test_actual_scheduled_guard_precedes_settings_and_player(self):
         # Reuse the reviewed source-only AutoPlay fixture: real in-memory SQLite,
         # actual extracted main(argv), pure opaque decoder, inert effect captures.
         # Importing this test module runs no tests or Kodi/legacy module imports.
@@ -303,7 +301,7 @@ class Mappings(unittest.TestCase):
                     self.assertEqual(fixture.markers, before)
                 else:
                     expected_uri = URI if value.startswith('PlayMedia(') else value
-                    self.assertEqual(phases, ['addon', 'path', 'connect', 'close', 'setting', 'setting', 'vpn-check', 'play'])
+                    self.assertEqual(phases, ['addon', 'path', 'connect', 'close', 'setting', 'setting', 'play'])
                     self.assertEqual(fixture.markers, {'playing.channel': channel, 'playing.start': start})
                     self.assertIn(('play', dict(item=expected_uri)), fixture.effects)
         # Invalid encoded payload and invalid legacy arity/data stop before Addon,

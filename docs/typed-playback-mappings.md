@@ -1,5 +1,10 @@
 # Typed playback / add-on-folder mappings (refs #14 / #6 / #7 / #1)
 
+> Current notice (2026-11-21, unreleased): historical VPN switching/default events
+> below are intentionally removed, not preserved. Current routing, selected URLs,
+> fallback and existing Player/PVR paths remain; no named external player is restored.
+> See [removal scope and limits](vpn-manager-removal.md).
+
 > Historical task record: old activation-blocker / whole-campaign UNRUN statements
 > below are superseded by the [current overview](modernization-status.md).
 > Original failures and feature-specific unverified limits remain; later core

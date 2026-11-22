@@ -40,6 +40,18 @@ or full-parity claim is made.
 See the **[current feature and qualification overview](docs/modernization-status.md)**
 for precise sources, results and remaining limits.
 
+<!-- Current behavior notice; historical qualification above is unchanged. -->
+
+### Intentional VPN Manager integration removal (unreleased)
+
+TV Guide Fullscreen no longer imports, detects or controls Zomboided VPN Manager,
+switches connections for channels, or restores a previous/default VPN connection.
+Its VPN settings category is removed; stale saved values are ignored and untouched.
+Manage connectivity independently through Kodi, the operating system or your
+network tools. This is not a VPN-security guarantee. Current URL/mapping routing,
+fallbacks and existing Kodi Player/PVR alternative actions are preserved; no named
+external-player branch is added or restored. See [scope and limits](docs/vpn-manager-removal.md).
+
 ## Screenshots
 
 Actual Kodi Nexus 20.5 captures using the Default TV Guide skin and real guide
