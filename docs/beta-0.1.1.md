@@ -1,7 +1,7 @@
 # TV Guide Fullscreen 0.1.1 Beta
 
 **Published prerelease:** [v0.1.1-beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.1-beta),
-numeric manifest version `0.1.1`. Also live in **kcook-lab-repo's Nexus-only catalog**.
+numeric manifest version `0.1.1`. Also live in **kcook-lab-repo's Nexus and Omega catalogs**.
 Historical public [0.1.0 Beta](beta-0.1.0.md) and [Alpha 1](alpha-installation.md), installers,
 tags and evidence are unchanged. Publication followed independent review and
 explicit owner approval; preparation alone did not authorize it.
@@ -39,7 +39,15 @@ Nexus **20.5** accepted functional code is
 installation, direct/plugin moving frames, explicit alternative/automatic fallback,
 Stop, Reminder/AutoPlay create/selective cancellation, reminder restart persistence,
 service startup and graceful exit observations. This unchanged-code evidence is
-reused; there is **no new 0.1.1 native, upgrade or repository UI acceptance**.
+reused; there is **no new 0.1.1 Nexus native, upgrade or repository UI acceptance**.
+
+Codex's existing exact-package **Matrix 19.4 / Omega 21.3** core smoke is also
+reused, not rerun for this documentation. The finite Linux Matrix scope includes
+clean native GUI installation with official dependencies, populated guide/navigation,
+moving owned local video, Stop/guide return, close/reopen, actual background update
+and normal exit 0. It does not qualify audio, optional integrations, upgrades or
+repository UI, nor replace the broader Nexus feature evidence. See the
+[current scope and retained history](release-history.md#existing-current-package-matrixomega-smoke--reused).
 
 **Audio UNTESTED**. Optional timed notification and actual timer-fired AutoPlay
 **UNOBSERVED**. Logs remain **non-clean**; fallback can retain the original failure
@@ -47,10 +55,14 @@ dialog. Inherited integrated static **FAIL** counts **605/605/605/578**
 (Matrix/Nexus/Omega/Piers), and three locale errors per lane, remain historical.
 All six integrated stages (syntax, manifest, paths, package, types, official
 checker) are **NOT RERUN**. Focused metadata/license/asset/dependency/settings
-checks and deterministic package audits are not that gate. Other beta lanes
-remain deferred: Matrix native 19.4 crash unresolved (static 19.5 is distinct),
-Omega 21.3 historical, Piers 22.0 RC2 historical preview with foreground/input
-limits and plugin EOF uncertainty. No all-platform claim or new feature parity.
+checks and deterministic package audits are not that gate. Matrix native 19.4 is
+distinct from static 19.5. The owner reports repeated older-version crashes across
+devices and accepts that historical risk. Codex's new reassessment corrects the
+earlier current-blocker inference: history/shared runtime alone did not establish
+a current 0.1.1 failure. No root cause or fix is claimed; old records remain intact.
+See [historical crash context](release-history.md#historical-crashes-and-current-scope).
+Piers 22.0 RC2 remains historical preview evidence with foreground/input limits
+and plugin EOF uncertainty. No all-platform claim or new feature parity.
 
 ## Published installer and installation
 
@@ -66,12 +78,14 @@ is **1,318,170 bytes**, SHA-256
 `76533fcb570cd813e2deb885c919b59eea21171c6ce344d5a40ef5d8fba287b9`.
 Its [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.1-beta/SHA256SUMS)
 passed GNU strict checksum verification after anonymous download. The published
-Nexus catalog lists TV Guide Fullscreen `0.1.1`; its package is byte-identical to
-the GitHub installer, with valid catalog/package SHA-256 sidecars. Matrix, Omega
-and Piers catalogs were unchanged; TV Guide is not enrolled in those lanes.
+Nexus and Omega catalogs list TV Guide Fullscreen `0.1.1`; both reference the
+byte-identical GitHub installer, with valid catalog/package SHA-256 sidecars.
+Codex's supplied publication verification records the promoted 46-file site and
+anonymous HTTP checks; these were not rerun here. Matrix is being prepared/reviewed
+but is **not published** and needs separate new-site approval; Piers is excluded.
 
 See [README installation](../README.md#installation) for **both live routes**:
-recommended Nexus 20.5 installation through kcook-lab-repo, or direct GitHub
+recommended Nexus 20.x / Omega 21.x installation through kcook-lab-repo, or direct GitHub
 Releases ZIP plus `sha256sum --check --strict SHA256SUMS`, requiring
 `script.tvguide.fullscreen-0.1.1.zip: OK` before Kodi's Install from zip file.
 The repository source is `https://kcook98765.github.io/kcook-lab-repo/`;
@@ -85,7 +99,8 @@ and automatic ZIP-origin updates are **unverified**. No Reset required.
 
 Publication URL/metadata checks are not native installation, repository UI,
 playback or audio acceptance. No new runtime testing was performed for this
-documentation update; the finite Linux Nexus 20.5 evidence above is reused.
+documentation update; existing finite Linux Matrix 19.4/Omega 21.3 core smoke and
+broader Nexus 20.5 evidence above are reused, not a fresh four-version qualification.
 
 The [bundled-asset provenance](artwork-provenance.md) records specific
 redistribution bases, not blanket rights certification or external provider/feed
