@@ -49,8 +49,18 @@ The old AutoPlay AST freeze excludes **only** the deliberately changed
 `_removeAutoplay`; real DB tests replace that freeze with once/explicit recurring
 behavior. The other original AST contracts and all padding/callback controls stay.
 
-**Source-only follow-up. Native cancellation/delivery remains unverified.** Full
-static gate/checker not rerun; inherited FAIL/warnings remain. New helper asserts
+**Source correction independently accepted at `efac84a`; native cancellation/delivery
+remains unverified.** A subsequent bounded Nexus20.5 attempt captured/structurally
+validated/deployed GEN12, but its exact declared-entry launch was refused before
+dispatch (`launch_not_deployed`). Testing stopped immediately: Home-only pixels,
+no guide launch or rules created, all once transitions **UNOBSERVED**. Codex's
+stopped-archive/second-read audit verified protected rows (including rowids),
+payloads and original event JSON; all four originals are stopped with original
+Nexus selection46 and no pending work. See the [subsequent attempt and preservation
+limits](alpha2-development.md#once-cancellation-follow-up) for the separate evidence.
+No fresh-code execution or native cancellation acceptance follows from deployment.
+Native authority has ended; no retry is authorized. Full static gate/checker not
+rerun; inherited FAIL/warnings remain. New helper asserts
 state existing initialized-DB/active-window preconditions, not new lifecycle
 handling. The two prior context optional-DB diagnostics remain unresolved under
 #2; no suppression or broad typing cleanup. Already-collided unscoped legacy
