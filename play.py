@@ -1,7 +1,6 @@
 import sys
 import xbmc,xbmcaddon,xbmcvfs
 import sqlite3
-from vpnapi import VPNAPI
 from playback_mapping import route_mapping
 from autoplay_data import callback_identity
 
@@ -36,19 +35,6 @@ def main(argv):
             return
         ADDON.setSetting('playing.channel',channel)
         ADDON.setSetting('playing.start',start)
-        if xbmc.getCondVisibility("System.HasAddon(service.vpn.manager)"):
-            try:
-                if ADDON.getSetting('vpnmgr.connect') == "true":
-                    vpndefault = False
-                    if ADDON.getSetting('vpnmgr.default') == "true":
-                        vpndefault = True
-                    api = VPNAPI()
-                    if url[0:9] == 'plugin://':
-                        api.filterAndSwitch(url, 0, vpndefault, True)
-                    else:
-                        if vpndefault: api.defaultVPN(True)
-            except:
-                pass
         # A media location is data, never a formatted Kodi builtin.
         xbmc.Player().play(item=url)
 

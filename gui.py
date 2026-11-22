@@ -49,7 +49,6 @@ from rpc import RPC
 import utils
 import ActionEditor
 import action_bar
-from vpnapi import VPNAPI
 
 import streaming
 from skin_runtime import select_skin
@@ -382,19 +381,6 @@ class TVGuide(xbmcgui.WindowXML):
         self.quickEpgShowInfo = False
         self.playing_catchup_channel = False
         self.current_channel_id = None
-
-        self.vpnswitch = False
-        self.vpndefault = False
-        self.api = None
-        if xbmc.getCondVisibility("System.HasAddon(service.vpn.manager)"):
-            try:
-                self.api = VPNAPI()
-                if ADDON.getSetting('vpnmgr.connect') == "true":
-                    self.vpnswitch = True
-                if ADDON.getSetting('vpnmgr.default') == "true":
-                    self.vpndefault = True
-            except:
-                pass
 
         f = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/categories.ini','rb')
         lines = f.read().splitlines()
@@ -3057,10 +3043,8 @@ class TVGuide(xbmcgui.WindowXML):
                     title = urllib.quote(program.title)
                     url += "%s/%s/%s/%s" % (title, program.season, program.episode, program.language)
                 if url[0:9] == 'plugin://':
-                    if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
                     self.player.play(item=url, windowed=self.osdEnabled)
                 else:
-                    if self.vpndefault: self.api.defaultVPN(True)
                     if ADDON.getSetting('m3u.read') == 'true':
                         if url.startswith('http') and url.split('?')[0].split('.')[-1].startswith('m3u'):
                             m3u = xbmcvfs.File(url,'rb').read()
@@ -3128,10 +3112,8 @@ class TVGuide(xbmcgui.WindowXML):
                         self.onRedrawEPG(self.channelIdx, self.viewStartDate)
                     return accepted
                 if url[0:9] == 'plugin://':
-                    if self.vpnswitch: self.api.filterAndSwitch(url, 0, self.vpndefault, True)
                     self.player.play(item=url, windowed=self.osdEnabled)
                 else:
-                    if self.vpndefault: self.api.defaultVPN(True)
                     if ADDON.getSetting('m3u.read') == 'true':
                         if url.startswith('http') and url.split('?')[0].split('.')[-1].startswith('m3u'):
                             m3u = xbmcvfs.File(url,'rb').read()

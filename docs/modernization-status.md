@@ -1,5 +1,12 @@
 # Current fork feature and qualification status
 
+> Current notice (2026-11-21, unreleased): legacy Zomboided VPN Manager integration
+> is intentionally removed. Historical VPN-preservation audit rows below remain
+> verbatim, not current behavior claims. [Removal evidence/limits](vpn-manager-removal.md)
+> are separate from earlier qualification. One Nexus GEN13 deployment succeeded;
+> only Kodi Home was observed. A prelaunch log diagnostic returned `invalid_params`;
+> testing stopped without guide launch or playback observation. Full gate remains FAIL.
+
 ## Current continued development — 21 November 2026 campaign
 
 **Continue practical development, not automatic publication.** The existing

@@ -1,5 +1,9 @@
 # Source safety assessment — tasks 01 and 02
 
+> Current notice (2026-11-21, unreleased): the legacy VPN Manager integration
+> listed historically below is intentionally removed. Other sink assessments and
+> no-authority warnings are unchanged. See [scope and limits](vpn-manager-removal.md).
+
 ## Task 02 correction (2026-11-19; awaiting independent review)
 
 Continues `fe5e72f9b0bb6ffe37ec5b7ac72eaaa99251bb7f` on the same branch and
