@@ -1,3 +1,16 @@
+version 0.1.1 — Beta
+- Artwork-only successor; runtime unchanged. Replace inherited Earth icon/fanart
+  with original procedural TV/guide geometry; omit fullscreen-guide.png,
+  programme-actions.png, on-now.png and search-results.png promotional captures.
+- Retain channel-management.png exact bytes, all 45 runtime Python files, other
+  resources, six dependencies, Program + service and upstream license/credits.
+- Reuse bounded Nexus 20.5 cc411d9 functional evidence; no new native install,
+  upgrade or repository UI acceptance. Audio UNTESTED; optional timed notification
+  and actual timer-fired AutoPlay UNOBSERVED; logs non-clean; inherited integrated
+  static FAIL 605/605/605/578 and locale errors historical; other beta lanes deferred.
+- See the maintained fork README for release status and artwork provenance.
+  Historical releases and evidence are unchanged.
+
 version 0.1.0 — Beta
 - Prepare numeric version, modernization Beta metadata and prospective installation
   documentation only; no runtime behavior or dependency changes in this campaign.

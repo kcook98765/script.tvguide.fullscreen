@@ -1,4 +1,4 @@
-"""Notice-only successor checks: no add-on imports, native access or downloads."""
+"""Exact artwork-successor delta; no add-on imports, native access or downloads."""
 import hashlib
 import os
 from pathlib import Path
@@ -6,7 +6,10 @@ import subprocess
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = '42997e3c80784262be4e35c8d37e772c62bc5d6f'
+BASE = 'c19f256333efbe7af12418312f17e00f99792dc2'
+OMITTED = {'resources/screenshots/' + name for name in (
+    'fullscreen-guide.png', 'programme-actions.png', 'on-now.png', 'search-results.png')}
+CHANGED = {'addon.xml', 'changelog.txt', 'icon.png', 'fanart.jpg'}
 NOTICE = 'THIRD-PARTY-NOTICES.txt'
 COPYRIGHT = b'Copyright 2011 Raymond Hettinger'
 PRIMARY_SHA256 = '0dfea32796792c994868b2cd531f017f2ee85d7852dd77dc41128640a7a9d4ef'
@@ -21,7 +24,7 @@ def git(*args):
 def runtime(path):
     return path.startswith('resources/') or ('/' not in path and (
         path.endswith('.py') or path in ('addon.xml', 'changelog.txt', 'commands.txt',
-                                        'LICENSE.txt', 'icon.png', 'fanart.jpg')))
+                                        'LICENSE.txt', 'icon.png', 'fanart.jpg', NOTICE)))
 
 
 def validate_notice(raw):
@@ -40,16 +43,25 @@ class LicensePreservationTests(unittest.TestCase):
     def test_full_primary_notice_and_provenance(self):
         validate_notice((ROOT / NOTICE).read_bytes())
 
-    def test_all_321_old_payloads_including_45_python_files_unchanged(self):
+    def test_exact_318_payload_delta_and_45_python_files_unchanged(self):
         paths = git('ls-tree', '-r', '--name-only', BASE).decode().splitlines()
         paths = [p for p in paths if runtime(p)]
-        self.assertEqual(len(paths), 321)
+        self.assertEqual(len(paths), 322)
         self.assertEqual(sum(p.endswith('.py') for p in paths), 45)
-        for path in paths:
+        for path in sorted(set(paths) - OMITTED - CHANGED):
             with self.subTest(path=path):
                 self.assertEqual((ROOT / path).read_bytes(), git('show', BASE + ':' + path))
-        current = git('ls-files', '--cached', '--others', '--exclude-standard').decode().splitlines()
-        self.assertEqual(sorted(p for p in current if runtime(p)), sorted(paths))
+        for path in OMITTED:
+            self.assertIn(path, paths)
+            self.assertFalse((ROOT / path).exists())
+        for path in CHANGED:
+            self.assertNotEqual((ROOT / path).read_bytes(), git('show', BASE + ':' + path))
+        current = [p.relative_to(ROOT).as_posix() for p in ROOT.rglob('*') if p.is_file()]
+        payloads = {p for p in current if runtime(p)}
+        self.assertEqual(payloads, set(paths) - OMITTED)
+        self.assertEqual(len(payloads), 318)
+        self.assertEqual(sum(p.endswith('.py') for p in payloads), 45)
+        print('Exact delta: 322 - 4 = 318 payloads; four changed payloads; 314 unchanged including all 45 Python files')
 
     def test_gpl_and_distinct_pyaes_full_mit_notice_preserved(self):
         gpl = (ROOT / 'LICENSE.txt').read_bytes()
