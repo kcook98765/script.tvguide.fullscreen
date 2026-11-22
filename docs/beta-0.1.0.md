@@ -19,13 +19,49 @@ The bounded beta recommendation is **Nexus 20.5**; Matrix/Omega/Piers current be
 lane admission is unapproved and their evidence is historical only. Neither
 functional evidence nor admission supplies provider/content rights.
 
-This campaign changes only version/summary/description/news/website, changelog,
+The original preparation changed only version/summary/description/news/website, changelog,
 release-facing documentation and necessary package-test assertions. No runtime
 behavior edits, dependency changes, native runs, publication, tags or releases.
 The original `primaeval` provider, contributors, GPL notices, `addon.py` Program
 and `service.py` background entry points remain intact. All six required official
 dependency declarations (including pytz `2023.3.0+matrix.1`), all five screenshot
 PNGs and all 69 catalogs are preserved. No pytz vendor tree or VPN API is bundled.
+
+## Notice-only successor
+
+The original **unpublished private** candidate from source
+`42997e3c80784262be4e35c8d37e772c62bc5d6f`, tree
+`d92962e7fbdc5475860976ab7dec64fc856d8f57`, is retained byte-for-byte:
+`script.tvguide.fullscreen-0.1.0.zip`, 2,136,204 bytes, SHA-256
+`0b25379c9eb71bd6e9014704114e5b3a7104c6fbbd9e209a97f5e189f7464492`.
+Its 321 members lacked the Raymond Hettinger copyright and full MIT notice for
+the OrderedDict backport attributed in `streaming.py` to ActiveState recipe 576693.
+
+This owner-authorized successor supersedes that candidate **for review**, adding
+only the distributable root [THIRD-PARTY-NOTICES.txt](../THIRD-PARTY-NOTICES.txt)
+to the installer (322 files). Its copyright **2011 Raymond Hettinger** and complete
+MIT permission, condition and disclaimer were independently checked against the
+pinned primary license URL and SHA-256 recorded in that notice. All 321 previous
+payloads, including all 45 runtime Python files, manifest, dependencies, Program
+and service entry points, resources, screenshots and catalogs, remain byte-identical.
+GPLv2 / GPLv2-or-later notices and the separate Marti Raudsepp 2010 full MIT notice
+in `pyaes.py` are unchanged. No changelog or manifest change is needed for this
+notice correction. Same numeric `0.1.0` is explicitly authorized because the
+original candidate is unpublished; no existing release is modified.
+
+Only this disclosure, the README, the notice and a focused preservation test are
+source changes. Original private preparation reports/artifacts remain immutable;
+separate successor command receipts, per-file inventory, deterministic Git-blob
+builds and exact source binding are retained privately. The successor runs only
+the existing three focused checks plus license/payload preservation and negative
+controls, using the recorded Omega tooling interpreter identity, not a native
+Omega qualification or a full static gate. All runtime/evidence limits below
+remain unchanged: audio **UNTESTED**, timed reminder delivery and actual AutoPlay
+firing **UNOBSERVED**, non-clean logs, inherited integrated static **FAIL** and
+historical Matrix/Omega/Piers RC2 lanes only. There is no new-beta native install
+or upgrade claim. No rights approval is supplied; artwork/screenshots provenance,
+repository admission and publication remain pending. Exact successor review is
+required before push/PR; no distribution repository change is made here.
 
 ## What's in this modernization Beta
 
@@ -126,7 +162,8 @@ admission remains a separate decision, not something a source PR supplies.
 The [published Alpha 1 instructions](alpha-installation.md) preserve its immutable
 tag, installer, hash and dated qualification. This preparation does not alter it.
 Private candidate packaging uses exactly one `script.tvguide.fullscreen/` root,
-the reviewed 321-file allowlist, sorted fixed-1980 Unix regular-0644 entries and
+the reviewed 321-file original allowlist plus the successor's one root notice
+(322 files), sorted fixed-1980 Unix regular-0644 entries and
 deflate level 9. It excludes docs/tests/tools/configuration/Git/logs, VPN API and
 bundled pytz. Two Git-blob builds must be byte-identical, with commit/tree,
 per-file hashes, source archive and installer SHA-256 retained privately.
