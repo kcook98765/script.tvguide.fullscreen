@@ -1,5 +1,9 @@
 # Continued practical TV Guide development
 
+**Current release-facing status: [0.1.0 Beta preparation](beta-0.1.0.md).**
+The dated development checkpoints below remain historical; their no-new-version/
+package statements describe those campaigns, not this one.
+
 The **21 November 2026 continued-development campaign** (completed across the
 22 November UTC boundary) remains development only, not a release or four-version
 acceptance result. [Alpha 1 is already public](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1)

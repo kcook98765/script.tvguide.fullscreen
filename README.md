@@ -1,185 +1,183 @@
-# TV Guide Fullscreen — continued practical development
+# TV Guide Fullscreen — 0.1.0 Beta preparation
 
 A fullscreen XMLTV programme guide for Kodi: browse what's on, map channels to
-streams, search listings, and set reminders or ordinary AutoPlay. This is an
-**actively developed modernization fork**, not a qualified release or a promise
-of full legacy feature parity.
+streams, search listings, and set reminders or ordinary AutoPlay. This is the
+**maintained modernization fork** of primaeval's TV Guide Fullscreen, preserving
+its Program add-on and background service. It supplies no TV subscriptions or feeds.
 
-**Alpha 1 is published; later work is continued development only.** Two further
-independently reviewed, normally merged PRs correct reminder/AutoPlay event
-matching, current-popup cancellation dispatch, cancelled wildcard input, and an
-absent XMLTV display-name. Earlier Alpha2 padding, Quick guide and programme-row
-repairs remain in place. No new version, installer or distribution is prepared.
+**Beta preparation only: 0.1.0 is NOT currently downloadable or in the repository.**
+The owner approved preparation using independently accepted, bounded Nexus 20.5
+core evidence for unchanged code. This is not stable/full legacy parity, a clean
+static gate, or current four-version beta native qualification. See
+[Beta scope, evidence and release notes](docs/beta-0.1.0.md).
+The bounded beta recommendation is **Nexus 20.5**; current beta lane admission
+for Matrix/Omega/Piers is unapproved, with historical evidence only, not fresh
+beta PASS. This scope decision supplies neither content rights nor repository admission.
 
-At functional freeze **`ce8fe0f`**, **23 focused scripts passed: 128 unittest
-methods plus three assertion scripts**. Fresh types-only checks report **two new
-unresolved errors per lane**; the inherited full static gate remains **FAIL** and
-was not rerun. One bounded **Nexus 20.5** round observed guide/context, scheduling
-labels and wildcard Cancel returning to the guide; **no rules were created or
-actual timers exercised**. XMLTV fallback has deterministic evidence only; the
-other three native versions were unrun this campaign. Codex independently
-reviewed the evidence and preservation audits; all four profiles ended stopped.
-This is not full four-version/native scheduler acceptance or a publication
-recommendation. See [continued scope, evidence and next work](docs/alpha2-development.md).
+## Installation — two proposed methods after publication
 
-The owner-decided **initial Alpha 1 scope includes all four versions: Matrix 19.4,
-Nexus 20.5, Omega 21.3 and Piers 22.0-RC2**. The former Nexus-first recommendation
-is superseded. As of **21 November 2026 UTC**, the independently reviewed
-**historical Alpha 1 bounded aggregate native gate passed on all four; its final
-four-lane static gate remained FAIL**. [Alpha 1 is published as a GitHub prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),
-not a Kodi repository release.
+Neither path below currently supplies TV Guide Fullscreen 0.1.0. Repository
+availability and Kodi-lane admission remain pending. The existing
+[fork Releases page](https://github.com/kcook98765/script.tvguide.fullscreen/releases)
+is the place to check for an actual announcement; do not use source-snapshot ZIPs
+as installers.
 
-That prior retained-install result combines fresh guide/import/service/preservation
-observations with exact, reviewed historical component evidence. Nexus/Omega reuse
-historical moving local clips and callbacks: **current LAN picture motion remains
-unverified**, even though playback clocks advanced. This is not current
-full-stream/audio acceptance or proof of whole historical GUI identity. Matrix's
-old crash is not resolved. Piers is the exact tested RC2, not a future stable-support promise;
-Matrix native **19.4** is distinct from static **19.5**. No all-platform, clean-log
-or full-parity claim is made.
-See the **[current feature and qualification overview](docs/modernization-status.md)**
-for precise sources, results and remaining limits.
+### Recommended, proposed: kcook-lab-repo
 
-<!-- Current behavior notice; historical qualification above is unchanged. -->
+**After TV Guide is actually published and admitted to your Kodi lane:**
 
-### Intentional VPN Manager integration removal (unreleased)
+1. Add `https://kcook98765.github.io/kcook-lab-repo/` in Kodi **File manager → Add
+   source**, naming it `kcook-lab-repo`.
+2. Use **Add-ons → Install from zip file** to select the current `repository.ai.kodi`
+   installer ZIP shown at that source. The [existing source page](https://kcook98765.github.io/kcook-lab-repo/)
+   currently lists `repository.ai.kodi-0.1.1.zip`; use the current listing rather
+   than assuming that filename will never change. If prompted, explicitly consent
+   to Kodi's standard **Unknown sources** setting for this trusted ZIP source.
+3. Open **Install from repository → kcook-lab-repo**.
+4. Open **Program add-ons → TV Guide Fullscreen**, **only once it is listed and
+   admitted for your Kodi lane**.
+5. Install normally and receive future repository updates according to your
+   **Kodi update and origin settings**. This does not establish auto-update or
+   migration for a preexisting ZIP-installed Alpha 1; see the limitations below.
 
-The legacy Zomboided VPN Manager integration is intentionally removed: TV Guide
-no longer imports/detects the manager, switches or restores VPN connections.
-Its VPN settings category is removed; stale saved values are ignored and untouched.
-Users requiring a VPN must manage it independently through Kodi, the operating
-system or network tools. This is not a VPN-security guarantee. Selected URLs/mappings,
-fallbacks and existing Kodi Player/PVR alternative actions are preserved; no named
-external-player branch is added or restored. See [scope and limits](docs/vpn-manager-removal.md).
-The bounded Nexus round deployed successfully but observed Kodi Home only; a
-prelaunch diagnostic returned `invalid_params` and testing stopped. No guide
-launch or playback was observed; native functional acceptance remains unverified.
+### Alternative, proposed: beta GitHub Release installer ZIP
+
+After publication, use this fork's [Releases page](https://github.com/kcook98765/script.tvguide.fullscreen/releases)
+to find the proposed **prerelease** tag `v0.1.0-beta`, installer
+`script.tvguide.fullscreen-0.1.0.zip` and matching `SHA256SUMS`. These are proposed
+names, not live beta download links. Save both assets together, keep the ZIP's
+published filename, and run `sha256sum -c SHA256SUMS`; require
+`script.tvguide.fullscreen-0.1.0.zip: OK`. Then use Kodi **Add-ons → Install from
+zip file**. If verification fails, do not install. Ask your Kodi administrator
+if supported source installation is unavailable; do not bypass policy. If
+prompted, explicitly consent to Kodi's standard **Unknown sources** setting for
+this trusted ZIP source.
+
+### Updating and first use
+
+Back up your **Kodi profile, TV Guide settings, channel/stream mappings and saved
+reminder/AutoPlay rules** first; prefer a separate test profile. Numeric manifest
+version **`0.1.0` sorts above `0.0.446~alpha1`**. A normal in-place update is the
+intended route **after actual availability**; no Kodi profile Reset is required.
+Alpha 1 automatic update, migration and obsolete-file pruning have **not** been
+verified. No native upgrade test was performed for this beta; original profiles
+were untouched by preparation. A repository install does not itself guarantee an
+existing ZIP install will auto-update.
+
+Keep the official Kodi repository enabled for required dependencies. Configure
+a current **XMLTV file/URL** and matching **M3U stream mappings** in TV Guide's
+settings; use only sources you are entitled to access. Allow the initial import
+to finish. Launch through **My add-ons → Program add-ons → TV Guide Fullscreen →
+Info → Run**. Keep the background service with explicit consent; do not execute
+`service.py` manually. Ordinary **Stop** returns from playback to the guide.
+Changing an XMLTV offset alone may reuse cached programmes: see the
+[offset/refresh cautions](docs/xmltv-source-offsets.md) before forcing a refresh
+that could affect channel-associated rules.
+
+## Required dependencies
+
+All six manifest declarations remain required, not bundled optional extras:
+
+| Dependency | Minimum version |
+| --- | --- |
+| `xbmc.python` (provided by Kodi) | `3.0.0` |
+| `script.module.requests` | `2.31.0` |
+| `script.module.dateutil` | `2.8.2` |
+| `script.module.pytz` | `2023.3.0+matrix.1` |
+| `script.module.pil` | `5.1.0` |
+| `script.module.beautifulsoup4` | `4.12.2` |
+
+Kodi must install/enable suitable official modules; a listing in a catalog is not
+installed-state proof. [Official pytz](docs/official-pytz.md) replaces the removed
+vendor copy. **No bundled pytz or VPN Manager integration.** Manage VPN connectivity
+independently through Kodi, the OS or your network; stale VPN settings are ignored
+and untouched. This is not a VPN-security guarantee. See
+[VPN removal scope](docs/vpn-manager-removal.md).
+
+## Features and optional integrations
+
+- Fullscreen/Quick guide, programme details, On Now, title/channel search and channel
+  management; primary, alternative and automatic-fallback mapped playback.
+- Reminders and ordinary AutoPlay, source/channel-scoped event identities and
+  selective cancellation; additive M3U updates and source-aware XMLTV caching.
+- XMLTV source offsets, optional XMLTV/URL logos, passive guide styling, safe JSON
+  image matches, closed-catalog action customization and typed media/folder mappings.
+  See the [feature inventory](docs/modernization-status.md#feature-inventory).
+- Internal search requires no extra add-on. Optional [TMDbHelper lookup](docs/metadata-search.md)
+  needs an installed/enabled compatible `plugin.video.themoviedb.helper` with its
+  own dependencies/access/setup; it is not full ExtendedInfo or automatic plot/art replacement.
+- Optional [Kodi PVR recording/timers](docs/recording-pvr.md) need a capable,
+  configured recording backend and enabled PVR client; future scheduling also
+  needs its EPG. XMLTV/M3U or IPTV Simple alone is not a recording backend.
+
+## Current evidence and known limitations
+
+The accepted private disposable **Nexus 20.5** campaign used exact `cc411d9` code:
+clean GUI ZIP installation with official dependencies; direct/plugin moving
+frames (including exact-source reused evidence); explicit alternative and
+automatic fallback; Stop; reminder/AutoPlay creation and selective cancellation
+preserving unrelated rules; saved reminder restart persistence; actual service
+startup work; graceful exits status 0. This preparation changes metadata/docs,
+not behavior, so that evidence is reused. **It is not native installation of the
+new 0.1.0 ZIP.**
+
+- **Audio UNTESTED**, accepted beta limitation: clips were video-only. Optional
+  timed reminder delivery and actual AutoPlay firing were **not observed**.
+- Automatic fallback can start the alternative while Kodi's original failure
+  dialog remains visible. Logs are **non-clean**, including caught optional-control
+  diagnostics and audio warnings; no blanket harmless-error claim.
+- Matrix **19.4** native evidence is historical; static Matrix **19.5** is distinct.
+  The historical Matrix crash is unresolved. Omega **21.3** native evidence is
+  historical. Piers **22.0 RC2** is historical preview evidence, not final Kodi 22
+  qualification; foreground/input limits and plugin EOF uncertainty remain.
+  No all-platform testing claim is made.
+- The inherited integrated static gate is **FAIL**: latest types-only counts are
+  **605/605/605/578** (Matrix/Nexus/Omega/Piers); three locale errors per lane
+  remain. No full gate rerun was performed for preparation. All 69 catalogs are retained.
+- Third-party skins, external players, provider/catchup templates, legacy recording
+  and FFmpeg/external AutoPlayWith parity remain incomplete or limited. Scheduler
+  recurrence horizons, collisions and in-flight cancellation have limits. No new
+  external-player branch, provider feature or settings-refresh redesign is implied.
 
 ## Screenshots
 
-Actual Kodi Nexus 20.5 captures using the Default TV Guide skin and real guide
-listings, with no playback. These unreleased development images may differ from
-published Alpha 1 and do not extend its qualification.
+Existing actual Nexus 20.5 captures, Default TV Guide skin, no playback. They show
+development UI, not proof of every beta feature or the published Alpha 1 UI.
 
 ![Fullscreen programme guide](resources/screenshots/fullscreen-guide.png)
 
-[Programme actions](resources/screenshots/programme-actions.png) ·
-[On Now](resources/screenshots/on-now.png) ·
-[Title search results](resources/screenshots/search-results.png) ·
-[Channel management](resources/screenshots/channel-management.png)
+![Programme actions](resources/screenshots/programme-actions.png)
 
-## What's been restored?
+![On Now](resources/screenshots/on-now.png)
 
-- Python 3 / modern Kodi API groundwork, safer command/data handling, and both
-  the original Program and background-service responsibilities.
-- Punctuation-safe reminders and AutoPlay, with channel/source-scoped event
-  identities and bounded reconstruction/cancellation behavior.
-- Additive M3U channel updates that preserve programmes and schedules;
-  source-aware XMLTV caching; guide labels, native control actions and empty-list
-  navigation repairs. Core paths have bounded native evidence, with distinct
-  per-version and exact-source limits—not acceptance of every feature.
-- Reviewed Alpha source fixes for independent secondary/tertiary XMLTV offsets,
-  XMLTV logo opt-in and explicit URL logos, title-search date windows, and
-  source-scoped channel/catchup listings, plus restored logo-setting visibility.
-  The historical Alpha 1 focused core batch passed all 19 scripts; the earlier
-  Alpha2 batch passed 21. The continued-development batch passed 23 as summarized
-  above; broader static typing and official-checker failures remain disclosed.
-  Focused source results do not establish native acceptance.
+![Title search results](resources/screenshots/search-results.png)
 
-Other bounded restorations include JSON image matches, passive guide styling,
-closed-catalog action customization and typed media/folder mappings. The
-[overview](docs/modernization-status.md#feature-inventory) links their usage notes.
-
-## Optional integrations and known gaps
-
-Internal guide search does **not** require an extra add-on. The existing optional
-[TMDbHelper lookup](docs/metadata-search.md) needs an already installed/enabled
-official `plugin.video.themoviedb.helper`, compatible dependencies and its own
-metadata access/setup. It is a movie/TV lookup handoff, not full ExtendedInfo,
-automatic episode matching or guide plot/art replacement.
-
-[Kodi PVR recording/timers](docs/recording-pvr.md) require a configured, capable
-recording backend and enabled Kodi PVR client; future scheduling also needs its
-EPG. An arbitrary XMLTV/M3U stream or IPTV Simple installation is not a recording
-backend. This is a partial replacement, not old FFmpeg/external AutoPlayWith parity.
-Neither optional integration is new to these focused fixes, and those fixes do
-not require installing another optional add-on.
-
-Complex third-party skins, external players, legacy action/provider templates,
-some catchup/provider behavior and old recording modes remain incomplete or
-provisionally disabled. Old scheduler collisions, recurrence horizons and
-in-flight cancellation have documented limits. Font glyph boxes, audio coverage
-and partial timer evidence remain qualification limits. Translation identities
-also need owner/translator decisions; no catalogs were discarded.
-
-The [event-scoped once source correction](docs/schedule-ownership.md#once-cancellation-follow-up-21-november-2026-campaign)
-is complete and independently accepted; the subsequent Nexus launch attempt was
-blocked, leaving native cancellation unobserved. Remaining work includes a separately
-reviewed, preserving XMLTV settings-refresh design. Dynamic control 3019 needs a reproduced
-symptom or useful context before a fix; fewer caught control diagnostics in the
-latest round reflect coverage, not repair. Logs remain **non-clean**. Historical
-Matrix crash and Piers input work remain deferred, not resolved or retried.
+![Channel management](resources/screenshots/channel-management.png)
 
 ## Alpha 1 download and installation
 
-The public GitHub prerelease is **TV Guide Fullscreen 0.0.446 Alpha 1**:
-[download the installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/script.tvguide.fullscreen-0.0.446.alpha1.zip)
+The existing public prerelease remains [0.0.446 Alpha 1](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1):
+[installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/script.tvguide.fullscreen-0.0.446.alpha1.zip)
 and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.0.446-alpha1/SHA256SUMS).
-There is **no Kodi repository publication**. A GitHub source snapshot is not the
-installer; inherited tags are history, not Alpha release certification.
-
-There is **one common TV Guide ZIP for all four initial-scope versions**, with
-dependencies obtained separately from the official Kodi repository. Required
-`script.module.pytz >= 2023.3.0+matrix.1` replaces the old bundled copy; it is not
-optional and must not be bundled in the TV Guide ZIP. The other declared module
-dependencies remain required. Both the Program (`addon.py`) and background service
-(`service.py`) are preserved, with explicit consent for background execution.
-
-The shared Kodi manifest version remains **`0.0.446~alpha1`**. The immutable
-annotated Git tag **`v0.0.446-alpha1`** points to
-`fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`. The public installer filename is
-**`script.tvguide.fullscreen-0.0.446.alpha1.zip`**, which differs from the Kodi
-manifest spelling. Its SHA-256 is
+Its immutable tag `v0.0.446-alpha1` points to
+`fc2f021ef6edc8c957e1ca91bfaa024d17c5f510`; manifest `0.0.446~alpha1` and asset
+`script.tvguide.fullscreen-0.0.446.alpha1.zip` are unchanged. Installer SHA-256:
 `dd10ec02c5a3e9c8f133c87c3cc0ac1806a650473cad7ef877554346daa903e7`.
-Download the ZIP and `SHA256SUMS` into the same directory, keep the ZIP's published
-filename, and run `sha256sum -c SHA256SUMS`; require
-`script.tvguide.fullscreen-0.0.446.alpha1.zip: OK` before installing.
-Publication does not extend qualification; the separate clean-install observation
-is bounded below. See the [installation steps](docs/alpha-installation.md)
-and [current status](docs/modernization-status.md) before installation.
+See [historical Alpha installation and qualification](docs/alpha-installation.md).
+Those results do not establish current beta acceptance or upgrade-file pruning.
 
-The prior clean qualification export was **317 files / 4,093,191 bytes**, including
-the 329-byte changelog addition. The candidate keeps the same **317 runtime paths**,
-with only manifest/changelog bytes changed and no `resources/lib/pytz`. A private
-**0.0.445** qualification preview is not a release installer or native clean-install proof.
-The prior all-four qualification used retained installations containing **595
-unchanged unused old vendor files** as well as the reviewed source.
+## Feedback, attribution and license
 
-Separately, the **actual Alpha candidate ZIP** passed ordinary **Install from zip
-file** in one new, clean, isolated **Nexus 20.5** environment, with official
-dependency resolution. Ordinary **Program Info → Run** displayed a populated
-synthetic guide with two visible fixture channels/two programmes, titles, times
-and description, independently viewed by Codex. Actual background-service work
-also independently passed after one ordinary restart of the same disposable instance, without
-manual service execution. **The bounded clean-install smoke passed**, including
-graceful final Stop and Codex's independent stopped-file/provenance/log audit.
-All 317 installed payloads matched the tested ZIP; no old bundled pytz remained.
-Logs were not clean, despite no import failures or Python tracebacks.
-This is one representative clean installation, not four clean installs, proof
-that an upgrade prunes old files, or official-repository intake readiness.
-
-## Feedback, history and license
-
-Report reproducible problems to [this fork's issues](https://github.com/kcook98765/script.tvguide.fullscreen/issues),
-including the reviewed source revision, Kodi build/platform and steps with safe
-synthetic data. Never publish credentials, private feed names/URLs, private logs
-or settings. Track [overall acceptance (#1)](https://github.com/kcook98765/script.tvguide.fullscreen/issues/1),
-[feature preservation (#14)](https://github.com/kcook98765/script.tvguide.fullscreen/issues/14)
-and the [development changelog](changelog.txt).
+Report problems to [this fork's issues](https://github.com/kcook98765/script.tvguide.fullscreen/issues)
+with source/version, Kodi build/platform, expected/actual result and minimal
+steps using safe synthetic data. Remove tokens, credentials, private feed/programme
+details, endpoints and profile paths from excerpts; never upload raw settings,
+databases, private screenshots or unredacted logs. See the [changelog](changelog.txt).
 
 Based on [primaeval's TV Guide Fullscreen](https://github.com/primaeval/script.tvguide.fullscreen),
 Tommy Winther's (twinther) TV Guide, FTV Guide/Thomas Geppert (bluezed), and
 Midraal's fork. Thanks to iainmacleod, im85288, RayW1986, andy, Zomboided, tycoo,
-kjb86, Doctor-Eggs and the other credited contributors. Upstream history and
-source notices are preserved. [LICENSE.txt](LICENSE.txt) contains GNU GPL v2;
-source notices permit **GPL v2 or later**. No upstream endorsement is implied.
+kjb86, Doctor-Eggs and the other credited contributors. Original provider,
+contributors, source notices and upstream history are preserved; no upstream
+endorsement is implied. [LICENSE.txt](LICENSE.txt) contains GNU GPL v2; source
+notices permit **GPL v2 or later**. This software comes without warranty.

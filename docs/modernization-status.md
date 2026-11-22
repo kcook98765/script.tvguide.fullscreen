@@ -1,13 +1,20 @@
 # Current fork feature and qualification status
 
-> Current notice (2026-11-21, unreleased): legacy Zomboided VPN Manager integration
+**Current release-facing status: [0.1.0 Beta preparation](beta-0.1.0.md).**
+The preparation changes version/docs only and reuses independently accepted
+bounded Nexus 20.5 core evidence for unchanged code. It is not publication,
+repository admission, an exact beta ZIP native install or a four-version beta PASS.
+The full static gate remains FAIL. All dated records below retain their historical
+scope; their “current”, “unreleased” and next-work statements are not today's status.
+
+> Historical VPN-removal checkpoint (2026-11-21, then unreleased): legacy Zomboided VPN Manager integration
 > is intentionally removed. Historical VPN-preservation audit rows below remain
 > verbatim, not current behavior claims. [Removal evidence/limits](vpn-manager-removal.md)
 > are separate from earlier qualification. One Nexus GEN13 deployment succeeded;
 > only Kodi Home was observed. A prelaunch log diagnostic returned `invalid_params`;
 > testing stopped without guide launch or playback observation. Full gate remains FAIL.
 
-## Current continued development — 21 November 2026 campaign
+## Historical continued development — 21 November 2026 campaign
 
 **Continue practical development, not automatic publication.** The existing
 [Alpha 1 prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1),

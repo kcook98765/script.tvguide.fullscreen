@@ -1,3 +1,16 @@
+version 0.1.0 — Beta
+- Prepare numeric version, modernization Beta metadata and prospective installation
+  documentation only; no runtime behavior or dependency changes in this campaign.
+- Reuse independently accepted bounded Nexus 20.5 core evidence for unchanged
+  cc411d9 code, not an exact new beta ZIP native installation or upgrade test.
+- Audio untested; optional timed reminder delivery and actual AutoPlay firing
+  unobserved. Fallback retains Kodi's original failure dialog; logs are non-clean.
+- Historical Matrix/Omega/Piers RC2 evidence is not current beta qualification.
+  Inherited full static gate remains FAIL; preparation ran no full gate or native
+  rerun. See the maintained fork README for publication/repository admission status.
+- Preserve Alpha 1, original contributors/GPL, Program + service, six required
+  dependencies, all five screenshots and 69 catalogs. See docs/beta-0.1.0.md.
+
 UNRELEASED — intentional legacy VPN Manager removal
 - Remove bundled VPN API, GUI/scheduled-play integration and VPN settings only;
   retain current media routing, fallback and Kodi Player/PVR behavior. Connectivity

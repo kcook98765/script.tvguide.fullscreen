@@ -1,5 +1,9 @@
 # Alpha 1 download and installation
 
+**Historical Alpha 1 instructions.** For the proposed next version and current
+limits see [0.1.0 Beta preparation](beta-0.1.0.md). Alpha 1's tag, assets and hash
+below remain unchanged; no beta download or tested Alpha-to-beta migration is implied.
+
 **Published GitHub prerelease:** [TV Guide Fullscreen 0.0.446 Alpha 1](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.0.446-alpha1).
 This is not Kodi repository publication or expanded qualification.
 As of **21 November 2026 UTC**, the independently reviewed bounded aggregate

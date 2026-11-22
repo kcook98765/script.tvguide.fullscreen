@@ -96,7 +96,7 @@ class PackageMetadataTests(unittest.TestCase):
         old, new = ET.fromstring(before), ET.fromstring(after)
         self.assertEqual({k: v for k, v in old.attrib.items() if k != 'version'},
                          {k: v for k, v in new.attrib.items() if k != 'version'})
-        self.assertEqual(new.get('version'), '0.0.446~alpha1')
+        self.assertEqual(new.get('version'), '0.1.0')
         self.assertEqual([(e.get('point'), e.get('library')) for e in new.findall('extension')],
                          [('xbmc.python.script', 'addon.py'), ('xbmc.service', 'service.py'),
                           ('xbmc.addon.metadata', None)])
@@ -105,8 +105,12 @@ class PackageMetadataTests(unittest.TestCase):
             self.assertTrue((ROOT / entry.get('library')).read_bytes())
         meta = new.find("extension[@point='xbmc.addon.metadata']")
         old_meta = old.find("extension[@point='xbmc.addon.metadata']")
-        for tag in ('description', 'disclaimer', 'license', 'website'):
+        for tag in ('disclaimer', 'license'):
             self.assertEqual(meta.findtext(tag), old_meta.findtext(tag))
+        self.assertEqual(meta.findtext('website'), 'https://github.com/kcook98765/script.tvguide.fullscreen')
+        self.assertIn('modernization Beta', meta.findtext('description'))
+        self.assertEqual(meta.findtext('description').split('Thanks for the major contributions from: ')[1],
+                         old_meta.findtext('description').split('Thanks for the major contributions from: ')[1])
         self.assertEqual(meta.findtext('source'), 'https://github.com/kcook98765/script.tvguide.fullscreen')
         self.assertTrue(meta.findtext('summary').strip())
         self.assertTrue(0 < len(meta.findtext('news').strip()) <= 1500)
