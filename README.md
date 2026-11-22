@@ -1,6 +1,7 @@
 # TV Guide Fullscreen — 0.1.1 Beta
 
 ## Introduction
+
 TV Guide Fullscreen is a fullscreen XMLTV programme guide for Kodi: browse listings,
 map channels to streams, search programmes, and set reminders or ordinary AutoPlay.
 This maintained Python 3 modernization fork builds on **primaeval's TV Guide
@@ -9,19 +10,21 @@ Fullscreen**, retaining its Program add-on and background service.
 not a stable or full-legacy-parity release. It supplies no subscriptions or feeds.
 
 ## What changed
+
 - Python 3, current Kodi API usage and dependency handling replace older foundations;
   [official pytz](docs/official-pytz.md) replaces the vendored copy.
 - XMLTV source offsets, source-aware caching, additive M3U updates, unusable programme
   rows and missing channel names have targeted corrections.
 - Guide/Quick guide navigation, scheduling identities and selective cancellation,
   stream mapping, alternative playback and fallback handling have been modernized.
-- Unsafe legacy execution, action and media handling have been replaced or constrained,
-  including typed mappings, closed-catalog actions and JSON image matches. These
-  changes are **not blanket security clearance**.
+- Legacy custom commands and add-on action mappings are unsupported: use the
+  [available actions](docs/action-bar.md) or [playable streams/supported folders](docs/typed-playback-mappings.md)
+  instead. Saved data is kept; arbitrary command execution is not restored.
 - VPN Manager integration is removed. Optional fixed TMDbHelper metadata lookup and
   Kodi PVR recording/timer handoffs have the prerequisites below.
 
 ## What is retained
+
 Fullscreen and Quick guide, programme details, On Now, search/navigation, channel
 management, primary/alternative/fallback stream mappings, reminders and ordinary
 AutoPlay remain. Existing settings are retained within the supported scope, not
@@ -29,6 +32,7 @@ as a promise that every legacy integration works. See the detailed
 [feature inventory](docs/modernization-status.md#feature-inventory).
 
 ## Important differences
+
 - **VPN:** manage connectivity independently through Kodi, your OS or network.
   Stale VPN flags are ignored, not migrated or deleted; see [removal scope](docs/vpn-manager-removal.md).
 - **Metadata:** internal guide search needs no extra add-on. Optional
@@ -44,7 +48,9 @@ as a promise that every legacy integration works. See the detailed
 <a id="installation--two-proposed-methods-after-publication"></a>
 
 ## Installation
+
 ### Recommended: kcook-lab-repo
+
 1. In Kodi **File manager → Add source**, add
    `https://kcook98765.github.io/kcook-lab-repo/`.
 2. Choose **Add-ons → Install from zip file** and select
@@ -59,6 +65,7 @@ Matrix 19.x is being prepared/reviewed but **not yet published**; Piers 22.x is 
 Direct GitHub ZIP availability is independent of repository admission.
 
 ### Direct GitHub Beta ZIP
+
 Download the [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.1-beta/script.tvguide.fullscreen-0.1.1.zip)
 and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.1-beta/SHA256SUMS)
 together without renaming. Run `sha256sum --check --strict SHA256SUMS` there;
@@ -90,6 +97,7 @@ You need your own sources and stream/content entitlements.
 <a id="updating-and-first-use"></a>
 
 ## Updating older TV Guide
+
 Back up your **Kodi profile, TV Guide settings, channel/stream mappings and saved
 reminder/AutoPlay rules** first; a separate test profile is preferable. The same
 add-on ID is intended to update normally in place, without Reset. Actual upgrade,
@@ -101,6 +109,7 @@ Changing source offsets may reuse cached programmes; read the
 <a id="current-evidence-and-known-limitations"></a>
 
 ## Known Beta limits
+
 **Audio UNTESTED**; optional notification delivery and actual timer-fired AutoPlay
 **UNOBSERVED**. An original playback-error dialog can remain while fallback plays.
 Logs are non-clean and inherited static findings remain; optional features,
@@ -108,16 +117,15 @@ scheduler horizons/collisions/in-flight cancellation, upgrades and parity have l
 See [current evidence scope](docs/beta-0.1.1.md#evidence-scope-reused-not-rerun) and
 [technical/release history](docs/release-history.md).
 
-Codex's existing exact-package Matrix 19.4/Omega 21.3 core smoke and broader reused
-Nexus 20.5 evidence are bounded, not comprehensive stability tests. The owner reports
-repeated older-version crashes across devices and accepts that historical risk.
-[Historical crash records](docs/release-history.md#historical-crashes-and-current-scope)
-remain unresolved history, not proof of a current 0.1.1 defect or a fix.
-No new native testing was performed for this documentation.
+Finite Linux Matrix 19.4/Omega 21.3 core smoke and broader Nexus 20.5 evidence are
+not all-platform or comprehensive stability qualification. See
+[historical crash context](docs/release-history.md#historical-crashes-and-current-scope);
+no old-crash fix or current 0.1.1 defect is claimed.
 
 <a id="feedback-attribution-and-license"></a>
 
 ## Credits, license and issues
+
 Based on [primaeval's TV Guide Fullscreen](https://github.com/primaeval/script.tvguide.fullscreen),
 Tommy Winther (twinther), FTV Guide/Thomas Geppert (bluezed), and Midraal's fork.
 Thanks to iainmacleod, im85288, RayW1986, andy, Zomboided, tycoo, kjb86, Doctor-Eggs
