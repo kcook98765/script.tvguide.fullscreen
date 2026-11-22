@@ -1,22 +1,26 @@
-# TV Guide Fullscreen — Alpha2 development
+# TV Guide Fullscreen — continued practical development
 
 A fullscreen XMLTV programme guide for Kodi: browse what's on, map channels to
 streams, search listings, and set reminders or ordinary AutoPlay. This is an
 **actively developed modernization fork**, not a qualified release or a promise
 of full legacy feature parity.
 
-**Alpha 1 is published; Alpha2 is development only.** The smallest recommended
-future Alpha2 scope is six practical improvements in three merged PRs: correct
-AutoPlay padding, Quick guide selection/paging/labels/metadata focus, and resilient
-XMLTV programme-row handling. Automatic cache invalidation remains deferred for
-proven persistence risks. **Final bounded observations and preservation audits
-are independently reviewed: Nexus/Omega have targeted behaviour evidence, Matrix
-has shared-fixture limits, and Piers Run/guide/playback/Quick remain UNOBSERVED.
-All four originals are stopped; Current Nexus selection is restored. Static
-remains FAIL.** This is not full four-version or native scheduler qualification;
-targeted Piers UI verification remains outstanding before a confidence claim.
-No Alpha2 version, installer or release is prepared.
-See [Alpha2 development scope and evidence](docs/alpha2-development.md).
+**Alpha 1 is published; later work is continued development only.** Two further
+independently reviewed, normally merged PRs correct reminder/AutoPlay event
+matching, current-popup cancellation dispatch, cancelled wildcard input, and an
+absent XMLTV display-name. Earlier Alpha2 padding, Quick guide and programme-row
+repairs remain in place. No new version, installer or distribution is prepared.
+
+At functional freeze **`ce8fe0f`**, **23 focused scripts passed: 128 unittest
+methods plus three assertion scripts**. Fresh types-only checks report **two new
+unresolved errors per lane**; the inherited full static gate remains **FAIL** and
+was not rerun. One bounded **Nexus 20.5** round observed guide/context, scheduling
+labels and wildcard Cancel returning to the guide; **no rules were created or
+actual timers exercised**. XMLTV fallback has deterministic evidence only; the
+other three native versions were unrun this campaign. Codex independently
+reviewed the evidence and preservation audits; all four profiles ended stopped.
+This is not full four-version/native scheduler acceptance or a publication
+recommendation. See [continued scope, evidence and next work](docs/alpha2-development.md).
 
 The owner-decided **initial Alpha 1 scope includes all four versions: Matrix 19.4,
 Nexus 20.5, Omega 21.3 and Piers 22.0-RC2**. The former Nexus-first recommendation
@@ -49,11 +53,10 @@ for precise sources, results and remaining limits.
 - Reviewed Alpha source fixes for independent secondary/tertiary XMLTV offsets,
   XMLTV logo opt-in and explicit URL logos, title-search date windows, and
   source-scoped channel/catchup listings, plus restored logo-setting visibility.
-  The historical Alpha 1 focused core batch passed all 19 scripts. The Alpha2
-  frozen-source batch passed 21 focused scripts (114 reported unittest methods
-  plus three assertion scripts); broader static typing and official-checker
-  failures remain disclosed in the overview. These static results do not establish
-  native acceptance; the separate bounded observations have explicit limits.
+  The historical Alpha 1 focused core batch passed all 19 scripts; the earlier
+  Alpha2 batch passed 21. The continued-development batch passed 23 as summarized
+  above; broader static typing and official-checker failures remain disclosed.
+  Focused source results do not establish native acceptance.
 
 Other bounded restorations include JSON image matches, passive guide styling,
 closed-catalog action customization and typed media/folder mappings. The
@@ -80,6 +83,12 @@ provisionally disabled. Old scheduler collisions, recurrence horizons and
 in-flight cancellation have documented limits. Font glyph boxes, audio coverage
 and partial timer evidence remain qualification limits. Translation identities
 also need owner/translator decisions; no catalogs were discarded.
+
+Next work is event-scoped once cancellation and a separately reviewed,
+preserving XMLTV settings-refresh design. Dynamic control 3019 needs a reproduced
+symptom or useful context before a fix; fewer caught control diagnostics in the
+latest round reflect coverage, not repair. Logs remain **non-clean**. Historical
+Matrix crash and Piers input work remain deferred, not resolved or retried.
 
 ## Alpha 1 download and installation
 
