@@ -44,13 +44,16 @@ for precise sources, results and remaining limits.
 
 ### Intentional VPN Manager integration removal (unreleased)
 
-TV Guide Fullscreen no longer imports, detects or controls Zomboided VPN Manager,
-switches connections for channels, or restores a previous/default VPN connection.
+The legacy Zomboided VPN Manager integration is intentionally removed: TV Guide
+no longer imports/detects the manager, switches or restores VPN connections.
 Its VPN settings category is removed; stale saved values are ignored and untouched.
-Manage connectivity independently through Kodi, the operating system or your
-network tools. This is not a VPN-security guarantee. Current URL/mapping routing,
+Users requiring a VPN must manage it independently through Kodi, the operating
+system or network tools. This is not a VPN-security guarantee. Selected URLs/mappings,
 fallbacks and existing Kodi Player/PVR alternative actions are preserved; no named
 external-player branch is added or restored. See [scope and limits](docs/vpn-manager-removal.md).
+The bounded Nexus round deployed successfully but observed Kodi Home only; a
+prelaunch diagnostic returned `invalid_params` and testing stopped. No guide
+launch or playback was observed; native functional acceptance remains unverified.
 
 ## Screenshots
 

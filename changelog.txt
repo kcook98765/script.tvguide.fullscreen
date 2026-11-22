@@ -1,7 +1,9 @@
 UNRELEASED — intentional legacy VPN Manager removal
 - Remove bundled VPN API, GUI/scheduled-play integration and VPN settings only;
   retain current media routing, fallback and Kodi Player/PVR behavior. Connectivity
-  is managed independently. Native verification is a separate pending handoff.
+  is managed independently. One Nexus deployment succeeded; Home only observed.
+  Prelaunch log diagnostic returned invalid_params; no guide launch or playback
+  observed. Focused checks pass; inherited full static gate remains FAIL.
 
 Unreleased — continued practical development
 - Correct existing reminder/AutoPlay event matching and current-popup dispatch;
