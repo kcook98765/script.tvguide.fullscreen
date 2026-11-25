@@ -192,6 +192,53 @@ class ProgramTitleSearch(unittest.TestCase):
             self.assertEqual(sorted(p.sub_title for p in self.db._programSearch('Needle')),
                              ['lower Needle', 'upper Needle'])
 
+    def test_selected_category_strict_title_search_preserves_guide_fallback(self):
+        # Exercise the public search dispatch after the real category setter.
+        # Only worker-thread dispatch is synchronous here; SQL/filtering are real.
+        self.db._invokeAndBlockForResult = lambda method, *args: method(*args)
+        self.conn.execute('UPDATE channels SET visible=0 WHERE id=?', ('sixty',))
+        categories = ('Fixture subtitle=Populated\nFixture combined=Populated\n'
+                      'Fixture sixty=Hidden only\nMissing channel=Stale\n')
+        self.db._getChannelList.__func__.__globals__['xbmcvfs'] = SimpleNamespace(
+            File=lambda *args: io.StringIO(categories))
+        visible = [c.id for c in self.db._getChannelList(True, all=True)]
+        self.assertIn('combined', visible)  # Nonempty All Channels control.
+        for sort in ('0', '1', '2'):
+            self.settings['channel.filter.sort'] = sort
+            for category, expected in (
+                    ('Populated', ['combined', 'subtitle']),
+                    ('Empty', []), ('Hidden only', []), ('Stale', [])):
+                self.db.setCategory(category)
+                self.assertEqual(self.db.category, category)
+                for plot in ('false', 'true'):
+                    self.settings['program.search.plot'] = plot
+                    with self.subTest(sort=sort, category=category, plot=plot):
+                        rows = self.db.programSearch('Waterfall')
+                        self.assertIsInstance(rows, list)
+                        self.assertEqual(sorted(p.channel.id for p in rows), expected)
+                # Guide callers keep the unfiltered fallback, without changing
+                # the selected category; title search must not inherit it.
+                if category != 'Populated':
+                    self.assertEqual([c.id for c in self.db._getChannelList(True)], visible)
+                    self.assertEqual(self.db.category, category)
+
+    def test_title_search_all_channel_sentinels(self):
+        self.db._getChannelList.__func__.__globals__['xbmcvfs'] = SimpleNamespace(
+            File=lambda *args: io.StringIO('Fixture sixty=Other\n'))
+        for category in ('All Channels', 'Any', '', None):
+            self.db.setCategory(category)
+            for sort in ('0', '1', '2'):
+                self.settings['channel.filter.sort'] = sort
+                for sort_all in ('false', 'true'):
+                    self.settings['channel.filter.sort.all'] = sort_all
+                    for plot in ('false', 'true'):
+                        with self.subTest(category=category, sort=sort,
+                                          sort_all=sort_all, plot=plot):
+                            expected = ['combined', 'subtitle']
+                            if plot == 'true':
+                                expected.insert(1, 'plot')
+                            self.assertEqual(self.ids('Waterfall', plot), expected)
+
     def test_category_channel_now_next_unchanged(self):
         clock = SimpleNamespace(datetime=SimpleNamespace(now=lambda: REFERENCE),
                                 timedelta=datetime.timedelta)

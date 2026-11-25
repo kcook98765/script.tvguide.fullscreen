@@ -869,7 +869,7 @@ class Database(object):
         result = self._invokeAndBlockForResult(self._getChannelList, onlyVisible, all)
         return result
 
-    def _getChannelList(self, onlyVisible, all=False):
+    def _getChannelList(self, onlyVisible, all=False, allowCategoryFallback=True):
         c = self.conn.cursor()
         channelList = list()
         if onlyVisible:
@@ -904,13 +904,13 @@ class Database(object):
                     for channel in channelList:
                         if channel.title == filter_name:
                             new_channels.append(channel)
-                if new_channels:
+                if new_channels or not allowCategoryFallback:
                     channelList = new_channels
             else:
                 for channel in channelList:
                     if channel.title in filter:
                         new_channels.append(channel)
-                if new_channels:
+                if new_channels or not allowCategoryFallback:
                     if ADDON.getSetting('channel.filter.sort') == SORT:
                         channelList = sorted(new_channels, key=lambda channel: channel.title.lower())
                     else:
@@ -931,7 +931,9 @@ class Database(object):
         startTime = now - datetime.timedelta(hours=int(ADDON.getSetting('listing.hours')))
         endTime = now + datetime.timedelta(days=days)
         c = self.conn.cursor()
-        channelList = self._getChannelList(True)
+        # Title search must not inherit the guide's empty-category fallback.
+        channelList = self._getChannelList(True, all=self.category == "All Channels",
+                                           allowCategoryFallback=False)
         search = "%%%s%%" % search
         for channel in channelList:
 
