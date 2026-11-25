@@ -49,6 +49,7 @@ from rpc import RPC
 import utils
 import ActionEditor
 import action_bar
+import favourites_navigation
 
 import streaming
 from skin_runtime import select_skin
@@ -1304,6 +1305,28 @@ class TVGuide(xbmcgui.WindowXML):
         xbmc.sleep(350)
         del w
 
+    def openFavourites(self, native=False):
+        # The action bar's closed Favorites ID has always meant native Kodi,
+        # independently of the main/context provider setting. Never rewrite it.
+        value = 'Favourites' if native else ADDON.getSetting('favourites')
+        command, addon_id = favourites_navigation.route(value, xbmc.getInfoLabel('System.BuildVersion'))
+        if command is None:
+            xbmcgui.Dialog().ok('TV Guide — Favorites',
+                'Unknown Favorites selection. Choose a Favorites provider in TV Guide settings.')
+            return
+        if addon_id:
+            try:
+                result = RPC.addons.get_addons(type='xbmc.python.pluginsource', installed=True, enabled=True)
+                available = any(addon.get('addonid') == addon_id for addon in result.get('addons', []))
+            except Exception:
+                available = False
+            if not available:
+                xbmcgui.Dialog().ok('TV Guide — Favorites',
+                    'Selected Favorites provider is unavailable or could not be checked. '
+                    'Manage installed/enabled add-ons in Kodi, or choose native Favourites in TV Guide settings.')
+                return
+        xbmc.executebuiltin(command)
+
     def onClick(self, controlId):
         if controlId in [self.C_MAIN_LOADING_CANCEL, self.C_MAIN_MOUSE_EXIT, self.C_MAIN_MENUBAR_BUTTON_EXIT]:
             self.close()
@@ -1317,7 +1340,10 @@ class TVGuide(xbmcgui.WindowXML):
             command = action_bar.command_at(self.actions, pos)
             if command:
                 self.action_index = pos
-                xbmc.executebuiltin(command)
+                if command == favourites_navigation.LEGACY_NATIVE:
+                    self.openFavourites(native=True)
+                else:
+                    xbmc.executebuiltin(command)
             return
         if controlId == self.C_MAIN_CATEGORY:
             cList = self.getControl(self.C_MAIN_CATEGORY)
@@ -1353,15 +1379,7 @@ class TVGuide(xbmcgui.WindowXML):
             self.setControlVisible(self.C_MAIN_IMAGE,True)
             return
         elif controlId in [self.C_MAIN_MOUSE_FAVOURITES]:
-            favourites = ADDON.getSetting('favourites')
-            if favourites == 'Simple Favourites':
-                xbmc.executebuiltin("ActivateWindow(10001,plugin://plugin.program.simple.favourites,return)")
-            elif favourites == 'Video Favourites':
-                xbmc.executebuiltin("ActivateWindow(10025,plugin://plugin.video.favourites,return)")
-            elif favourites == 'Super Favourites':
-                xbmc.executebuiltin("ActivateWindow(10001,plugin://plugin.program.super.favourites,return)")
-            elif favourites == 'Favourites':
-                xbmc.executebuiltin("ActivateWindow(10134)")
+            self.openFavourites()
             return
         elif controlId in [self.C_MAIN_MOUSE_VOD]:
             self.showVODTV()
@@ -2130,15 +2148,7 @@ class TVGuide(xbmcgui.WindowXML):
         elif buttonClicked == PopupMenu.C_POPUP_SEARCH:
             self.programSearchSelect(program)
         elif buttonClicked == PopupMenu.C_POPUP_FAVOURITES:
-            favourites = ADDON.getSetting('favourites')
-            if favourites == 'Simple Favourites':
-                xbmc.executebuiltin("ActivateWindow(10001,plugin://plugin.program.simple.favourites,return)")
-            elif favourites == 'Video Favourites':
-                xbmc.executebuiltin("ActivateWindow(10025,plugin://plugin.video.favourites,return)")
-            elif favourites == 'Super Favourites':
-                xbmc.executebuiltin("ActivateWindow(10001,plugin://plugin.program.super.favourites,return)")
-            elif favourites == 'Favourites':
-                xbmc.executebuiltin("ActivateWindow(10134)")
+            self.openFavourites()
         elif buttonClicked == PopupMenu.C_POPUP_EXTENDED:
             self.lookupMetadata(program)
         elif buttonClicked == PopupMenu.C_POPUP_CATCHUP_ADDON:

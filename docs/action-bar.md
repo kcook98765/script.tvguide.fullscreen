@@ -30,7 +30,13 @@ to load changes. Example:
 
 These are the original bundled defaults, in the original order. The slightly
 surprising Home/First labels and associated commands are preserved, not renamed.
-Only `action_bar.py` supplies the fixed commands to Kodi.
+`action_bar.py` supplies fixed catalog tokens; profile/bundled data is never executed.
+
+The Favorites row remains **native Kodi Favorites**, not the optional provider
+selection used by the main/context buttons. Its legacy token below is retained
+for saved-row compatibility; the GUI dispatches the supported native window:
+`10134` on Matrix/Nexus, named `favouritesbrowser` (`10060`) on Omega/Piers.
+Loading does not rewrite saved rows. See [focused verification](favourites-navigation.md).
 
 | ID | Original label | Exact accepted legacy command |
 | --- | --- | --- |
