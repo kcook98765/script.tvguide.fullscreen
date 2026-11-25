@@ -1,4 +1,4 @@
-# TV Guide Fullscreen — 0.1.1 Beta
+# TV Guide Fullscreen — 0.1.2 Beta
 
 ## Introduction
 
@@ -6,10 +6,16 @@ TV Guide Fullscreen is a fullscreen XMLTV programme guide for Kodi: browse listi
 map channels to streams, search programmes, and set reminders or ordinary AutoPlay.
 This maintained Python 3 modernization fork builds on **primaeval's TV Guide
 Fullscreen**, retaining its Program add-on and background service.
-**[0.1.1 is a Beta prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.1-beta)**,
-not a stable or full-legacy-parity release. It supplies no subscriptions or feeds.
+**[0.1.2 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.2-beta)**
+is a maintenance release. TV Guide Fullscreen supplies no subscriptions or feeds.
 
-## What changed
+## What changed in 0.1.2
+
+Stream Setup shows the selected tab's contents again in **Default, Dark and
+CatBar**. To browse installed sources, open a channel's context menu and choose
+**Stream Setup → Browse** or **Addons**. See the [0.1.2 release notes](docs/beta-0.1.2.md).
+
+## Modernization highlights
 
 - Python 3, current Kodi API usage and dependency handling replace older foundations;
   [official pytz](docs/official-pytz.md) replaces the vendored copy.
@@ -57,19 +63,20 @@ as a promise that every legacy integration works. See the detailed
    [repository.ai.kodi-0.1.1.zip](https://kcook98765.github.io/kcook-lab-repo/repository.ai.kodi-0.1.1.zip)
    from that source. This installs the repository, not TV Guide.
 3. Choose **Install from repository → kcook-lab-repo → Program add-ons →
-   TV Guide Fullscreen 0.1.1**.
+   TV Guide Fullscreen**.
 
-**Published catalogs: Matrix 19.x, Nexus 20.x and Omega 21.x**, all referencing the
-same approved ZIP. Evidence is finite Linux Matrix **19.4** / Nexus **20.5** /
-Omega **21.3**, not all platforms. Piers 22.x is excluded.
-Direct GitHub ZIP availability is independent of repository admission.
+Check the catalog for your Kodi version for the latest available build.
+[Matrix](https://kcook98765.github.io/kcook-lab-repo/catalogs/matrix/addons.xml),
+[Nexus](https://kcook98765.github.io/kcook-lab-repo/catalogs/nexus/addons.xml) and
+[Omega](https://kcook98765.github.io/kcook-lab-repo/catalogs/omega/addons.xml)
+are the published lanes. Piers 22.x is outside repository publication.
 
 ### Direct GitHub Beta ZIP
 
-Download the [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.1-beta/script.tvguide.fullscreen-0.1.1.zip)
-and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.1-beta/SHA256SUMS)
+Download the [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.2-beta/script.tvguide.fullscreen-0.1.2.zip)
+and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.2-beta/SHA256SUMS)
 together without renaming. Run `sha256sum --check --strict SHA256SUMS` there;
-require `script.tvguide.fullscreen-0.1.1.zip: OK` before **Install from zip file**.
+require `script.tvguide.fullscreen-0.1.2.zip: OK` before **Install from zip file**.
 Do not install after a verification failure or use source-snapshot ZIPs as installers.
 Both routes require ordinary **Unknown sources** consent when prompted; ask your
 administrator if policy prevents installation, rather than bypassing it. No Reset is required.
@@ -100,9 +107,8 @@ You need your own sources and stream/content entitlements.
 
 Back up your **Kodi profile, TV Guide settings, channel/stream mappings and saved
 reminder/AutoPlay rules** first; a separate test profile is preferable. The same
-add-on ID is intended to update normally in place, without Reset. Actual upgrade,
-migration, obsolete-file pruning and automatic ZIP-origin updates are **unverified**;
-do not assume automatic settings migration or conversion from a different fork ID.
+add-on ID supports the normal in-place update path. Updates from older builds
+or different fork IDs can require separate migration checks.
 Changing source offsets may reuse cached programmes; read the
 [refresh and rule-preservation cautions](docs/xmltv-source-offsets.md) before forcing refreshes.
 
@@ -114,13 +120,9 @@ Changing source offsets may reuse cached programmes; read the
 **UNOBSERVED**. An original playback-error dialog can remain while fallback plays.
 Logs are non-clean and inherited static findings remain; optional features,
 scheduler horizons/collisions/in-flight cancellation, upgrades and parity have limits.
-See [current evidence scope](docs/beta-0.1.1.md#evidence-scope-reused-not-rerun) and
-[technical/release history](docs/release-history.md).
-
-Finite Linux Matrix 19.4/Omega 21.3 core smoke and broader Nexus 20.5 evidence are
-not all-platform or comprehensive stability qualification. See
-[historical crash context](docs/release-history.md#historical-crashes-and-current-scope);
-no old-crash fix or current 0.1.1 defect is claimed.
+See the [0.1.2 qualification and limitations](docs/beta-0.1.2.md#qualification)
+and [technical release history](docs/release-history.md). Matrix 19.4 qualification
+is blocked before Stream Setup by an unclassified native startup fault.
 
 <a id="feedback-attribution-and-license"></a>
 

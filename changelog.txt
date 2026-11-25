@@ -1,3 +1,12 @@
+version 0.1.2 — Beta
+- Restore Stream Setup tab visibility and navigation in Default, Dark and CatBar.
+  Browse and Addons display their contents again.
+- Preserve the add-on ID, dependencies, saved mapping behavior and artwork.
+- Omega 21.3 passed all three skins, local playback and saved stream mappings.
+  Nexus 20.5 passed the focused Default workflow. Matrix 19.4 remains blocked
+  before Stream Setup by an unclassified native fault. Piers 22.0 RC2 preview
+  passed the focused live UI check. Managed screenshot capture remains blocked.
+
 version 0.1.1 — Beta
 - Artwork-only successor; runtime unchanged. Replace inherited Earth icon/fanart
   with original procedural TV/guide geometry; omit fullscreen-guide.png,

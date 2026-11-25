@@ -5,7 +5,18 @@ assessments describe their original checkpoint, not blanket current acceptance.
 Use the [end-user README](../README.md) for setup and present availability.
 No native run, static gate or package rebuild was performed for this relocation.
 
-## Current 0.1.1 Beta identity and publication
+## 0.1.2 Beta maintenance update
+
+[0.1.2 Beta](beta-0.1.2.md) changes the four Stream Setup visibility predicates
+per skin from Kodi's obsolete `StringCompare` condition to `String.IsEqual`.
+[PR #81](https://github.com/kcook98765/script.tvguide.fullscreen/pull/81) corrected
+Default, Dark and CatBar. Control IDs, focus routing, layouts, runtime Python,
+six dependency declarations, artwork and licensing are unchanged from 0.1.1.
+The focused regression covers all twelve predicates. The Matrix 19.4 startup
+fault remains unclassified and is tracked separately as
+[#82](https://github.com/kcook98765/script.tvguide.fullscreen/issues/82).
+
+## Historical 0.1.1 Beta identity and publication
 
 The published [v0.1.1-beta prerelease](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.1-beta)
 is an **artwork-only successor; runtime unchanged**. Original geometric icon/fanart
