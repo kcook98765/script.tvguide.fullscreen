@@ -1,5 +1,9 @@
 # Same-path XMLTV refresh (#85)
 
+For later integrated-runtime qualification and still-pending versioned-package
+acceptance, see [0.1.3 Beta preparation](beta-0.1.3.md#qualification). The source
+checkpoints below retain their original scope; they are not new native results.
+
 Reopening the guide or running its supported background update compares local
 XMLTV content even when the source timestamp is equal to or older than the
 installed cache. There is no filesystem watcher or navigation-time source poll.

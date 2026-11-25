@@ -1,11 +1,22 @@
 # Current fork feature and qualification status
 
-**Current release-facing status: [0.1.0 Beta preparation](beta-0.1.0.md).**
-The preparation changes version/docs only and reuses independently accepted
-bounded Nexus 20.5 core evidence for unchanged code. It is not publication,
-repository admission, an exact beta ZIP native install or a four-version beta PASS.
-The full static gate remains FAIL. All dated records below retain their historical
-scope; their “current”, “unreleased” and next-work statements are not today's status.
+**Current release-facing status: [0.1.3 Beta preparation](beta-0.1.3.md), pending
+owner review and publication.** Published install links remain 0.1.2.
+Planned publication is Nexus/Omega; Matrix retains its 0.1.1
+catalog and Piers is preview-only. Independent exact-0.1.3 checks passed published
+0.1.2 upgrade on Nexus 20.5 and integrated 0.1.2 upgrades on Omega 21.3/Piers RC2,
+including fresh guide execution, programme focus, preserved captured state and
+clean final stop/release. Piers remains forward smoke only; Matrix was not launched.
+The notes distinguish these supplied results from premerge feature evidence and
+isolated Index/Now/Next/Favorite checks, including the unproven direct Shortcut
+route and earlier unconfirmed Stops. Strict category scoping applies to title
+search (including subtitle/optional plot matching), not separate synopsis or
+programme-category search. This source role performs no native tests.
+#86 remains open for the reporter's ordinary title misses. Inherited typing/locale
+failures remain, not a clean full static gate.
+All dated records below retain their historical scope; their “current”,
+“unreleased” and next-work statements are not today's status. See also the
+[technical release history](release-history.md#013-beta-preparation--25-november-2026).
 
 > Historical VPN-removal checkpoint (2026-11-21, then unreleased): legacy Zomboided VPN Manager integration
 > is intentionally removed. Historical VPN-preservation audit rows below remain

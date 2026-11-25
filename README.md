@@ -1,4 +1,4 @@
-# TV Guide Fullscreen — 0.1.2 Beta
+# TV Guide Fullscreen — 0.1.3 Beta preparation
 
 ## Introduction
 
@@ -6,14 +6,33 @@ TV Guide Fullscreen is a fullscreen XMLTV programme guide for Kodi: browse listi
 map channels to streams, search programmes, and set reminders or ordinary AutoPlay.
 This maintained Python 3 modernization fork builds on **primaeval's TV Guide
 Fullscreen**, retaining its Program add-on and background service.
-**[0.1.2 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.2-beta)**
-is a maintenance release. TV Guide Fullscreen supplies no subscriptions or feeds.
+**0.1.3 Beta is prepared, pending owner review and publication.** Independent
+exact-version ZIP install/upgrade checks are complete within the
+[documented scope](docs/beta-0.1.3.md#qualification). The published release remains
+**[0.1.2 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.2-beta)**;
+the Nexus/Omega and direct ZIP links below still install that version. TV Guide Fullscreen
+supplies no subscriptions or feeds.
 
-## What changed in 0.1.2
+## Prepared for 0.1.3
 
-Stream Setup shows the selected tab's contents again in **Default, Dark and
-CatBar**. To browse installed sources, open a channel's context menu and choose
-**Stream Setup → Browse** or **Addons**. See the [0.1.2 release notes](docs/beta-0.1.2.md).
+- Reliable [same-path XMLTV refresh](docs/xmltv-local-refresh.md), including changed
+  local content with unchanged or older timestamps.
+- Retention of guide settings, saved channel order/visibility, categories, stream
+  mappings and reminder/AutoPlay rules during supported refreshes; no guide reset.
+- Programme search includes subtitles as well as titles.
+- Strict category-scoped title search (including subtitles and optional plot
+  matching) respects visibility and the configured listing window, without
+  silently falling back to all channels. Separate synopsis/category search
+  routes are not covered by this strict-scoping correction.
+- Restored Kodi native Favorites navigation and return to the guide.
+- Working category mouse interaction and preserved category membership order.
+
+On fresh profiles, [XMLTV declaration order](docs/xmltv-initial-order.md) applies
+unless explicit M3U ordering is enabled. Existing saved weights and visibility
+are preserved. Stream Setup Browse/Addons fixes from 0.1.2 remain.
+See the [0.1.3 release/prerelease notes](docs/beta-0.1.3.md) for evidence and limits.
+[Issue #86](https://github.com/kcook98765/script.tvguide.fullscreen/issues/86)
+stays open for the reporter's ordinary title misses; earlier reports are not all resolved.
 
 ## Modernization highlights
 
@@ -72,6 +91,8 @@ catalogs offer **0.1.2 Beta**. The
 stays on **0.1.1 Beta** pending investigation of the
 [Matrix startup fault](https://github.com/kcook98765/script.tvguide.fullscreen/issues/82).
 Piers 22.x is a development preview and is outside TV Guide repository publication.
+The planned 0.1.3 publication scope is Nexus/Omega only; it is not yet available
+through these installation routes.
 
 ### Direct GitHub Beta ZIP
 
@@ -108,8 +129,16 @@ You need your own sources and stream/content entitlements.
 ## Updating older TV Guide
 
 Back up your **Kodi profile, TV Guide settings, channel/stream mappings and saved
-reminder/AutoPlay rules** first; a separate test profile is preferable. The same
-add-on ID supports the normal in-place update path. A native 0.1.1 to 0.1.2
+reminder/AutoPlay rules** first; a separate test profile is preferable. Keep the
+same add-on ID, `script.tvguide.fullscreen`, for a normal in-place update;
+**do not uninstall with data removal or Reset Database**. Keep Kodi's official
+repository enabled so Kodi can resolve all six required dependencies normally;
+do not replace them with bundled modules or bypass dependency errors.
+For 0.1.3, wait for owner publication and its verified installer/checksum or
+catalog update. No guide reset is needed. Independent exact-0.1.3 checks passed
+published-0.1.2 upgrade on Nexus 20.5 and integrated-0.1.2 upgrades on Omega 21.3
+and Piers RC2 preview, preserving captured guide state; see the
+[qualification limits](docs/beta-0.1.3.md#qualification). A native 0.1.1 to 0.1.2
 upgrade using the exact ZIPs on disposable Omega 21.3 preserved user settings,
 channels and saved stream mappings. The ZIP upgrade ran through a private test
 feed. Public catalog availability was verified separately. Updates from older builds
@@ -125,7 +154,7 @@ Changing source offsets may reuse cached programmes; read the
 **UNOBSERVED**. An original playback-error dialog can remain while fallback plays.
 Logs are non-clean and inherited static findings remain; optional features,
 scheduler horizons/collisions/in-flight cancellation, upgrades and parity have limits.
-See the [0.1.2 qualification and limitations](docs/beta-0.1.2.md#qualification)
+See the [0.1.3 qualification and limitations](docs/beta-0.1.3.md#qualification)
 and [technical release history](docs/release-history.md). Matrix 19.4 qualification
 is blocked before Stream Setup by an unclassified native startup fault.
 
@@ -145,6 +174,11 @@ Report [issues](https://github.com/kcook98765/script.tvguide.fullscreen/issues) 
 version, Kodi/platform, expected/actual behavior and minimal synthetic reproduction.
 Redact credentials, tokens, private feeds/programmes, endpoints and profile paths;
 never upload raw settings, databases, private screenshots or unredacted logs.
+For unresolved ordinary title misses in #86, supply minimal **redacted XMLTV
+channel/programme rows**, the **exact query**, active **category**, listing
+**window**, channel **visibility**, relevant search/source **settings**, and
+**Kodi version**. Retain the query-to-row relationship while redacting; working
+subtitle/category cases do not establish that all reported title misses are fixed.
 See the [changelog](changelog.txt) and [release history](docs/release-history.md).
 
 <a id="historical-alpha-1-download-and-installation"></a><a id="alpha-1-download-and-installation"></a>

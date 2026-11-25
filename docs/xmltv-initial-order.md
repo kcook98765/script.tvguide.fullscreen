@@ -1,5 +1,10 @@
 # Fresh-profile XMLTV order — Beta 0.1.3 / PR #92 follow-up
 
+Later clean isolated Omega order-off/order-on and repeated-open evidence is in
+[0.1.3 qualification](beta-0.1.3.md#qualification). The original source-only
+checkpoint and proposed handoff below are retained; later finite evidence does
+not qualify every proposed native case or the still-pending versioned 0.1.3 ZIP.
+
 Source-only change based on PR #92 head `548b674`. No release/version change,
 native Kodi actions, upload, push or merge are part of this turn.
 
