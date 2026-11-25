@@ -4972,20 +4972,19 @@ class PopupMenu(xbmcgui.WindowXMLDialog):
                         categories[self.category].append(channel)
 
             elif ret == 1:
-                channelList = sorted(categories[self.category])
+                # Keep chooser order separate from saved membership occurrences.
+                members = categories[self.category]
+                memberOrder = sorted(range(len(members)), key=lambda i: members[i])
+                channelList = [members[i] for i in memberOrder]
                 str = 'Remove Channels From %s' % self.category
                 ret = dialog.multiselect(str, channelList)
                 if ret is None:
                     return
                 if not ret:
                     ret = []
-                channels = []
-                for i in ret:
-                    channelList[i] = ""
-                categories[self.category] = []
-                for name in channelList:
-                    if name:
-                        categories[self.category].append(name)
+                removed = {memberOrder[i] for i in ret}
+                categories[self.category] = [name for i, name in enumerate(members)
+                                             if name and i not in removed]
 
             elif ret == 2:
                 categories[self.category] = []
@@ -6518,20 +6517,19 @@ class CatMenu(xbmcgui.WindowXMLDialog):
                             categories[self.selected_category].append(channel)
 
                 elif ret == 2:
-                    channelList = sorted(categories[self.selected_category])
+                    # Keep chooser order separate from saved membership occurrences.
+                    members = categories[self.selected_category]
+                    memberOrder = sorted(range(len(members)), key=lambda i: members[i])
+                    channelList = [members[i] for i in memberOrder]
                     str = 'Remove Channels From %s' % self.selected_category
                     ret = dialog.multiselect(str, channelList)
                     if ret is None:
                         return
                     if not ret:
                         ret = []
-                    channels = []
-                    for i in ret:
-                        channelList[i] = ""
-                    categories[self.selected_category] = []
-                    for name in channelList:
-                        if name:
-                            categories[self.selected_category].append(name)
+                    removed = {memberOrder[i] for i in ret}
+                    categories[self.selected_category] = [name for i, name in enumerate(members)
+                                                          if name and i not in removed]
 
                 elif ret == 3:
                     categories[self.selected_category] = []

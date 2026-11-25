@@ -8,6 +8,9 @@ only the source-preservation transformation with synthetic data. No Kodi/stubs.
 
 Real pre-fix XML negative control (must fail):
   python3 tests/check_category_mouse_layering.py --skin-ref v0.1.2-beta
+
+Removal-order negative control (must fail in both editors):
+  python3 tests/check_category_mouse_layering.py --gui-ref 529582c9421dc2aa74462892be134ae36b3936f2
 """
 import argparse
 import ast
@@ -21,6 +24,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIN_REF = None
+GUI_REF = None
 SKINS = ('Default', 'CatBar')
 
 
@@ -40,6 +44,83 @@ def control(root, control_id):
 
 
 class CategoryWriteOrder(unittest.TestCase):
+    def editor(self, editor, operation, selected, saved):
+        source = (subprocess.check_output(['git', 'show', GUI_REF + ':gui.py'],
+                                         cwd=ROOT).decode() if GUI_REF else
+                  (ROOT / 'gui.py').read_text())
+        cls, = [n for n in ast.parse(source).body
+                if isinstance(n, ast.ClassDef) and n.name == editor]
+        method, = [n for n in cls.body
+                   if isinstance(n, ast.FunctionDef) and n.name == 'onAction']
+        # Run the actual read/edit/write suite, including its cancellation return,
+        # without importing Kodi or exercising unrelated navigation/rendering.
+        suite, = [body for n in ast.walk(method) if isinstance(n, ast.If)
+                  for body in (n.body, n.orelse)
+                  if any(isinstance(s, ast.Assign)
+                         and any(isinstance(t, ast.Name) and t.id == 'lines'
+                                 for t in s.targets) for s in body)]
+        start = next(i for i, n in enumerate(suite) if isinstance(n, ast.Assign)
+                     and any(isinstance(t, ast.Name) and t.id == 'f' for t in n.targets))
+        function = ast.FunctionDef(name='edit', args=ast.arguments(
+            posonlyargs=[], args=[ast.arg(arg='ret'), ast.arg(arg='dialog')],
+            kwonlyargs=[], kw_defaults=[], defaults=[]),
+            body=suite[start:], decorator_list=[])
+        code = compile(ast.fix_missing_locations(ast.Module(body=[function], type_ignores=[])),
+                       'gui.py:category-editor', 'exec')
+        output = io.StringIO()
+        writes = []
+
+        def file(path, mode):
+            if mode == 'rb':
+                return io.StringIO(saved)
+            writes.append(path)
+            return SimpleNamespace(write=output.write, close=lambda: None)
+
+        def multiselect(heading, names):
+            self.assertEqual(names, sorted(names))
+            return selected
+
+        state = SimpleNamespace(category='Custom', selected_category='Custom',
+                                database=SimpleNamespace(getChannelList=lambda **kw:
+                                    [SimpleNamespace(title=n) for n in ['New', 'Zulu']]))
+        env = dict(self=state,
+                   dialog=SimpleNamespace(multiselect=multiselect),
+                   xbmcvfs=SimpleNamespace(File=file))
+        exec(code, env)
+        env['edit'](operation, env['dialog'])
+        return output.getvalue(), writes
+
+    def test_remove_preserves_saved_occurrences_in_both_editors(self):
+        saved = ('Zulu=Custom\nSame=Custom\nBeta=Custom\nSame=Custom\n'
+                 'Alpha=Custom\nZulu=Other\nAlpha=Other\n')
+        # Sorted chooser: Alpha, Beta, Same(first), Same(second), Zulu.
+        cases = [([], ['Zulu', 'Same', 'Beta', 'Same', 'Alpha']),
+                 ([2], ['Zulu', 'Beta', 'Same', 'Alpha']),
+                 ([3], ['Zulu', 'Same', 'Beta', 'Alpha']),
+                 ([1, 3], ['Zulu', 'Same', 'Alpha']),
+                 ([0, 1, 2, 3, 4], [])]
+        for editor, remove in [('PopupMenu', 1), ('CatMenu', 2)]:
+            for indices, remaining in cases:
+                with self.subTest(editor=editor, indices=indices):
+                    actual, writes = self.editor(editor, remove, indices, saved)
+                    self.assertEqual(actual, ''.join(n + '=Custom\n' for n in remaining)
+                                     + 'Zulu=Other\nAlpha=Other\n')
+                    self.assertEqual(len(writes), 1)
+            with self.subTest(editor=editor, operation='cancel'):
+                self.assertEqual(self.editor(editor, remove, None, saved), ('', []))
+            with self.subTest(editor=editor, operation='empty names'):
+                actual, _ = self.editor(editor, remove, [], '=Custom\n' + saved)
+                self.assertEqual(actual, saved)  # Existing confirmed-remove cleanup.
+            with self.subTest(editor=editor, operation='clear'):
+                actual, _ = self.editor(editor, remove + 1, [], saved)
+                self.assertEqual(actual, 'Zulu=Other\nAlpha=Other\n')
+            with self.subTest(editor=editor, operation='add'):
+                actual, _ = self.editor(editor, remove - 1, [0], saved)
+                self.assertEqual(actual, saved.replace('Alpha=Custom\n',
+                                                     'Alpha=Custom\nNew=Custom\n'))
+                restored, _ = self.editor(editor, remove, [2], actual)
+                self.assertEqual(restored, saved)  # Add/remove has zero net change.
+
     def test_m3u_startup_preserves_order_and_adds_members(self):
         tree = ast.parse((ROOT / 'gui.py').read_text())
         block, = [n for n in ast.walk(tree) if isinstance(n, ast.If)
@@ -137,6 +218,8 @@ class CategoryMouseLayering(unittest.TestCase):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--skin-ref', help='Read actual bundled XML from a Git ref (negative control)')
+    parser.add_argument('--gui-ref', help='Read gui.py from a Git ref (write-order negative control)')
     options, remaining = parser.parse_known_args()
     SKIN_REF = options.skin_ref
+    GUI_REF = options.gui_ref
     unittest.main(argv=[__file__] + remaining, verbosity=2)
