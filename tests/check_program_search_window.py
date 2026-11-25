@@ -28,7 +28,8 @@ class ProgramSearchWindow(unittest.TestCase):
         self.Program = extract('utils.py', 'Program', env)
         self.Channel = extract('utils.py', 'Channel', env)
         Database = extract('source.py', 'Database', env, {
-            '_programSearch', '_getChannelList', 'adapt_datetime', 'convert_datetime'})
+            'setCategory', 'programSearch', '_programSearch', '_getChannelList',
+            'adapt_datetime', 'convert_datetime'})
         # Use production Unix-seconds codecs, not ISO-text substitutes. Restore
         # process-local SQLite registries so the harness has no lasting state.
         for registry in (sqlite3.adapters, sqlite3.converters):
