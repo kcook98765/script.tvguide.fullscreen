@@ -1325,6 +1325,17 @@ class TVGuide(xbmcgui.WindowXML):
                     'Selected Favorites provider is unavailable or could not be checked. '
                     'Manage installed/enabled add-ons in Kodi, or choose native Favourites in TV Guide settings.')
                 return
+        if command == favourites_navigation.LEGACY_NATIVE and self.mode == MODE_EPG:
+            # The legacy modal snapshots underlying focus at activation. Do not
+            # leave it on the transient mouse tool; retain the saved programme.
+            try:
+                if self.getFocusId() == self.C_MAIN_MOUSE_FAVOURITES:
+                    control = self._findControlAt(self.focusPoint)
+                    if control is not None:
+                        self.setFocus(control)
+            except RuntimeError:
+                # A removed/unavailable control must not block Favorites.
+                pass
         xbmc.executebuiltin(command)
 
     def onClick(self, controlId):

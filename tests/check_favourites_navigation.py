@@ -9,6 +9,7 @@ route helper is loaded from the selected worktree for both modes, never from Kod
 """
 import argparse
 import ast
+from collections import defaultdict
 from functools import lru_cache
 from io import StringIO
 from itertools import product
@@ -136,13 +137,15 @@ class FavouritesNavigation(unittest.TestCase):
                 'plugin.program.super.favourites')] if available else []}
 
         scope = dict(action_bar=bar, favourites_navigation=pure_module('favourites_navigation'),
+                     MODE_EPG='EPG',
                      ADDON=NS(getSetting=get_setting,
                      setSetting=lambda *a: events.append(('setting', a))),
                      xbmc=NS(executebuiltin=lambda command: events.append(('builtin', command)),
                              getInfoLabel=lambda label: version),
                      xbmcgui=NS(Dialog=lambda: NS(ok=lambda *a: events.append(('notice', a)))),
                      RPC=NS(addons=NS(get_addons=get_addons)))
-        ui = NS(**constants('TVGuide'), isClosing=False, category='All Channels',
+        ui = NS(**constants('TVGuide'), isClosing=False, mode='EPG', getFocusId=lambda: 9001,
+                category='All Channels',
                 categories=['All Channels'], tvdb_urls={}, actions=bar.defaults(),
                 _hideControl=lambda c: events.append(('hide', c)),
                 database=NS(setCategory=lambda c: events.append(('category', c))),
@@ -394,6 +397,163 @@ class FavouritesNavigation(unittest.TestCase):
             events.clear()
             click(ui, ui.C_STREAM_FAVOURITES_CANCEL)
             self.assertEqual(events, [('close',)])
+
+
+class FocusControl:
+    def __init__(self, control_id, x=100):
+        self.control_id, self.x = control_id, x
+
+    def getId(self):
+        return self.control_id
+
+    def getPosition(self):
+        return self.x, 200
+
+    def getWidth(self):
+        return 80
+
+    def getHeight(self):
+        return 40
+
+
+class FocusWindow:
+    def setFocus(self, control):
+        self.events.append(('focus', control.getId()))
+        self.focus_id = control.getId()
+
+
+def focus_guide(value='Favourites', version='20.5', focus_id=4316):
+    """Actual caller/focus methods; inert modal snapshots focus at dispatch.
+
+    This contract capture is not Kodi's modal-stack implementation or native
+    acceptance. No Kodi modules, profiles, providers or network are accessed.
+    """
+    scope = dict(FocusWindow=FocusWindow, debug=lambda *_: None,
+                 favourites_navigation=pure_module('favourites_navigation'),
+                 COMMAND_ACTIONS=defaultdict(list, LEFT=[1], RIGHT=[2], UP=[3], DOWN=[4],
+                                             MENU=[117, 101]))
+    for node in tree('gui.py').body:
+        if isinstance(node, ast.Assign):
+            try:
+                literal = ast.literal_eval(node.value)
+            except (ValueError, TypeError):
+                continue
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    scope[target.id] = literal
+    methods = {'onClick', 'openFavourites', 'setFocus', '_findControlAt',
+               '_sameControl', '_getProgramFromControl', 'onActionEPGMode'}
+    body = [node for node in class_node('TVGuide').body
+            if isinstance(node, ast.Assign) or
+            isinstance(node, ast.FunctionDef) and node.name in methods]
+    captured = ast.ClassDef(name='TVGuide', bases=[ast.Name(id='FocusWindow', ctx=ast.Load())],
+                            keywords=[], body=body, decorator_list=[])
+    points = [node for node in tree('gui.py').body
+              if isinstance(node, ast.ClassDef) and node.name == 'Point']
+    module = ast.fix_missing_locations(ast.Module(body=points + [captured], type_ignores=[]))
+    exec(compile(module, source_label('gui.py'), 'exec'), scope)
+    ui = scope['TVGuide']()
+    ui.events, ui.focus_id, ui.mode, ui.isClosing = [], focus_id, 'EPG', False
+    ui.focusPoint = scope['Point']()
+    ui.focusPoint.x, ui.focusPoint.y = 220, 220
+    ui.controlAndProgramList = [NS(control=FocusControl(9001), program=object()),
+                               NS(control=FocusControl(9002, 200), program=object())]
+    ui.getFocusId = lambda: ui.focus_id
+
+    def get_focus():
+        if not ui.focus_id:
+            raise RuntimeError('Non-Existent Control 0')
+        # Return a fresh wrapper, not the object retained in the guide.
+        return FocusControl(ui.focus_id, 200 if ui.focus_id == 9002 else 100)
+
+    ui.getFocus = get_focus
+    ui._showContextMenu = lambda program: ui.events.append(('context', program))
+    for direction in ('left', 'right', 'up', 'down'):
+        setattr(ui, '_' + direction,
+                lambda point, name=direction: ui.events.append((name, point.x, point.y)))
+
+    def dispatch(command):
+        ui.events.append(('builtin', command, ui.focus_id))
+        ui.saved_modal_focus = ui.focus_id
+
+    scope.update(ADDON=NS(getSetting=lambda key: value),
+                 xbmc=NS(getInfoLabel=lambda _: version, executebuiltin=dispatch),
+                 RPC=NS(addons=NS(get_addons=lambda **_: {'addons': [
+                     {'addonid': 'plugin.program.simple.favourites'}]})))
+    return ui
+
+
+class FavouritesFocus(unittest.TestCase):
+    def setUp(self):
+        if BASELINE:
+            self.skipTest('Focus correction is not part of the original route baseline')
+
+    def click(self, ui):
+        ui.onClick(ui.C_MAIN_MOUSE_FAVOURITES)
+
+    def test_saved_programme_is_focused_before_legacy_modal_snapshot(self):
+        for version, value in product(('19.4', '20.5'), ('Favourites', '', None)):
+            with self.subTest(version=version, value=value):
+                ui = focus_guide(value, version)
+                self.click(ui)
+                self.assertEqual(ui.events, [('focus', 9002),
+                    ('builtin', 'ActivateWindow(10134)', 9002)])
+                self.assertEqual((ui.focusPoint.x, ui.focusPoint.y), (220, 220))
+
+    def test_modelled_back_preserves_arrow_and_repeated_context_dispatch(self):
+        ui = focus_guide()
+        self.click(ui)
+        # Model the transient button losing focus when hidden on return. This
+        # checks pre-dispatch ordering, not native modal-stack acceptance.
+        ui.focus_id = 0 if ui.saved_modal_focus == 4316 else ui.saved_modal_focus
+        ui.events.clear()
+        for action_id in (1, 2, 3, 4, 117, 101, 101):
+            ui.onActionEPGMode(NS(getId=lambda: action_id))
+        self.assertEqual(ui.events[:4], [(name, 240, 220)
+                                        for name in ('left', 'right', 'up', 'down')])
+        self.assertEqual(ui.events[4:], [('context', ui.controlAndProgramList[1].program)] * 3)
+
+    def test_programme_category_action_bar_and_other_tools_are_untouched(self):
+        for focus in (9002, 7000, 7100, 4312, 0):
+            with self.subTest(focus=focus):
+                ui = focus_guide(focus_id=focus)
+                self.click(ui)
+                self.assertEqual(ui.events, [('builtin', 'ActivateWindow(10134)', focus)])
+
+    def test_provider_browser_and_other_guide_modes_are_untouched(self):
+        for value, version, mode, command in (
+                ('Simple Favourites', '20.5', 'EPG', ROUTES['Simple Favourites']),
+                ('Favourites', '21.3', 'EPG', 'ActivateWindow(favouritesbrowser)'),
+                ('Favourites', '22.0-RC2', 'EPG', 'ActivateWindow(favouritesbrowser)'),
+                ('Favourites', '20.5', 'QUICKEPG', 'ActivateWindow(10134)'),
+                ('Favourites', '20.5', 'TV', 'ActivateWindow(10134)')):
+            with self.subTest(value=value, version=version, mode=mode):
+                ui = focus_guide(value, version)
+                ui.mode = mode
+                self.click(ui)
+                self.assertEqual(ui.events, [('builtin', command, 4316)])
+
+    def test_empty_or_unmatched_saved_point_does_not_guess_first_programme(self):
+        for empty in (False, True):
+            ui = focus_guide()
+            if empty:
+                ui.controlAndProgramList.clear()
+            else:
+                ui.focusPoint.x = 1000
+            self.click(ui)
+            self.assertEqual(ui.events, [('builtin', 'ActivateWindow(10134)', 4316)])
+
+    def test_unavailable_control_does_not_prevent_existing_dispatch(self):
+        for failing_method in ('getFocusId', 'setFocus'):
+            with self.subTest(method=failing_method):
+                ui = focus_guide()
+
+                def unavailable(*_):
+                    raise RuntimeError('Control is unavailable')
+
+                setattr(ui, failing_method, unavailable)
+                self.click(ui)
+                self.assertEqual(ui.events, [('builtin', 'ActivateWindow(10134)', 4316)])
 
 
 if __name__ == '__main__':
