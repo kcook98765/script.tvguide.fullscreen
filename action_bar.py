@@ -24,6 +24,8 @@ CATALOG = (
     ('previous-page', 'Prev', 'Action(skipprevious)', ''),
     ('home', 'Home', 'Action(FirstPage)', ''),
     ('first', 'First', 'Action(LastPage)', ''),
+    # Keep the exact legacy token for saved-row compatibility. TVGuide remaps
+    # this native-only shortcut to the supported Kodi window at dispatch time.
     ('favourites', 'Favs', 'ActivateWindow(10134)', ''),
     ('quit', 'Quit', 'Action(Close)', ''),
 )

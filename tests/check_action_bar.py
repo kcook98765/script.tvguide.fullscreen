@@ -36,7 +36,8 @@ class ActionBarTests(unittest.TestCase):
         self.vfs = SimpleNamespace(translatePath=lambda p: str(self.path))
         self.dialog = SimpleNamespace(notification=lambda *a: self.notices.append(a))
         self.gui = SimpleNamespace(Dialog=lambda: self.dialog, ListItem=self.item)
-        self.scope: Dict[str, Any] = dict(action_bar=bar, xbmcvfs=self.vfs, xbmc=self.xbmc, xbmcgui=self.gui)
+        self.scope: Dict[str, Any] = dict(action_bar=bar, xbmcvfs=self.vfs, xbmc=self.xbmc, xbmcgui=self.gui,
+                                        favourites_navigation=SimpleNamespace(LEGACY_NATIVE='ActivateWindow(10134)'))
         tree = ast.parse((ROOT / 'gui.py').read_text())
         guide = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'TVGuide')
         methods = {n.name: n for n in guide.body if isinstance(n, ast.FunctionDef)}
