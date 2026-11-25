@@ -7,12 +7,18 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
+import sys
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-import polib
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from package_contract import (ARTWORK_COMMIT, FLOORS, git_snapshot, safe_path,
+                              validate_dependencies, validate_versions)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +33,9 @@ def original(path):
 
 
 def catalog(raw):
+    # Keep the independent manifest/version checks runnable without the PO parser.
+    # Catalog checks still ERROR (never skip) when this declared tool is missing.
+    import polib
     # Same comment normalization as official checker 0.0.36. Historical #empty
     # comments are not standard polib comments; never rewrite the catalog itself.
     text = raw.decode('utf-8')
@@ -49,6 +58,49 @@ def fallback(source, translation):
         if old is None or (old.msgid and old.msgid != entry.msgid):
             result[entry.msgctxt] = entry.msgid
     return result
+
+
+def validate_manifest(root):
+    old = ET.fromstring(original('addon.xml'))
+    new = ET.parse(root / 'addon.xml').getroot()
+    assert {k: v for k, v in old.attrib.items() if k != 'version'} == {
+        k: v for k, v in new.attrib.items() if k != 'version'}
+    validate_dependencies(new)
+    assert [e.attrib for e in new.findall('extension')] == [
+        {'point': 'xbmc.python.script', 'library': 'addon.py'},
+        {'point': 'xbmc.service', 'library': 'service.py'},
+        {'point': 'xbmc.addon.metadata'}]
+    assert new.findtext("extension[@point='xbmc.python.script']/provides") == 'executable'
+    for path in ('addon.py', 'service.py'):
+        assert (root / path).is_file() and (root / path).read_bytes(), path
+    meta = new.find("extension[@point='xbmc.addon.metadata']")
+    old_meta = old.find("extension[@point='xbmc.addon.metadata']")
+    for tag in ('disclaimer', 'license', 'platform', 'forum', 'email'):
+        assert meta.findtext(tag) == old_meta.findtext(tag), tag
+    for tag in ('website', 'source'):
+        assert meta.findtext(tag) == 'https://github.com/kcook98765/script.tvguide.fullscreen', tag
+    description = meta.findtext('description') or ''
+    assert 'modernization Beta' in description
+    credits = 'Thanks for the major contributions from: '
+    assert credits in description
+    assert description.split(credits)[1] == old_meta.findtext('description').split(credits)[1]
+    assert meta.findtext('summary', '').strip()
+    assert 0 < len(meta.findtext('news', '').strip()) <= 1500
+    assert [(e.tag, e.text) for e in meta.findall('assets/*')] == [
+        ('icon', 'icon.png'), ('fanart', 'fanart.jpg'),
+        ('screenshot', 'resources/screenshots/channel-management.png')]
+    for asset in meta.findall('assets/*'):
+        safe_path(asset.text)
+        assert (root / asset.text).is_file(), asset.text
+    assert original('LICENSE.txt') == (root / 'LICENSE.txt').read_bytes()
+    readme = (root / 'README.md').read_text('utf-8')
+    for credit in ('primaeval', 'Tommy Winther', 'Thomas Geppert', 'Midraal',
+                   'iainmacleod', 'im85288', 'RayW1986', 'andy', 'Zomboided',
+                   'tycoo', 'kjb86', 'Doctor-Eggs', 'Marti Raudsepp'):
+        assert credit in readme, credit
+    assert '](LICENSE.txt)' in readme and '](THIRD-PARTY-NOTICES.txt)' in readme
+    assert 'GPL v2 or later' in readme
+    validate_versions(root)
 
 
 class PackageMetadataTests(unittest.TestCase):
@@ -87,36 +139,87 @@ class PackageMetadataTests(unittest.TestCase):
         print('Preserved {} entries across 69 catalogs; only English/German gain a final LF'.format(total))
 
     def test_manifest_metadata_and_entrypoint_identity(self):
-        before = original('addon.xml')
-        after = (ROOT / 'addon.xml').read_bytes()
-        # Package semantics must survive legitimate dependency/startup changes.
-        # Dependency correctness has its own check_dependencies_settings suite;
-        # task-specific non-owned byte preservation is proved in private Git trees.
-        old, new = ET.fromstring(before), ET.fromstring(after)
-        self.assertEqual({k: v for k, v in old.attrib.items() if k != 'version'},
-                         {k: v for k, v in new.attrib.items() if k != 'version'})
-        self.assertEqual(new.get('version'), '0.1.1')
-        self.assertEqual([(e.get('point'), e.get('library')) for e in new.findall('extension')],
-                         [('xbmc.python.script', 'addon.py'), ('xbmc.service', 'service.py'),
-                          ('xbmc.addon.metadata', None)])
-        for entry in new.findall('extension')[:2]:
-            self.assertTrue((ROOT / entry.get('library')).is_file())
-            self.assertTrue((ROOT / entry.get('library')).read_bytes())
-        meta = new.find("extension[@point='xbmc.addon.metadata']")
-        old_meta = old.find("extension[@point='xbmc.addon.metadata']")
-        for tag in ('disclaimer', 'license'):
-            self.assertEqual(meta.findtext(tag), old_meta.findtext(tag))
-        self.assertEqual(meta.findtext('website'), 'https://github.com/kcook98765/script.tvguide.fullscreen')
-        self.assertIn('modernization Beta', meta.findtext('description'))
-        self.assertEqual(meta.findtext('description').split('Thanks for the major contributions from: ')[1],
-                         old_meta.findtext('description').split('Thanks for the major contributions from: ')[1])
-        self.assertEqual(meta.findtext('source'), 'https://github.com/kcook98765/script.tvguide.fullscreen')
-        self.assertTrue(meta.findtext('summary').strip())
-        self.assertTrue(0 < len(meta.findtext('news').strip()) <= 1500)
-        for asset in meta.findall('assets/*'):
-            self.assertTrue((ROOT / asset.text).is_file())
-        for path in ('LICENSE.txt',):
-            self.assertEqual(original(path), (ROOT / path).read_bytes())
+        validate_manifest(ROOT)
+
+    def test_dependency_negative_controls(self):
+        import copy
+        manifest = ET.parse(ROOT / 'addon.xml').getroot()
+        for addon in FLOORS:
+            for damage in ('missing', 'duplicate', 'optional', 'wrong-floor'):
+                with self.subTest(addon=addon, damage=damage):
+                    bad = copy.deepcopy(manifest)
+                    requires = bad.find('requires')
+                    node = requires.find("import[@addon='{}']".format(addon))
+                    if damage == 'missing':
+                        requires.remove(node)
+                    elif damage == 'duplicate':
+                        requires.append(copy.deepcopy(node))
+                    elif damage == 'optional':
+                        node.set('optional', 'true')
+                    else:
+                        node.set('version', '0.0.0')
+                    with self.assertRaises(AssertionError):
+                        validate_dependencies(bad)
+        ET.SubElement(manifest.find('requires'), 'import', addon='unrelated', version='1.0.0')
+        with self.assertRaises(AssertionError):
+            validate_dependencies(manifest)
+
+    def test_current_metadata_damage_and_consistent_future_version(self):
+        paths = ('addon.xml', 'addon.py', 'service.py', 'README.md', 'changelog.txt',
+                 'LICENSE.txt', 'icon.png', 'fanart.jpg',
+                 'resources/screenshots/channel-management.png')
+        with tempfile.TemporaryDirectory(dir=ROOT / 'tests') as directory:
+            root = Path(directory)
+            for path in paths:
+                (root / path).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / path, root / path)
+            validate_manifest(root)
+            raw = (root / 'addon.xml').read_text()
+            for before, after in (('provider-name="primaeval"', 'provider-name="Other"'),
+                                  ('GPLv2', 'MIT'), ('iainmacleod', 'Other'),
+                                  ('<platform>all', '<platform>linux'),
+                                  ('<provides>executable', '<provides>video'),
+                                  ('library="service.py"', 'library="unrelated.py"'),
+                                  ('<icon>icon.png', '<icon>../icon.png')):
+                with self.subTest(damage=before):
+                    self.assertIn(before, raw)
+                    (root / 'addon.xml').write_text(raw.replace(before, after))
+                    with self.assertRaises(AssertionError):
+                        validate_manifest(root)
+            for tag in ('summary', 'news'):
+                damaged = ET.fromstring(raw)
+                damaged.find("extension[@point='xbmc.addon.metadata']/" + tag).text = ''
+                (root / 'addon.xml').write_bytes(ET.tostring(damaged))
+                with self.subTest(empty=tag), self.assertRaises(AssertionError):
+                    validate_manifest(root)
+            (root / 'addon.xml').write_text(raw)
+            for path in ('addon.py', 'service.py', 'icon.png', 'LICENSE.txt'):
+                file = root / path
+                saved = file.read_bytes()
+                file.unlink()
+                with self.subTest(missing=path), self.assertRaises((AssertionError, FileNotFoundError)):
+                    validate_manifest(root)
+                file.write_bytes(saved)
+            # A deliberate future version, not a permanent 0.1.2 pin. Each
+            # inconsistent intermediate state must fail; the complete bump passes.
+            version = ET.fromstring(raw).get('version')
+            future = '9.8.7' if version != '9.8.7' else '9.8.8'
+            for path in ('addon.xml', 'changelog.txt', 'README.md'):
+                file = root / path
+                file.write_text(file.read_text().replace(version, future))
+                if path != 'README.md':
+                    with self.assertRaises(AssertionError):
+                        validate_manifest(root)
+            validate_manifest(root)
+            evolved = ET.parse(root / 'addon.xml').getroot()
+            meta = evolved.find("extension[@point='xbmc.addon.metadata']")
+            credits = 'Thanks for the major contributions from: '
+            meta.find('description').text = ('Maintained modernization Beta with a new fix. ' + credits +
+                                             meta.findtext('description').split(credits)[1])
+            meta.find('summary').text = 'Updated guide summary.'
+            meta.find('news').text = future + ' Beta: a different maintenance fix.'
+            (root / 'addon.xml').write_bytes(ET.tostring(evolved))
+            validate_manifest(root)
 
     def test_original_artwork_keeps_runtime_asset_contract(self):
         for path, size, fmt in (('icon.png', (512, 512), 'PNG'),
@@ -154,6 +257,13 @@ class PackageMetadataTests(unittest.TestCase):
         self.assertNotEqual(newline, literal)
         self.assertEqual(newline[0][2], 'one\ntwo')
         self.assertEqual(literal[0][2], 'one\\ntwo')
+
+
+class HistoricalPackageMetadataTests(unittest.TestCase):
+    def test_artwork_era_manifest_metadata_and_entrypoint_identity(self):
+        with git_snapshot(ARTWORK_COMMIT) as root:
+            self.assertEqual(ET.parse(root / 'addon.xml').getroot().get('version'), '0.1.1')
+            validate_manifest(root)
 
 
 if __name__ == '__main__':
