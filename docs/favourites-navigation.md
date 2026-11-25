@@ -1,5 +1,10 @@
 # Favorites navigation — #87
 
+Later scoped native evidence and the independently passed exact-tag identifier
+check are summarized in [0.1.3 qualification](beta-0.1.3.md#qualification).
+The source handoff below remains historical, not a claim that every route or
+provider was natively exercised; versioned-package acceptance is still pending.
+
 ## Compatibility correction
 
 The campaign supplied official exact-tag `WindowIDs.h` / `WindowTranslator.cpp`

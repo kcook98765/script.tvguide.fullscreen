@@ -1,3 +1,24 @@
+version 0.1.3 — Beta prepared / pending owner publication
+- Refresh changed XMLTV content at the same local path, including unchanged or
+  older timestamps; retain last-good data on rejected replacements.
+- Retain guide settings, saved channel weights/visibility, categories, mappings
+  and reminder/AutoPlay rules during supported refreshes. No guide reset needed.
+- Search programme subtitles as well as titles; keep programme search strictly
+  within the active category, visibility and configured listing window.
+- Restore version-aware Kodi native Favorites navigation and return to the guide.
+- Restore category mouse interaction and preserve category membership order.
+- On fresh profiles use XMLTV channel declaration order unless explicit M3U
+  ordering is enabled. Existing saved weights and visibility are preserved.
+- #86 remains open for the reporter's ordinary title misses; earlier reports are
+  not all resolved. Request redacted XMLTV rows, exact query, active category,
+  listing window, visibility/settings and Kodi version before further diagnosis.
+- Planned Nexus/Omega distribution only. Integrated 0.1.2 private-package runtime
+  evidence is reused; actual versioned 0.1.3 ZIP install/upgrade remains pending.
+  Matrix retains 0.1.1 catalog (#82); Piers RC2 is forward smoke only.
+- Preserve six dependency floors, Program + service, artwork, GPL and upstream
+  credits. Runtime is unchanged from merged main by this release preparation.
+  Published installation links stay on 0.1.2; see docs/beta-0.1.3.md for limits.
+
 version 0.1.2 — Beta
 - Restore Stream Setup tab visibility and navigation in Default, Dark and CatBar.
   Browse and Addons display their contents again.

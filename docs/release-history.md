@@ -3,7 +3,59 @@
 This preserves the technical and release detail formerly in the README. Dated
 assessments describe their original checkpoint, not blanket current acceptance.
 Use the [end-user README](../README.md) for setup and present availability.
-No native run, static gate or package rebuild was performed for this relocation.
+No native run, static gate or package rebuild was performed for the original relocation.
+
+## 0.1.3 Beta preparation — 25 November 2026
+
+**Prepared/pending owner review, versioned-package qualification and publication.**
+The [0.1.3 release/prerelease notes](beta-0.1.3.md) distinguish integrated-runtime
+evidence from the still-pending actual versioned ZIP install/upgrade. Published
+README installation links remain 0.1.2; planned publication is Nexus/Omega only,
+Matrix retains the 0.1.1 catalog and Piers RC2 is forward smoke outside publication.
+
+The preparation base is verified merged main
+`0ab8c3db5d6a693823b2fe3a6adf5d1c5eb252f7`, tree
+`615d2e408e95838aa797feab9304af4e33fd2b21`. Only manifest numeric version/news,
+changelog and documentation change from that base. Runtime, settings, six
+mandatory dependency floors, both script/service entry points, exact artwork,
+GPL and author/upstream credit remain unchanged. Earlier technical entries below
+retain their complete historical scope, including superseded status statements.
+
+The six expected improvements are same-path XMLTV refresh; configuration/mapping
+retention; subtitle search; strict category-scoped programme search; native Kodi
+Favorites/return; and category mouse interaction with membership-order retention.
+Fresh profiles follow XMLTV declaration order unless explicit M3U ordering is on;
+existing saved weights/visibility are preserved. See [refresh](xmltv-local-refresh.md),
+[initial order](xmltv-initial-order.md) and [Favorites routing](favourites-navigation.md).
+
+Supplied integrated **0.1.2 private-package** evidence: Nexus 20.5 passed actual
+published-Beta in-place upgrade and same-path nanosecond-mtime refresh, retaining
+246 matched channels, all 1,888 programmes, configured data/order/visibility/maps
+and preexisting category order, with 36 additional normal generated aliases only.
+The candidate stopped cleanly; a preexisting published-Beta shutdown hang was
+recovered without profile/data loss. Omega 21.3 passed integrated install/render
+and pre-foreground startup-service refresh at unchanged filename/mtime, retaining
+1,888 raw rows and 246 mapped IDs, with only the expected update timestamp changing
+in settings. Separate clean Omega tests confirmed published/candidate XMLTV order
+off, explicit playlist order on, repeated-open state and graceful Stop/release.
+Prior scoped Favorites/Back, Stream Setup Browse/Addons/Favorites and authorized
+preview/playback/Stop/maps evidence is retained, not claimed wholly repeated.
+
+Piers 22 RC2 installed the integrated runtime with ten verified dependencies and
+started the guide (live view available); 1,888 raw rows and 246 mappings/cache were
+checked. The new targeted GUI probe stayed at placeholder focus, so prior rendered
+guide/Favorites evidence is separate and current evidence is forward smoke only.
+Matrix 19.4 remains blocked by the prior startup signal (#82); no launch this
+campaign and no Matrix gate for Nexus/Omega.
+
+Final premerge suite: 331 tests, one existing conditional skip; the skipped exact
+native-tag Favorites identifier test passed independently. #93 is resolved by
+test-only PR #94. Inherited typing/locale issues remain with structural checks
+passing and no new diagnoses in supplied evidence. Audio quality and actual
+timer firing were not measured. No source-role native activity or versioned ZIP
+qualification is implied. #86 remains open for ordinary title misses; required
+redacted reproduction fields and all qualification limits are in the
+[0.1.3 notes](beta-0.1.3.md#open-reports-and-limits). Earlier reports are not all resolved.
 
 ## 0.1.2 Beta maintenance update
 
