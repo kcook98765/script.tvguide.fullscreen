@@ -6,8 +6,9 @@ TV Guide Fullscreen is a fullscreen XMLTV programme guide for Kodi: browse listi
 map channels to streams, search programmes, and set reminders or ordinary AutoPlay.
 This maintained Python 3 modernization fork builds on **primaeval's TV Guide
 Fullscreen**, retaining its Program add-on and background service.
-**0.1.3 Beta is prepared, pending owner review, versioned-package qualification
-and publication.** The published release remains
+**0.1.3 Beta is prepared, pending owner review and publication.** Independent
+exact-version ZIP install/upgrade checks are complete within the
+[documented scope](docs/beta-0.1.3.md#qualification). The published release remains
 **[0.1.2 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.2-beta)**;
 the Nexus/Omega and direct ZIP links below still install that version. TV Guide Fullscreen
 supplies no subscriptions or feeds.
@@ -19,8 +20,10 @@ supplies no subscriptions or feeds.
 - Retention of guide settings, saved channel order/visibility, categories, stream
   mappings and reminder/AutoPlay rules during supported refreshes; no guide reset.
 - Programme search includes subtitles as well as titles.
-- Strict category-scoped programme search respects visibility and the configured
-  listing window, without silently falling back to all channels.
+- Strict category-scoped title search (including subtitles and optional plot
+  matching) respects visibility and the configured listing window, without
+  silently falling back to all channels. Separate synopsis/category search
+  routes are not covered by this strict-scoping correction.
 - Restored Kodi native Favorites navigation and return to the guide.
 - Working category mouse interaction and preserved category membership order.
 
@@ -132,8 +135,10 @@ same add-on ID, `script.tvguide.fullscreen`, for a normal in-place update;
 repository enabled so Kodi can resolve all six required dependencies normally;
 do not replace them with bundled modules or bypass dependency errors.
 For 0.1.3, wait for owner publication and its verified installer/checksum or
-catalog update. No guide reset is needed. Exact versioned 0.1.3 ZIP installation
-and upgrade qualification is still pending. A native 0.1.1 to 0.1.2
+catalog update. No guide reset is needed. Independent exact-0.1.3 checks passed
+published-0.1.2 upgrade on Nexus 20.5 and integrated-0.1.2 upgrades on Omega 21.3
+and Piers RC2 preview, preserving captured guide state; see the
+[qualification limits](docs/beta-0.1.3.md#qualification). A native 0.1.1 to 0.1.2
 upgrade using the exact ZIPs on disposable Omega 21.3 preserved user settings,
 channels and saved stream mappings. The ZIP upgrade ran through a private test
 feed. Public catalog availability was verified separately. Updates from older builds

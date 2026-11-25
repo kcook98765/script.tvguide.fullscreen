@@ -1,12 +1,19 @@
 # Current fork feature and qualification status
 
 **Current release-facing status: [0.1.3 Beta preparation](beta-0.1.3.md), pending
-owner review, versioned-package qualification and publication.** Published install
-links remain 0.1.2. Planned publication is Nexus/Omega; Matrix retains its 0.1.1
-catalog and Piers is preview-only. The notes separate supplied integrated-runtime
-evidence from still-pending actual versioned 0.1.3 ZIP install/upgrade; this source
-role performs no native tests. #86 remains open for the reporter's ordinary title
-misses. Inherited typing/locale failures remain, not a clean full static gate.
+owner review and publication.** Published install links remain 0.1.2.
+Planned publication is Nexus/Omega; Matrix retains its 0.1.1
+catalog and Piers is preview-only. Independent exact-0.1.3 checks passed published
+0.1.2 upgrade on Nexus 20.5 and integrated 0.1.2 upgrades on Omega 21.3/Piers RC2,
+including fresh guide execution, programme focus, preserved captured state and
+clean final stop/release. Piers remains forward smoke only; Matrix was not launched.
+The notes distinguish these supplied results from premerge feature evidence and
+isolated Index/Now/Next/Favorite checks, including the unproven direct Shortcut
+route and earlier unconfirmed Stops. Strict category scoping applies to title
+search (including subtitle/optional plot matching), not separate synopsis or
+programme-category search. This source role performs no native tests.
+#86 remains open for the reporter's ordinary title misses. Inherited typing/locale
+failures remain, not a clean full static gate.
 All dated records below retain their historical scope; their “current”,
 “unreleased” and next-work statements are not today's status. See also the
 [technical release history](release-history.md#013-beta-preparation--25-november-2026).

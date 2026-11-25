@@ -1,7 +1,8 @@
 # TV Guide Fullscreen 0.1.3 Beta — prepared release notes
 
-**Pending owner review, versioned-package qualification and publication.** These
-notes can also serve as prerelease notes. They do not announce a published 0.1.3
+**Pending owner review and publication; exact-version qualification completed
+within the scope below.** These notes can also serve as prerelease notes.
+They do not announce a published 0.1.3
 installer. Use the [README installation routes](../README.md#installation) for
 published **0.1.2 Beta** until the owner publishes an approved successor.
 Planned distribution is **Nexus 20.x / Omega 21.x**. Matrix keeps its **0.1.1**
@@ -19,9 +20,11 @@ catalog; Piers preview is outside publication. No 0.1.3 asset links are advertis
    stream mappings and reminder/AutoPlay rules. No guide reset is required.
 3. **Subtitle search.** Programme search includes XMLTV subtitles as well as
    titles; optional plot search remains controlled by its existing setting.
-4. **Strict category-scoped search.** Programme search respects the active
-   category, channel visibility and configured listing window. An empty category
-   does not silently broaden the search to every channel.
+4. **Strict category-scoped title search.** The title-search route, including
+   subtitles and optional plot matching, respects the active category, channel
+   visibility and configured listing window. An empty category does not silently
+   broaden that route to every channel. Separate synopsis and programme-category
+   search routes are not covered by this strict-scoping correction.
 5. **Kodi native Favorites and return.** Version-aware native Favorites routing
    restores navigation and return to the guide. Optional third-party Favorites
    providers still need their own compatible installation/setup; none is added.
@@ -46,10 +49,52 @@ older migrations need separate checks.
 
 Wait for owner publication and its verified installer/checksum or catalog update.
 The current README repository/direct ZIP links intentionally remain **0.1.2**.
-Actual versioned **0.1.3 ZIP install/upgrade has not yet been qualified**; a
-separate authorized native step must supply that evidence.
+Independent actual versioned **0.1.3 ZIP install/upgrade checks are complete**
+within the following scope; this does not publish or approve distribution.
 
 ## Qualification
+
+### Exact versioned 0.1.3 package — independent results
+
+The repeatable ZIP built from source `b24397258833a869ae4ade86cbda5b1abdbb4b04`
+is **1,324,837 bytes / 319 files**, SHA-256
+`b5d9e9e6a402a051f6b4e59b904973a87ff715bff5567abe1a75fb8acb7bc339`.
+These supplied independent results are not native actions by the documentation
+agent. This documentation-only follow-up leaves every packaged byte unchanged.
+
+| Kodi | Exact-version upgrade and execution |
+| --- | --- |
+| Nexus 20.5 | Direct upgrade from the actual published exact 0.1.2 to actual 0.1.3 passed. |
+| Omega 21.3 | Upgrade from integrated 0.1.2 to actual 0.1.3 passed. |
+| Piers 22.0 RC2 | Upgrade from integrated 0.1.2 to actual 0.1.3 passed as **forward smoke only**; preview revision `20261109-d686683a-dirty`. GUI/focus/log readback, not a preview native screenshot claim. |
+
+All three inspections verified exact installed files, ten resolved dependencies,
+enablement and the same private repository origin. All showed fresh guide
+execution and programme focus movement, closed the interpreter cleanly and
+stopped/released. Each preserved all **1,888 captured identities**, weights and
+visibility, mappings, category group/member order and rules. Only the stored
+version changed, apart from **36 routine generated aliases appended on
+Omega/Piers, with no removals**. Matrix remains blocked by #82 and was never
+launched in this campaign; it is not a Nexus/Omega release gate.
+
+Independent checks of the actual artifact across four Toolkit lanes passed the
+structural stages with no new type diagnostics and the same inherited
+typing/locale issues; this is not a clean full static gate.
+
+### Separate isolated candidate checks and limits
+
+Numeric **Index** navigation **01 → 03** passed; both **Now** and **Next** lists
+rendered in independent guarded checks. Actual owned local Favorite playback
+verified the active media identity, followed by physical Stop and zero players.
+A single-digit direct **Shortcut** attempt left its digit in the buffer; those
+handlers match published Beta and are unchanged. The proven numeric route is
+Index, not a general direct-Shortcut pass.
+
+A prior published Nexus Stop and one candidate isolated post-play lifecycle Stop
+were unconfirmed and recovered with exact profile evidence. All final actual
+versioned checks stopped cleanly; those results do not erase the earlier limits.
+
+### Retained feature-specific premerge evidence
 
 The following is supplied premerge evidence for the **integrated private package
 still numbered 0.1.2**, not a native run performed for these notes. This release
@@ -66,9 +111,9 @@ the exact integrated runtime is unchanged.
 Separate clean isolated Omega actual tests with captured full data confirmed
 historical XMLTV order with explicit M3U ordering **off** for both published and
 candidate builds, playlist order **on**, repeated opens preserving state, and
-graceful Stop/release. Earlier exact feature-path evidence includes modern
-Favorites/Back, Stream Setup Browse/Addons/Favorites, owned/authorized
-preview/playback/Stop and mappings. These are not claims that every action was
+graceful Stop/release. Earlier exact feature-code native evidence includes search,
+Categories, modern Favorites/Back, Stream Setup Browse/Addons/Favorites,
+owned/authorized preview/playback/Stop and mappings. These are not claims that every action was
 repeated in the latest integration run or that all settings combinations passed.
 
 The final premerge suite reported **331 tests, one existing conditional skip**.
