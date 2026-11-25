@@ -51,6 +51,9 @@ class LocalRefresh(unittest.TestCase):
                         SourceUpdateCanceledException=type('Canceled', (Exception,), {}),
                         SourceNotConfiguredException=type('NotConfigured', (Exception,), {}))
         tree = ast.parse((cache_tests.ROOT / 'source.py').read_text())
+        setting_keys = next(n for n in tree.body if isinstance(n, ast.Assign) and
+                            any(isinstance(t, ast.Name) and t.id == 'SETTINGS_TO_CHECK' for t in n.targets))
+        exec(compile(ast.Module(body=[setting_keys], type_ignores=[]), '<real setting keys>', 'exec'), self.env)
         unescape = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'unescape2')
         self.env['htmlentitydefs'] = entities
         exec(compile(ast.Module(body=[unescape], type_ignores=[]), '<real entity repair>', 'exec'), self.env)
@@ -90,15 +93,16 @@ class LocalRefresh(unittest.TestCase):
                 for row in self.source.getDataFromExternal(datetime.datetime(2026, 11, 20), [])
                 if isinstance(row, self.env['Program'])]
 
-    def database(self):
+    def database(self, filename=':memory:'):
         cls = extract('source.py', 'Database', self.env, {
             '_createTables', 'adapt_datetime', 'convert_datetime', '_isCacheExpired',
             '_updateChannelAndProgramListCaches', '_updateChannelAndProgramListCachesLocked',
-            'getEPGView', 'getQuickEPGView'})
+            'getEPGView', 'getQuickEPGView', '_getEPGView', '_getQuickEPGView', '_wasSettingsChanged'})
+        cls.CHANNELS_PER_PAGE = 6
         sqlite3.register_adapter(datetime.datetime, cls.adapt_datetime)
         sqlite3.register_converter('timestamp', cls.convert_datetime)
         db = cls()
-        db.conn = sqlite3.connect(':memory:', detect_types=sqlite3.PARSE_DECLTYPES)
+        db.conn = sqlite3.connect(filename, detect_types=sqlite3.PARSE_DECLTYPES)
         self.addCleanup(db.conn.close)
         db.conn.row_factory = sqlite3.Row
         db.conn.execute('PRAGMA foreign_keys=ON')
@@ -422,15 +426,308 @@ class LocalRefresh(unittest.TestCase):
         self.assertTrue(db.updateFailed)
         self.assertEqual(self.snapshot(db), before)
 
+    def test_redraw_checks_do_not_open_unchanged_xmltv_bytes(self):
+        db = self.database()
+        self.update(db)
+        # Warm the per-instance identity, as a successful production import does.
+        self.assertFalse(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+        with patch('builtins.open', side_effect=AssertionError('redraw opened a file')):
+            with patch.object(self.fetcher, 'acquireXMLTVLock', side_effect=AssertionError('redraw writer lock')):
+                db._getProgramList = Mock(return_value=['retained rows'])
+                for index in range(100):
+                    db._getEPGView(index, datetime.datetime(2026, 11, 20), None, True, None)
+                    db._getQuickEPGView(index, datetime.datetime(2026, 11, 20), None, True, None)
+        # Same-length, same-mtime atomic replacement must invalidate the memo.
+        path = self.profile / 'xmltv.xml'
+        stamp = path.stat().st_mtime_ns
+        replacement = self.profile / 'replacement.xml'
+        replacement.write_bytes(path.read_bytes().replace(b'Old', b'NEW'))
+        os.utime(replacement, ns=(stamp, stamp))
+        os.replace(replacement, path)
+        self.assertTrue(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+        self.update(db)
+        stamp = path.stat().st_mtime_ns
+        path.write_bytes(path.read_bytes().replace(b'NEW', b'Now'))
+        os.utime(path, ns=(stamp, stamp))
+        self.assertTrue(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+
+    def test_unchanged_native_input_is_hashed_but_not_copied_or_parsed(self):
+        self.copy.reset_mock()
+        with patch.object(self.source_cls, 'validateLocalFile') as validate:
+            self.reopen()
+            validate.assert_not_called()
+        self.copy.assert_not_called()
+        # Entity repair and raw-input identity must have the same optimization.
+        self.settings['xmltv.and'] = 'true'
+        self.inputs[0].write_bytes(feed('xmltv').replace(b'Old', b'News & weather'))
+        self.reopen()
+        self.copy.reset_mock()
+        with patch.object(self.source_cls, 'validateLocalFile') as validate:
+            self.reopen()
+            validate.assert_not_called()
+        self.copy.assert_not_called()
+
+    def test_stale_legacy_sentinel_cannot_block_xmltv_or_be_deleted(self):
+        db = self.database()
+        sentinel = self.profile / 'db.lock'
+        sentinel.write_bytes(b'legacy owner, not ours')
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.assertTrue(db.conn.execute("SELECT 1 FROM programs WHERE source='xmltv'").fetchone())
+        self.assertEqual(sentinel.read_bytes(), b'legacy owner, not ours')
+
+    def test_missing_enabled_cache_and_unusable_legacy_cache_keep_all_rows(self):
+        db = self.database()
+        self.update(db)
+        before = self.snapshot(db)
+        for contents in (None, b'<tv><channel id="xmltv2"/></tv>'):
+            path = self.profile / 'xmltv2.xml'
+            if contents is None:
+                path.unlink()
+            else:
+                path.write_bytes(contents)
+            self.source.needReset = True
+            self.update(db)
+            self.assertTrue(db.updateFailed)
+            self.assertEqual(self.snapshot(db), before)
+        self.inputs[1].unlink()
+        path.unlink()
+        self.inputs[0].write_bytes(feed('xmltv', True))
+        self.reopen()  # First optional load fails, while primary offers new rows.
+        self.update(db)
+        self.assertTrue(db.updateFailed)
+        self.assertEqual(self.snapshot(db), before)
+        self.inputs[1].write_bytes(feed('xmltv2'))
+        self.reopen()
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+
+    def test_unusable_well_formed_replacements_cannot_erase_any_slot(self):
+        db = self.database()
+        self.update(db)
+        before = self.snapshot(db)
+        for index, slot in enumerate(('xmltv', 'xmltv2', 'xmltv3')):
+            cache = self.profile / (slot + '.xml')
+            good = cache.read_bytes()
+            for bad in (b'<tv/>', feed(slot).replace(b'start=', b'ignored='),
+                        feed(slot).replace(b'20261120123000', b'20261120110000').replace(
+                            b'20261120130000', b'20261120110000'),
+                        feed(slot).replace(b'channel="' + slot.encode() + b'"', b'channel="orphan"')):
+                self.inputs[index].write_bytes(bad)
+                self.reopen(force=True)
+                self.assertEqual(cache.read_bytes(), good)
+                self.update(db)
+                self.assertEqual(self.snapshot(db), before)
+            self.inputs[index].write_bytes(good)
+
+    def test_promotion_without_import_and_committed_import_survive_reopen(self):
+        filename = str(self.profile / 'fixture.db')
+        db = self.database(filename)
+        self.update(db)
+        self.inputs[0].write_bytes(feed('xmltv', True))
+        self.reopen()  # Producer committed, importer has not run when it exits.
+        self.reopen()  # No second promotion; in-memory needReset is now lost.
+        db.conn.close()
+        db = self.database(filename)
+        self.assertFalse(self.source.needReset)
+        db.source = self.source
+        self.assertTrue(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        after = self.snapshot(db)
+        self.reopen()
+        db.conn.close()
+        db = self.database(filename)
+        self.update(db)
+        self.assertEqual(self.snapshot(db), after)  # committed key, not mtime
+
+    def test_same_url_forced_http_error_retries_before_interval_and_force_bypasses_md5(self):
+        self.settings.update({'xmltv.type': '1', 'xmltv.url': 'https://example.invalid/guide.xml',
+                              'md5': 'true'})
+        self.payload = feed('xmltv')
+        self.reopen(force=True)
+        db = self.database()
+        self.update(db)
+        before = self.snapshot(db)
+        self.status = 503
+        self.reopen(force=True)
+        self.assertTrue((self.profile / 'xmltv.xml.retry').exists())
+        self.update(db)
+        self.assertEqual(self.snapshot(db), before)
+        self.payload, self.status = feed('xmltv', True), 200
+        self.requests.get.reset_mock()
+        self.reopen()  # Retry, without force or waiting for the 24-hour interval.
+        self.assertEqual(self.requests.get.call_count, 2)
+        self.assertFalse((self.profile / 'xmltv.xml.retry').exists())
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.status = 503
+        self.reopen(force=True)
+        self.status = 200
+        self.requests.get.reset_mock()
+        self.reopen()  # Even an unchanged MD5 must retry the interrupted force.
+        self.assertEqual(self.requests.get.call_count, 2)
+        self.assertFalse((self.profile / 'xmltv.xml.retry').exists())
+        self.requests.get.reset_mock()
+        self.reopen(force=True)  # Fully unchanged MD5/bytes still honors force.
+        self.assertEqual(self.requests.get.call_count, 2)
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+
+    def test_changed_offset_shortcuts_and_refresh_on_are_imported_once(self):
+        db = self.database()
+        db.settingsChanged = db._wasSettingsChanged(self.addon)
+        self.update(db)
+        original = db.conn.execute("SELECT start_date FROM programs WHERE title='Old' AND channel='xmltv'").fetchone()[0]
+        self.settings['xmltv.offset'] = '60'
+        self.assertTrue(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+        self.update(db)
+        start = db.conn.execute("SELECT start_date FROM programs WHERE title='Old' AND channel='xmltv'").fetchone()[0]
+        self.assertEqual(start, original + datetime.timedelta(hours=1))
+        self.assertFalse(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+        shortcut = self.profile / 'channel_id_shortcut.ini'
+        shortcut.write_text('xmltv=routed\n')
+        self.assertTrue(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+        self.update(db)
+        self.assertTrue(db.conn.execute("SELECT 1 FROM programs WHERE channel='routed'").fetchone())
+        self.settings['xmltv.refresh'] = 'true'
+        db.settingsChanged = db._wasSettingsChanged(self.addon)
+        self.assertTrue(db.settingsChanged)
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.assertFalse(db.settingsChanged)
+        self.assertFalse(db._isCacheExpired(datetime.datetime(2026, 11, 20)))
+
+    def test_legacy_cache_receipts_migrate_once_and_identity_changes_still_rebind(self):
+        for path in self.profile.glob('*.validated'):
+            path.unlink()
+        db = self.database()
+        self.update(db)
+        before = self.snapshot(db)
+        self.reopen()  # Legacy cache: one validation establishes the receipt.
+        self.update(db)
+        self.assertEqual(self.snapshot(db), before)
+        self.copy.reset_mock()
+        self.reopen()
+        self.copy.assert_not_called()
+        new_path = self.profile / 'same-bytes-new-source.xml'
+        new_path.write_bytes(feed('xmltv'))
+        self.settings['xmltv.file'] = str(new_path)
+        self.reopen()
+        self.assertTrue(self.source.needReset)
+        self.assertEqual(Path(str(self.cache) + '.source').read_text(),
+                         self.env['hashlib'].sha256(str(new_path).encode()).hexdigest())
+
+    def test_receipt_cannot_hide_replaced_cache_and_corrupt_receipt_revalidates(self):
+        receipt = Path(str(self.cache) + '.validated')
+        receipt.write_text('{interrupted')
+        with patch.object(self.source_cls, 'validateLocalFile', wraps=self.source.validateLocalFile) as validate:
+            self.reopen()
+            self.assertGreater(validate.call_count, 0)
+        stamp = self.cache.stat().st_mtime_ns
+        self.cache.write_bytes(b'<tv/>')
+        os.utime(self.cache, ns=(stamp, stamp))
+        self.reopen()
+        self.assertEqual(self.cache.read_bytes(), feed('xmltv'))
+
+    def test_overlap_adjustment_collision_preserves_exact_other_provider_row(self):
+        db = self.database()
+        self.update(db)
+        self.inputs[0].write_bytes(feed('xmltv', True).replace(
+            b'start="20261120124000', b'start="20261120122000'))
+        self.reopen()
+        rows = self.rows()
+        start, stop = rows[0][2], rows[1][2]
+        db.conn.execute('INSERT INTO sources VALUES (?, ?)', ['other', datetime.datetime(2026, 11, 20)])
+        db.conn.execute("INSERT INTO channels VALUES ('xmltv','Other',NULL,NULL,'other',NULL,1,0)")
+        db.conn.execute('INSERT INTO updates(source,date,programs_updated) VALUES (?, ?, ?)',
+                        ['other', '2026-11-20', datetime.datetime(2026, 11, 20)])
+        update_id = db.conn.execute("SELECT id FROM updates WHERE source='other'").fetchone()[0]
+        db.conn.execute('INSERT INTO programs(channel,title,start_date,end_date,source,updates_id) VALUES (?, ?, ?, ?, ?, ?)',
+                        ['xmltv', 'Protected overlap boundary', start, stop, 'other', update_id])
+        db.conn.commit()
+        before = self.snapshot(db)
+        self.update(db)
+        self.assertTrue(db.updateFailed)
+        self.assertEqual(self.snapshot(db), before)
+
+    def test_large_gzip_decode_uses_bounded_reads_and_unchanged_vfs_skips_parse(self):
+        uri = 'smb://synthetic/large.xml.gz'
+        raw = feed('xmltv').replace(b'</tv>', b'<!--' + b'x' * (3 * 1024 * 1024) + b'--></tv>')
+        self.inputs[0].write_bytes(gzip.compress(raw))
+        self.settings['xmltv.file'] = uri
+        self.copy.side_effect = lambda source, target: self.copy_file(
+            str(self.inputs[0]) if source == uri else source, target)
+        real_read = gzip.GzipFile.read
+        reads = []
+        def bounded(file, size=-1):
+            reads.append(size)
+            self.assertGreater(size, 0)
+            self.assertLessEqual(size, 1024 * 1024)
+            return real_read(file, size)
+        with patch.object(gzip.GzipFile, 'read', bounded):
+            self.reopen()
+        self.assertTrue(reads)
+        self.assertEqual(self.cache.read_bytes(), raw)
+        with patch.object(self.source_cls, 'validateLocalFile') as validate:
+            self.reopen()
+            validate.assert_not_called()
+
+    def test_non_xmltv_importers_keep_legacy_sentinel_and_share_crash_lock(self):
+        db = self.database()
+        db.source.KEY = 'fixture-other'
+        db.conn.execute('INSERT INTO sources VALUES (?, ?)', ['fixture-other', datetime.datetime(2026, 11, 20)])
+        db.conn.commit()
+        sentinel = self.profile / 'db.lock'
+        sentinel.write_bytes(b'not ours')
+        db._isCacheExpired = Mock(return_value=True)
+        self.update(db)
+        db._isCacheExpired.assert_not_called()
+        self.assertEqual(sentinel.read_bytes(), b'not ours')
+        sentinel.unlink()  # test fixture's own sentinel only
+        lock = self.fetcher.acquireXMLTVLock()
+        try:
+            self.update(db)
+            db._isCacheExpired.assert_not_called()
+        finally:
+            lock.close()
+        self.update(db)
+        db._isCacheExpired.assert_called_once()
+        self.assertFalse(db.updateFailed)
+        self.assertFalse((self.profile / 'db.lock').exists())
+
+    def test_xmltv_sqlite_lock_releases_on_process_exit_without_cleanup(self):
+        # Execute the real lock method in a separate interpreter and terminate
+        # without finally/close. No Kodi/stub modules are imported in either.
+        script = """
+import ast, os, sqlite3, sys
+tree = ast.parse(open('fileFetcher.py').read())
+cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'FileFetcher')
+cls.body = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == 'acquireXMLTVLock']
+env = dict(os=os, sqlite3=sqlite3)
+exec(compile(ast.Module(body=[cls], type_ignores=[]), '<real process lock>', 'exec'), env)
+env['FileFetcher'].basePath = sys.argv[1]
+lock = env['FileFetcher'].acquireXMLTVLock()
+os._exit(0)
+"""
+        subprocess.run([sys.executable, '-c', script, str(self.profile)],
+                       cwd=cache_tests.ROOT, check=True)
+        self.assertTrue((self.profile / 'xmltv.cache.lock').exists())
+        db = self.database()
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.assertTrue(db.conn.execute('SELECT 1 FROM programs').fetchone())
+
 
 if __name__ == '__main__':
-    if '--baseline' in sys.argv:
-        # Fixed reviewed Beta revision only; no checkout, files or Kodi imports.
-        sys.argv.remove('--baseline')
+    if '--baseline' in sys.argv or '--draft' in sys.argv:
+        # Fixed reviewed revisions only; no checkout, file writes or Kodi imports.
+        revision = '1062edb5eb23d9fc03f52c3931a58a5cdbabc3d2' if '--draft' in sys.argv else '0c4a3c3'
+        sys.argv.remove('--draft' if '--draft' in sys.argv else '--baseline')
         real_read = Path.read_text
         def baseline_read(path, *args, **kwargs):
             if path in (cache_tests.ROOT / 'source.py', cache_tests.ROOT / 'fileFetcher.py'):
-                return subprocess.check_output(['git', 'show', '0c4a3c3:' + path.name],
+                return subprocess.check_output(['git', 'show', revision + ':' + path.name],
                                                cwd=cache_tests.ROOT, text=True)
             return real_read(path, *args, **kwargs)
         with patch.object(Path, 'read_text', baseline_read):

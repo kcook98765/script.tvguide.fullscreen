@@ -463,8 +463,10 @@ class Database(object):
         self.event.set()
 
     def _updateChannelAndProgramListCaches(self, date, progress_callback, clearExistingProgramList):
-        if self.source.KEY != 'xmltv':
-            return self._updateChannelAndProgramListCachesLocked(date, progress_callback, clearExistingProgramList)
+        if self.source.KEY == 'xmltv' and not self.source.needReset and not self._isCacheExpired(date):
+            return  # Navigation needs only stats/DB reads, not a writer lock.
+        # All current importers coordinate with XMLTV producers. Non-XMLTV
+        # importers retain their legacy sentinel behavior inside this lock.
         try:
             lock = FileFetcher.acquireXMLTVLock()
         except sqlite3.OperationalError:
@@ -480,10 +482,10 @@ class Database(object):
         sqlite3.register_converter('timestamp', self.convert_datetime)
 
         lock = 'special://profile/addon_data/script.tvguide.fullscreen/db.lock'
-        if xbmcvfs.exists(lock):
+        preserve = self.source.KEY == 'xmltv'
+        if not preserve and xbmcvfs.exists(lock):
             return
 
-        preserve = self.source.KEY == 'xmltv'
         isCacheExpired = self._isCacheExpired(date)
         needReset = self.source.needReset
         if not isCacheExpired and not needReset:
@@ -498,8 +500,9 @@ class Database(object):
             self.conn.commit()
             c.close()
             self.source.needReset = False
-        lock_file = xbmcvfs.File(lock,'wb')
-        lock_file.close()
+        if not preserve:
+            lock_file = xbmcvfs.File(lock,'wb')
+            lock_file.close()
         self.updateInProgress = True
         self.updateFailed = False
         dateStr = date.strftime('%Y-%m-%d')
@@ -733,7 +736,8 @@ class Database(object):
         finally:
             self.updateInProgress = False
             c.close()
-            xbmcvfs.delete(lock)
+            if not preserve:
+                xbmcvfs.delete(lock)
 
     def updateProgramList(self, callback, programList, channel):
         self.eventQueue.append(
@@ -2276,46 +2280,63 @@ class XMLTVSource(Source):
         try:
             context = ElementTree.iterparse(staged, events=('start', 'end'))
             programmes = 0
+            channels, programme_channels = set(), set()
             for item in self.parseXMLTV(context, staged, staged.size, '', None, 0, validate_only=True):
                 if isinstance(item, Program):
                     programmes += 1
+                    programme_channels.add(item.channel)
+                elif isinstance(item, Channel):
+                    channels.add(item.id)
             if not programmes:
                 raise ValueError('XMLTV source has no usable programmes')
+            if not programme_channels.issubset(channels):
+                raise ValueError('XMLTV programmes reference undeclared channels')
         finally:
             staged.close()
 
     def getCacheKey(self):
+        if not hasattr(self, '_cacheDigests'):
+            self._cacheDigests = {}
+
+        def digest(path):
+            if not os.path.isfile(path):
+                return 'missing'
+            signature = FileFetcher.fileSignature(path)
+            previous = self._cacheDigests.get(path)
+            if signature is not None and previous is not None and previous[0] == signature:
+                return previous[1]
+            value = FileFetcher.fileDigest(path)
+            self._cacheDigests[path] = (signature, value)
+            return value
+
         parts = []
         for slot, path in (('xmltv', self.xmltvFile), ('xmltv2', self.xmltv2File),
                            ('xmltv3', self.xmltv3File)):
             if slot != 'xmltv' and ADDON.getSetting(slot + '.enabled') != 'true':
                 continue
-            parts.append((slot, FileFetcher.fileDigest(path) if os.path.isfile(path) else 'missing',
-                          FileFetcher.fileDigest(path + '.source') if os.path.isfile(path + '.source') else '',
+            parts.append((slot, digest(path), digest(path + '.source'),
                           ADDON.getSetting(slot + '.offset')))
         parts.append(tuple(ADDON.getSetting(key) for key in
                            ('xmltv.date', 'logos.source', 'logos.folder', 'logos.url',
-                            'xmltv.logos', 'thelogodb')))
+                             'xmltv.logos', 'thelogodb', 'logos.keep')))
+        parts.append(digest(os.path.join(self.PLUGIN_DATA, 'channel_id_shortcut.ini')))
         return hashlib.sha256(repr(parts).encode('utf-8')).hexdigest()
 
     def getDataFromExternal(self, date, ch_list, progress_callback=None):
-        time_offset = int(ADDON.getSetting('xmltv.offset'))
-        time_offset2 = int(ADDON.getSetting('xmltv2.offset'))
-        time_offset3 = int(ADDON.getSetting('xmltv3.offset'))
-        if not xbmcvfs.exists(self.xmltvFile):
-            raise SourceNotConfiguredException()
-        if (ADDON.getSetting('xmltv3.enabled') == 'true') and xbmcvfs.exists(self.xmltv3File) and (ADDON.getSetting('xmltv2.enabled') == 'true') and xbmcvfs.exists(self.xmltv2File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset2), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset3)):
-                yield v
-        elif (ADDON.getSetting('xmltv3.enabled') == 'true') and xbmcvfs.exists(self.xmltv3File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset3)):
-                yield v
-        elif (ADDON.getSetting('xmltv2.enabled') == 'true') and xbmcvfs.exists(self.xmltv2File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset2)):
-                yield v
-        else:
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset)):
-                yield v
+        for slot, path in (('xmltv', self.xmltvFile), ('xmltv2', self.xmltv2File),
+                           ('xmltv3', self.xmltv3File)):
+            if slot != 'xmltv' and ADDON.getSetting(slot + '.enabled') != 'true':
+                continue
+            if not path or not xbmcvfs.exists(path):
+                raise SourceNotConfiguredException()
+            programmes = 0
+            offset = int(ADDON.getSetting(slot + '.offset'))
+            for item in self.getDataFromExternal2(path, date, ch_list, progress_callback, offset):
+                if not isinstance(item, Channel):
+                    programmes += 1
+                yield item
+            if not programmes:
+                raise ValueError('Enabled XMLTV source has no usable programmes')
 
     def getDataFromExternal2(self, xmltvFile, date, ch_list, progress_callback=None, time_offset=None):
         if xbmcvfs.exists(xmltvFile):
@@ -2426,7 +2447,7 @@ class XMLTVSource(Source):
                     except (ValueError, IndexError):
                         root.clear()
                         continue
-                    if parsed_start is None or parsed_stop is None:
+                    if parsed_start is None or parsed_stop is None or parsed_stop <= parsed_start:
                         root.clear()
                         continue
                     channel = elem.get("channel").replace("'", "").replace("=","-")  # Make ID safe to use as ' can cause crashes!

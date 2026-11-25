@@ -36,6 +36,7 @@ import requests
 import hashlib
 import uuid
 import sqlite3
+import json
 
 ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
 
@@ -104,6 +105,15 @@ class FileFetcher(object):
                 digest.update(chunk)
         return digest.hexdigest()
 
+    @staticmethod
+    def fileSignature(path):
+        # Installed caches are native files. Include replacement identity AND
+        # change time: same-size/same-mtime rename and in-place edits both matter.
+        st = os.stat(path)
+        if not st.st_ino:
+            return None  # Unreliable identity: callers must compare bytes.
+        return (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns)
+
     def fetchFile(self,force=False):
         # Never clean up another foreground/service fetch's staging files.
         tmpFile = os.path.join(self.basePath, self.fileName+'.'+uuid.uuid4().hex+'.tmp')
@@ -122,7 +132,7 @@ class FileFetcher(object):
         finally:
             if lock is not None:
                 lock.close()
-            for path in (tmpFile, tmpFile+'.decoded'):
+            for path in (tmpFile, tmpFile+'.decoded', tmpFile+'.validated'):
                 try:
                     os.remove(path)
                 except OSError:
@@ -130,6 +140,7 @@ class FileFetcher(object):
 
     def _fetchFile(self, force, tmpFile):
         retVal = self.FETCH_NOT_NEEDED
+        retry_pending = self.track_source and os.path.exists(self.filePath+'.retry')
         source_changed = False
         if self.track_source:
             # Store no URL/path credentials; an unbound legacy cache refreshes once.
@@ -142,7 +153,8 @@ class FileFetcher(object):
         fetch = False
         if not os.path.exists(self.filePath):  # always fetch if file doesn't exist!
             fetch = True
-        elif force == True or source_changed or (self.track_source and self.fileType == self.TYPE_DEFAULT):
+        elif force == True or source_changed or (self.track_source and (
+                self.fileType == self.TYPE_DEFAULT or retry_pending)):
             fetch = True
         else:
             interval = int(self.addon.getSetting('xmltv.interval'))
@@ -161,6 +173,30 @@ class FileFetcher(object):
                 fetch = True
 
         if fetch:
+            # A failed forced HTTP refresh must retry even if the old cache's
+            # interval has not elapsed. This marker never authorizes deletion.
+            retry = self.filePath+'.retry'
+            if self.track_source and self.fileType == self.TYPE_REMOTE:
+                with open(retry, 'w'):
+                    pass
+            receipt = None
+            repair = self.addon.getSetting('xmltv.and')
+            if self.track_source and self.validator is not None and not source_changed:
+                try:
+                    with open(self.filePath+'.validated', 'r') as marker:
+                        candidate = json.load(marker)
+                    signature = self.fileSignature(self.filePath)
+                    if (signature is not None and candidate.get('version') == 1 and
+                            candidate.get('cache') == list(signature) and
+                            candidate.get('repair') == repair):
+                        receipt = candidate
+                except (OSError, ValueError, TypeError, AttributeError):
+                    pass
+            # Native local inputs still get a robust full content comparison,
+            # never an mtime shortcut, but need not be copied or parsed again.
+            if receipt is not None and self.fileType == self.TYPE_DEFAULT and os.path.isfile(self.fileUrl):
+                if self.fileDigest(self.fileUrl) == receipt.get('raw'):
+                    return self.FETCH_NOT_NEEDED
             user = ''
             password = ''
             new_md5 = ''
@@ -194,7 +230,10 @@ class FileFetcher(object):
                     except Exception as detail:
                         xbmc.log('[script.tvguide.fullscreen] Missing md5: %s.md5 (%s)' % (self.fileUrl,detail), xbmc.LOGERROR)
                     #log((old_md5,new_md5))
-                    if not source_changed and old_md5 and (old_md5 == new_md5) and (self.addon.getSetting('xmltv.refresh') == 'false'):
+                    if ((not self.track_source or not (force or retry_pending)) and not source_changed and
+                            old_md5 and old_md5 == new_md5 and self.addon.getSetting('xmltv.refresh') == 'false'):
+                        if self.track_source:
+                            os.remove(retry)
                         return self.FETCH_NOT_NEEDED
                 xbmc.log('[script.tvguide.fullscreen] file is on the internet: %s' % self.fileUrl, xbmc.LOGDEBUG)
                 total = 0
@@ -213,13 +252,13 @@ class FileFetcher(object):
                         else:
                             xbmc.log('[script.tvguide.fullscreen] no file: %s' % fileUrl, xbmc.LOGERROR)
                             xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
-                            return self.FETCH_NOT_NEEDED
+                            return self.FETCH_ERROR if self.track_source else self.FETCH_NOT_NEEDED
                     if "Content-Length" in r.headers:
                         total = int(r.headers['Content-Length'])
                 except Exception as detail:
                     xbmc.log('[script.tvguide.fullscreen] bad request: %s (%s)' % (fileUrl,detail), xbmc.LOGERROR)
                     xbmcgui.Dialog().notification("TV Guide Fullscreen", "failed to download %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
-                    return self.FETCH_NOT_NEEDED
+                    return self.FETCH_ERROR if self.track_source else self.FETCH_NOT_NEEDED
 
                 title = fileUrl.split('/')[-1]
                 d = xbmcgui.DialogProgressBG()
@@ -242,20 +281,25 @@ class FileFetcher(object):
                     d.update(100, message="Done")
                 finally:
                     d.close()
+            raw_digest = self.fileDigest(tmpFile) if self.track_source else ''
+            # VFS inputs must be copied (their stat is not authoritative), but
+            # identical validated raw bytes need no decompression/repair/parse.
+            if receipt is not None and self.fileType == self.TYPE_DEFAULT and raw_digest == receipt.get('raw'):
+                return self.FETCH_NOT_NEEDED
             # Decode and check the staged bytes before replacing a usable cache.
             with open(tmpFile, 'rb') as staged:
                 magic = staged.read(3)
             if magic == b"\x1f\x8b\x08":
-                with gzip.open(tmpFile, 'rb') as compressed:
-                    data = compressed.read()
-                with open(tmpFile+'.decoded', 'wb') as decoded:
-                    decoded.write(data)
+                with gzip.open(tmpFile, 'rb') as compressed, open(tmpFile+'.decoded', 'wb') as decoded:
+                    for chunk in iter(lambda: compressed.read(1024 * 1024), b''):
+                        decoded.write(chunk)
                 os.replace(tmpFile+'.decoded', tmpFile)
             check_md5 = new_md5 and (self.addon.getSetting('md5') == 'true')
             if check_md5:
                 md5 = hashlib.md5()
                 with open(tmpFile, 'rb') as staged:
-                    md5.update(staged.read())
+                    for chunk in iter(lambda: staged.read(1024 * 1024), b''):
+                        md5.update(chunk)
                 md5_file = md5.hexdigest()
                 if md5_file != new_md5:
                     xbmc.log('[script.tvguide.fullscreen] md5 mismatch: %s calculated:%s server:%s' % (self.fileUrl,md5_file,new_md5), xbmc.LOGERROR)
@@ -265,20 +309,28 @@ class FileFetcher(object):
             # only on our staging file, never on the usable last-good cache.
             if self.validator is not None:
                 self.validator(tmpFile)
-            if (self.track_source and self.fileType == self.TYPE_DEFAULT and
-                    not source_changed and os.path.exists(self.filePath) and
-                    self.fileDigest(tmpFile) == self.fileDigest(self.filePath)):
-                return self.FETCH_NOT_NEEDED
+            unchanged = (self.track_source and self.fileType == self.TYPE_DEFAULT and
+                         not source_changed and os.path.exists(self.filePath) and
+                         self.fileDigest(tmpFile) == self.fileDigest(self.filePath))
             # Invalidate first: a marker-write failure must never bind new bytes
             # to the previous source. Missing/partial markers safely force retry.
-            if self.track_source and os.path.exists(self.filePath+'.source'):
-                os.remove(self.filePath+'.source')
-            os.replace(tmpFile, self.filePath)
+            if not unchanged:
+                if self.track_source and os.path.exists(self.filePath+'.source'):
+                    os.remove(self.filePath+'.source')
+                os.replace(tmpFile, self.filePath)
             if self.track_source:
-                with open(self.filePath+'.source', 'w') as marker:
-                    marker.write(source_id)
+                if not unchanged:
+                    with open(self.filePath+'.source', 'w') as marker:
+                        marker.write(source_id)
+                if self.validator is not None:
+                    with open(tmpFile+'.validated', 'w') as marker:
+                        json.dump(dict(version=1, raw=raw_digest, repair=repair,
+                                       cache=self.fileSignature(self.filePath)), marker)
+                    os.replace(tmpFile+'.validated', self.filePath+'.validated')
+                if os.path.exists(retry):
+                    os.remove(retry)
             if check_md5:
                 xbmcvfs.File(self.filePath+".md5","wb").write(new_md5)
-            retVal = self.FETCH_OK
+            retVal = self.FETCH_NOT_NEEDED if unchanged else self.FETCH_OK
             xbmc.log('[script.tvguide.fullscreen] file %s was downloaded' % self.filePath, xbmc.LOGDEBUG)
         return retVal

@@ -4,6 +4,7 @@ from contextlib import nullcontext
 import datetime
 import gzip
 import hashlib
+import json
 import os
 import re
 from pathlib import Path
@@ -80,7 +81,7 @@ class SourceCache(unittest.TestCase):
             File=VFSFile, copy=self.copy, delete=lambda path: os.remove(path),
             Stat=lambda path: SimpleNamespace(st_mtime=lambda: os.path.getmtime(path)))
         self.env = dict(os=os, datetime=datetime, time=time, gzip=gzip, hashlib=hashlib, uuid=uuid,
-                        sqlite3=sqlite3, ElementTree=ET, re=re,
+                        sqlite3=sqlite3, ElementTree=ET, re=re, json=json,
                         requests=self.requests, ADDON=self.addon, xbmcvfs=vfs,
                         xbmc=SimpleNamespace(log=Mock(), LOGDEBUG=0, LOGERROR=4),
                         xbmcgui=SimpleNamespace(Dialog=Mock(), DialogProgressBG=Mock(),
@@ -259,7 +260,7 @@ class SourceCache(unittest.TestCase):
         self.fetch(first)
         self.requests.get.reset_mock()
         self.fetch(first, force=True)
-        self.assertEqual(self.requests.get.call_count, 1)  # unchanged MD5, historical behavior
+        self.assertEqual(self.requests.get.call_count, 2)  # explicit force bypasses MD5 reuse
         self.requests.get.reset_mock()
         self.fetch(second)  # even identical content must establish the new source
         self.assertEqual(self.requests.get.call_count, 2)
@@ -295,7 +296,7 @@ class SourceCache(unittest.TestCase):
         self.fetch(str(local))
         self.copy.reset_mock()
         self.fetch(str(local), force=True)
-        self.copy.assert_called_once()  # XMLTV compares staged content, not timestamps
+        self.copy.assert_not_called()  # validated native bytes are hashed, not recopied
         os.utime(local, (time.time() + 10, time.time() + 10))
         local.write_bytes(A)
         self.fetch(str(local))
