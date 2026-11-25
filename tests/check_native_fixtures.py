@@ -122,8 +122,13 @@ class Fixtures(unittest.TestCase):
         channels = self.load()[:3]
         captured = []
         saved = []
+
+        def save_channels(values, initial_m3u=False):
+            self.assertIs(initial_m3u, True)  # Automatic seed, not explicit reorder.
+            saved.append(list(values))
+
         db = SimpleNamespace(getChannelList=lambda **kw: channels,
-                             saveChannelListBlock=lambda values: saved.append(list(values)),
+                             saveChannelListBlock=save_channels,
                              setCustomStreamUrls=lambda values: captured.extend(values))
         guide = self.env['TVGuide']()
         guide.database = db
