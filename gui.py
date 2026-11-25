@@ -4050,7 +4050,7 @@ class TVGuide(xbmcgui.WindowXML):
                             #log(id)
                             channelList.append(utils.Channel(id, title, lineup, logo, url, visible=True, weight=-1))
                     #log(channelList)
-                    self.database.saveChannelListBlock(channelList)
+                    self.database.saveChannelListBlock(channelList, initial_m3u=True)
 
                     f = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/categories.ini','rb')
                     lines = f.read().splitlines()

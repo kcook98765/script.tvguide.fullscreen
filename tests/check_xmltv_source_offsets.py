@@ -123,6 +123,9 @@ class SourceOffsets(unittest.TestCase):
                     continue
 
                 active = [0] + [i for i in (1, 2) if enabled[i - 1] and present[i]]
+                # No .source markers in this fixture: absent optional caches
+                # are initially unavailable. Bound-cache loss/rollback is
+                # exercised against the real schema in local-refresh tests.
                 rows = list(source.getDataFromExternal(date, channels, progress))
                 self.assertEqual(len(rows), 2 * len(active))
                 # Preserve primary/secondary/tertiary order, channel identity and

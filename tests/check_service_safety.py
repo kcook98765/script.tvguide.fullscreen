@@ -198,12 +198,13 @@ class ServiceSafety(unittest.TestCase):
         execute([callback], namespace)
         namespace['onCachesUpdated'](SimpleNamespace(database=SimpleNamespace(close=lambda arg: calls.append(('close', arg)))))
         self.assertEqual(calls, ['reminder', 'autoplay', ('close', None), ('TV Guide Fullscreen', 'Finished Updating')])
-        # Trace the existing marker lifecycle, without calling any DB code. This
-        # is not a claim of atomic lock acquisition or crash-safe marker cleanup.
+        # Non-XMLTV retains the legacy sentinel; XMLTV uses the crash-released
+        # SQLite lock instead. Runtime importer/process regressions live in
+        # check_xmltv_local_refresh.py; these are only source-shape guards.
         text = (ROOT / 'source.py').read_text()
-        self.assertIn("if xbmcvfs.exists(lock):\n            return", text)
+        self.assertIn("if not preserve and xbmcvfs.exists(lock):\n            return", text)
         self.assertIn("xbmcvfs.File(lock,'wb')", text)
-        self.assertIn('finally:\n            self.updateInProgress = False\n            c.close()\n        xbmcvfs.delete(lock)', text)
+        self.assertIn('finally:\n            self.updateInProgress = False\n            c.close()\n            if not preserve:\n                xbmcvfs.delete(lock)', text)
 
 
 if __name__ == '__main__':

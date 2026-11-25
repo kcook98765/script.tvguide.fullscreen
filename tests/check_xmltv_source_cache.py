@@ -4,19 +4,25 @@ from contextlib import nullcontext
 import datetime
 import gzip
 import hashlib
+import json
 import os
+import re
 from pathlib import Path
 import shutil
+import sqlite3
 import tempfile
 import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 import uuid
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-A = b'<tv><channel id="a"><display-name>A</display-name></channel></tv>'
-B = b'<tv><channel id="b"><display-name>B</display-name></channel></tv>'
+A = (b'<tv><channel id="a"><display-name>A</display-name></channel>'
+     b'<programme channel="a" start="20261120120000 +0000" stop="20261120123000 +0000">'
+     b'<title>A</title><desc>Fixture</desc></programme></tv>')
+B = A.replace(b'id="a"', b'id="b"').replace(b'channel="a"', b'channel="b"').replace(b'>A<', b'>B<')
 
 
 def extract(path, name, env, methods=None):
@@ -39,6 +45,9 @@ class VFSFile:
 
     def readBytes(self, size=-1):
         return self.file.read(size) if self.file else b''
+
+    def size(self):
+        return os.fstat(self.file.fileno()).st_size
 
     def write(self, data):
         if 'b' in self.file.mode and isinstance(data, str):
@@ -72,13 +81,19 @@ class SourceCache(unittest.TestCase):
             File=VFSFile, copy=self.copy, delete=lambda path: os.remove(path),
             Stat=lambda path: SimpleNamespace(st_mtime=lambda: os.path.getmtime(path)))
         self.env = dict(os=os, datetime=datetime, time=time, gzip=gzip, hashlib=hashlib, uuid=uuid,
+                        sqlite3=sqlite3, ElementTree=ET, re=re, json=json,
                         requests=self.requests, ADDON=self.addon, xbmcvfs=vfs,
                         xbmc=SimpleNamespace(log=Mock(), LOGDEBUG=0, LOGERROR=4),
                         xbmcgui=SimpleNamespace(Dialog=Mock(), DialogProgressBG=Mock(),
                                                 NOTIFICATION_ERROR='error'))
         self.fetcher = extract('fileFetcher.py', 'FileFetcher', self.env)
         self.env['FileFetcher'] = self.fetcher
-        self.source_cls = extract('source.py', 'XMLTVSource', self.env, {'updateLocalFile'})
+        for name in ('Channel', 'Program'):
+            extract('utils.py', name, self.env)
+        extract('source.py', 'FileWrapper', self.env)
+        self.source_cls = extract('source.py', 'XMLTVSource', self.env, {
+            'updateLocalFile', 'validateLocalFile', 'parseXMLTV', 'parseXMLTVDate'})
+        self.source_cls.LOGO_SOURCE_FOLDER = 1
         self.source_cls.PLUGIN_DATA = str(self.profile)
         self.source = self.source_cls()
         self.source.needReset = False
@@ -107,6 +122,87 @@ class SourceCache(unittest.TestCase):
         self.assertTrue(self.source.needReset)
         self.assertEqual(self.requests.get.call_count, 2)
 
+    def test_fetcher_visible_diagnostics_never_include_source_secrets(self):
+        secret = 'SYNTHETIC_SECRET_85'
+        vfs_url = 'smb://user:' + secret + '@host/private/' + secret + '.xml'
+        http_url = 'https://user:' + secret + '@example.invalid/feed.xml?signature=' + secret
+        gui = self.env['xbmcgui']
+        logger = self.env['xbmc'].log
+        for operation in ('vfs-ok', 'vfs-false', 'vfs-exception', 'http-ok',
+                          'http-status', 'http-gz-status', 'http-exception',
+                          'http-stream-exception', 'md5-exception', 'md5-mismatch'):
+            with self.subTest(operation=operation):
+                logger.reset_mock()
+                gui.Dialog.reset_mock()
+                gui.DialogProgressBG.reset_mock()
+                self.settings['gz'] = 'true' if operation == 'http-gz-status' else 'false'
+                self.settings['md5'] = 'true' if operation.startswith('md5-') else 'false'
+                self.status = 503 if operation.endswith('status') else 200
+                self.requests.get.side_effect = self.download
+                self.copy.side_effect = lambda source, target: Path(target).write_bytes(A) > 0
+                expected = self.fetcher.FETCH_OK
+                if operation == 'vfs-false':
+                    self.copy.side_effect = None
+                    self.copy.return_value = False
+                    expected = self.fetcher.FETCH_ERROR
+                elif operation == 'vfs-exception':
+                    self.copy.side_effect = OSError(vfs_url)
+                    expected = self.fetcher.FETCH_ERROR
+                elif operation == 'http-exception':
+                    self.requests.get.side_effect = OSError(http_url)
+                    expected = self.fetcher.FETCH_NOT_NEEDED
+                elif operation == 'http-stream-exception':
+                    response = self.download(http_url)
+                    response.iter_content = Mock(side_effect=OSError(http_url))
+                    self.requests.get.side_effect = None
+                    self.requests.get.return_value = response
+                    expected = self.fetcher.FETCH_ERROR
+                elif operation == 'http-status':
+                    expected = self.fetcher.FETCH_NOT_NEEDED
+                elif operation == 'http-gz-status':
+                    expected = self.fetcher.FETCH_ERROR
+                elif operation == 'md5-exception':
+                    self.requests.get.side_effect = [OSError(http_url), self.download(http_url)]
+                elif operation == 'md5-mismatch':
+                    response = self.download(http_url)
+                    response.text = secret  # Untrusted remote MD5 body, not a digest.
+                    response.headers = {'X-Secret': secret}
+                    self.requests.get.side_effect = None
+                    self.requests.get.return_value = response
+                    expected = self.fetcher.FETCH_ERROR
+                url = vfs_url if operation.startswith('vfs-') else http_url
+                # The destination directory is sensitive too, even on success.
+                destination = self.profile / secret / 'xmltv.xml'
+                destination.parent.mkdir(exist_ok=True)
+                fetcher = self.fetcher(url, str(destination), self.addon, track_source=True)
+                self.assertEqual(fetcher.fetchFile(force=True), expected)
+                visible = repr((logger.mock_calls, gui.Dialog.mock_calls,
+                                gui.DialogProgressBG.mock_calls))
+                self.assertNotIn(secret, visible)
+                self.assertNotIn('example.invalid', visible)
+                self.assertNotIn(str(self.profile), visible)
+                self.assertIn('xmltv.xml', visible)
+                gui.Dialog.return_value.ok.assert_not_called()
+                if operation.endswith('status'):
+                    self.assertIn('503', visible)
+                if operation in ('http-ok', 'md5-exception', 'md5-mismatch'):
+                    gui.DialogProgressBG.return_value.create.assert_called_once_with(
+                        'TV Guide Fullscreen', 'downloading xmltv.xml')
+                retry = Path(str(destination) + '.retry')
+                self.assertEqual(retry.exists(), not operation.startswith('vfs-') and
+                                 expected != self.fetcher.FETCH_OK)
+                retry.unlink(missing_ok=True)
+
+    def test_fetcher_unknown_destination_name_is_not_a_diagnostic_slot(self):
+        secret = 'SYNTHETIC_SECRET_85'
+        fetcher = self.fetcher('https://example.invalid/feed?secret=' + secret,
+                               str(self.profile / secret), self.addon)
+        self.assertEqual(fetcher.fetchFile(force=True), self.fetcher.FETCH_OK)
+        visible = repr((self.env['xbmc'].log.mock_calls,
+                        self.env['xbmcgui'].DialogProgressBG.mock_calls))
+        self.assertNotIn(secret, visible)
+        self.assertIn('cache file', visible)
+
     def test_fresh_local_cache_switches_to_older_file(self):
         first, second = self.profile / 'a.xml', self.profile / 'b.xml'
         first.write_bytes(A)
@@ -132,6 +228,37 @@ class SourceCache(unittest.TestCase):
         self.assertEqual(fetcher.fetchFile(), fetcher.FETCH_NOT_NEEDED)
         self.requests.get.assert_not_called()
         self.assertFalse(self.cache.with_suffix('.xml.source').exists())
+
+    def test_http_failure_outcomes_keep_notifications_nonblocking_and_retry_scoped(self):
+        for tracked in (False, True):
+            for failure in ('status', 'request', 'gz-status'):
+                with self.subTest(tracked=tracked, failure=failure):
+                    self.settings['gz'] = 'true' if failure == 'gz-status' else 'false'
+                    self.status = 503
+                    self.requests.get.side_effect = (OSError('offline') if failure == 'request'
+                                                     else self.download)
+                    self.env['xbmcgui'].Dialog.reset_mock()
+                    retry = Path(str(self.cache) + '.retry')
+                    retry.unlink(missing_ok=True)
+                    fetcher = self.fetcher('https://example.invalid/a.xml', str(self.cache),
+                                           self.addon, track_source=tracked)
+                    expected = fetcher.FETCH_ERROR if failure == 'gz-status' else fetcher.FETCH_NOT_NEEDED
+                    self.assertEqual(fetcher.fetchFile(force=True), expected)
+                    self.env['xbmcgui'].Dialog.return_value.notification.assert_called_once()
+                    self.env['xbmcgui'].Dialog.return_value.ok.assert_not_called()
+                    self.assertEqual(retry.exists(), tracked)
+
+    def test_xmltv_http_errors_do_not_add_blocking_dialog(self):
+        url = 'https://example.invalid/a.xml'
+        self.fetch(url)
+        for failure in ('status', 'request'):
+            self.status = 503
+            self.requests.get.side_effect = OSError('offline') if failure == 'request' else self.download
+            self.env['xbmcgui'].Dialog.reset_mock()
+            self.fetch(url, force=True)
+            self.env['xbmcgui'].Dialog.return_value.ok.assert_not_called()
+            self.assertTrue(Path(str(self.cache) + '.retry').exists())
+            self.assertEqual(self.cache.read_bytes(), A)
 
     def test_unchanged_source_reuses_fresh_cache_and_force_downloads(self):
         url = 'https://example.invalid/a.xml'
@@ -245,7 +372,7 @@ class SourceCache(unittest.TestCase):
         self.fetch(first)
         self.requests.get.reset_mock()
         self.fetch(first, force=True)
-        self.assertEqual(self.requests.get.call_count, 1)  # unchanged MD5, historical behavior
+        self.assertEqual(self.requests.get.call_count, 2)  # explicit force bypasses MD5 reuse
         self.requests.get.reset_mock()
         self.fetch(second)  # even identical content must establish the new source
         self.assertEqual(self.requests.get.call_count, 2)
@@ -281,7 +408,7 @@ class SourceCache(unittest.TestCase):
         self.fetch(str(local))
         self.copy.reset_mock()
         self.fetch(str(local), force=True)
-        self.copy.assert_not_called()  # unchanged local timestamp shortcut retained
+        self.copy.assert_not_called()  # validated native bytes are hashed, not recopied
         os.utime(local, (time.time() + 10, time.time() + 10))
         local.write_bytes(A)
         self.fetch(str(local))

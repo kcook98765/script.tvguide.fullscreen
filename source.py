@@ -26,6 +26,8 @@
 #
 
 import os
+import hashlib
+from typing import Dict, Optional, Tuple
 import threading
 import datetime
 from dateutil import tz
@@ -415,6 +417,20 @@ class Database(object):
         if self.settingsChanged:
             return True
 
+        if self.source.KEY == 'xmltv':
+            assert self.conn is not None  # This DB-thread query requires initialize().
+            source_row = self.conn.execute('SELECT channels_updated FROM sources WHERE id=?',
+                                           [self.source.KEY]).fetchone()
+            if (source_row is None or source_row[0] is None or
+                    source_row[0] <= datetime.datetime.fromtimestamp(0) or
+                    self.conn.execute('SELECT 1 FROM updates WHERE source=?',
+                                      [self.source.KEY]).fetchone() is None):
+                return True
+            row = self.conn.execute('SELECT value FROM settings WHERE key=?',
+                                    ['xmltv.imported.cache']).fetchone()
+            # Recorded with the successful import, not a wall-clock comparison.
+            return row is None or row['value'] != self.source.getCacheKey()
+
         # check if channel data is up-to-date in database
         try:
             c = self.conn.cursor()
@@ -449,19 +465,35 @@ class Database(object):
         self.event.set()
 
     def _updateChannelAndProgramListCaches(self, date, progress_callback, clearExistingProgramList):
+        if self.source.KEY == 'xmltv' and not self.source.needReset and not self._isCacheExpired(date):
+            return  # Navigation needs only stats/DB reads, not a writer lock.
+        # All current importers coordinate with XMLTV producers. Non-XMLTV
+        # importers retain their legacy sentinel behavior inside this lock.
+        try:
+            lock = FileFetcher.acquireXMLTVLock()
+        except sqlite3.OperationalError:
+            return  # An active foreground/service fetch or import will finish first.
+        try:
+            return self._updateChannelAndProgramListCachesLocked(date, progress_callback, clearExistingProgramList)
+        finally:
+            lock.close()
+
+    def _updateChannelAndProgramListCachesLocked(self, date, progress_callback, clearExistingProgramList):
+        assert self.conn is not None  # This DB-thread import requires initialize().
         # todo workaround service.py 'forgets' the adapter and convert set in _initialize.. wtf?!
         sqlite3.register_adapter(datetime.datetime, self.adapt_datetime)
         sqlite3.register_converter('timestamp', self.convert_datetime)
 
         lock = 'special://profile/addon_data/script.tvguide.fullscreen/db.lock'
-        if xbmcvfs.exists(lock):
+        preserve = self.source.KEY == 'xmltv'
+        if not preserve and xbmcvfs.exists(lock):
             return
 
         isCacheExpired = self._isCacheExpired(date)
         needReset = self.source.needReset
         if not isCacheExpired and not needReset:
             return
-        else:
+        elif not preserve:
             # if the xmltv data needs to be loaded the database
             # should be reset to avoid ghosting!
             self.updateInProgress = True
@@ -471,12 +503,24 @@ class Database(object):
             self.conn.commit()
             c.close()
             self.source.needReset = False
-        xbmcvfs.File(lock,'wb')
+        if not preserve:
+            lock_file = xbmcvfs.File(lock,'wb')
+            lock_file.close()
         self.updateInProgress = True
         self.updateFailed = False
         dateStr = date.strftime('%Y-%m-%d')
         c = self.conn.cursor()
+        settings_changed = self.settingsChanged
         try:
+            if preserve:
+                cache_key = self.source.getCacheKey()
+                self.conn.execute('BEGIN IMMEDIATE')
+            initial_order: Optional[Dict[str, int]] = None
+            if preserve:
+                row = c.execute('SELECT value FROM settings WHERE key=?',
+                                ['xmltv.initial.order']).fetchone()
+                if row is not None and row[0] == 'pending' and ADDON.getSetting('mapping.m3u.order') != 'true':
+                    initial_order = {}  # First declaration wins, including merged sources.
             xbmc.log('[script.tvguide.fullscreen] Updating caches...', xbmc.LOGDEBUG)
             if progress_callback:
                 progress_callback(0)
@@ -491,7 +535,7 @@ class Database(object):
                 ch_list = self._getChannelList(onlyVisible=True)
 
             if self.settingsChanged:
-                if ADDON.getSetting('xmltv.keep.channels') == "false":
+                if not preserve and ADDON.getSetting('xmltv.keep.channels') == "false":
                     c.execute('DELETE FROM channels WHERE source=?', [self.source.KEY])
                 c.execute('DELETE FROM programs WHERE source=?', [self.source.KEY])
                 c.execute("DELETE FROM updates WHERE source=?", [self.source.KEY])
@@ -512,7 +556,8 @@ class Database(object):
             imported = imported_channels = imported_programs = 0
 
             if getData == True:
-                xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/category_count.ini')
+                if not preserve:
+                    xbmcvfs.delete('special://profile/addon_data/script.tvguide.fullscreen/category_count.ini')
                 if is_meta_catchup(ADDON.getSetting('catchup.type')):
                     catchup = ADDON.getSetting('catchup.text')
                 else:
@@ -525,18 +570,28 @@ class Database(object):
                 for item in self.source.getDataFromExternal(date, ch_list, progress_callback):
                     imported += 1
 
-                    if imported % 10000 == 0:
+                    if not preserve and imported % 10000 == 0:
                         self.conn.commit()
 
                     if isinstance(item, Channel):
                         imported_channels += 1
                         channel = item
+                        if initial_order is not None:
+                            initial_order.setdefault(channel.id, len(initial_order))
                         c.execute(
                             'INSERT OR IGNORE INTO channels(id, title, logo, stream_url, visible, weight, source) VALUES(?, ?, ?, ?, ?, (CASE ? WHEN -1 THEN (SELECT COALESCE(MAX(weight)+1, 0) FROM channels WHERE source=?) ELSE ? END), ?)',
                             [channel.id, channel.title, channel.logo, channel.streamUrl, channel.visible, channel.weight,
                              self.source.KEY, channel.weight, self.source.KEY])
                         if not c.rowcount:
-                            if ADDON.getSetting('logos.keep') == 'true':
+                            if preserve:
+                                # Existing mappings, hidden state, categories and
+                                # order are user data, not fresh XMLTV defaults.
+                                if ADDON.getSetting('logos.keep') != 'true':
+                                    c.execute('UPDATE channels SET logo=? WHERE id=? AND source=?',
+                                              [channel.logo, channel.id, self.source.KEY])
+                                c.execute('UPDATE channels SET title=?, stream_url=COALESCE(stream_url, ?) WHERE id=? AND source=?',
+                                          [channel.title, channel.streamUrl, channel.id, self.source.KEY])
+                            elif ADDON.getSetting('logos.keep') == 'true':
                                 c.execute(
                                     'UPDATE channels SET title=?, stream_url=?, visible=(CASE ? WHEN -1 THEN visible ELSE ? END), weight=(CASE ? WHEN -1 THEN weight ELSE ? END) WHERE id=? AND source=?',
                                     [channel.title, channel.streamUrl, channel.weight, channel.visible,
@@ -555,39 +610,61 @@ class Database(object):
                         else:
                             channel = program.channel
                         try:
+                            if preserve:
+                                # The legacy UNIQUE key omits source. REPLACE
+                                # must not silently delete another source's row.
+                                owner = c.execute('SELECT source FROM programs WHERE channel=? AND start_date=? AND end_date=?',
+                                                  [channel, program.startDate, program.endDate]).fetchone()
+                                if owner is not None and owner[0] != self.source.KEY:
+                                    raise ValueError('Programme conflicts with another source')
                             c.execute(
                             'INSERT OR REPLACE INTO programs(channel, title, sub_title, start_date, end_date, description, categories, image_large, image_small, season, episode, is_new, is_movie, language, source, updates_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                             [channel, program.title, program.sub_title, program.startDate, program.endDate, program.description, program.categories,
                              program.imageLarge, program.imageSmall, program.season, program.episode, program.is_new, program.is_movie,
                              program.language, self.source.KEY, updatesId])
                         except Exception as e:
+                            if preserve:
+                                raise
                             log(e)
 
                 # channels updated
                 c.execute("UPDATE sources SET channels_updated=? WHERE id=?", [datetime.datetime.now(), self.source.KEY])
-                self.conn.commit()
+                if not preserve:
+                    self.conn.commit()
 
             #if imported_channels == 0 or imported_programs == 0:
             if imported_programs == 0:
                 self.updateFailed = True
+                if preserve:
+                    raise ValueError('XMLTV import has no usable programmes')
 
-            channels = c.execute('SELECT DISTINCT channel FROM programs').fetchall()
+            scope = ' AND source=?' if preserve else ''
+            scope_args = [self.source.KEY] if preserve else []
+            channel_query = 'SELECT DISTINCT channel FROM programs WHERE 1=1' + scope
+            programs_query = 'SELECT channel,start_date,end_date FROM programs WHERE channel=?' + scope
+            channels = c.execute(channel_query, scope_args).fetchall()
             for channel in channels:
                 if not channel[0]:
                     continue
-                programs = c.execute('SELECT channel,start_date,end_date FROM programs WHERE channel=?',[channel[0]]).fetchall()
+                programs = c.execute(programs_query, [channel[0]] + scope_args).fetchall()
                 for i,program in enumerate(programs[:-1]):
                     if program[2] > programs[i+1][1]:
                         try:
-                            c.execute('UPDATE programs SET end_date=? WHERE channel=? AND start_date=? AND end_date=?',[programs[i+1][1],program[0],program[1],program[2]])
+                            if preserve:
+                                c.execute('UPDATE programs SET end_date=? WHERE channel=? AND start_date=? AND end_date=? AND source=?', [programs[i+1][1], program[0], program[1], program[2], self.source.KEY])
+                            else:
+                                c.execute('UPDATE programs SET end_date=? WHERE channel=? AND start_date=? AND end_date=?',[programs[i+1][1],program[0],program[1],program[2]])
                         except Exception as e:
+                            if preserve:
+                                raise
                             log(e)
-            self.conn.commit()
+            if not preserve:
+                self.conn.commit()
 
-            channels = c.execute('SELECT DISTINCT channel FROM programs').fetchall()
+            channels = c.execute(channel_query, scope_args).fetchall()
             for channel in channels:
                 #log(channel[0])
-                programs = c.execute('SELECT channel,start_date,end_date FROM programs WHERE channel=?',[channel[0]]).fetchall()
+                programs = c.execute(programs_query, [channel[0]] + scope_args).fetchall()
                 for i,program in enumerate(programs[:-1]):
                     channel_id = channel[0]
                     this_start = program[1]
@@ -599,14 +676,18 @@ class Database(object):
                             'INSERT INTO programs(channel, title, start_date, end_date, source, updates_id) VALUES(?, ?, ?, ?, ?, ?)',
                             [channel_id, "?", this_end, next_start, self.source.KEY, updatesId])
                         except Exception as e:
+                            if preserve:
+                                raise
                             log(e)
-            self.conn.commit()
+            if not preserve:
+                self.conn.commit()
 
             start = datetime.datetime.now().replace(minute=0,second=0,microsecond=0) - datetime.timedelta(hours=2)
-            channels = c.execute('SELECT DISTINCT channel FROM programs').fetchall()
+            channels = c.execute(channel_query, scope_args).fetchall()
             for channel in channels:
                 #log(channel[0])
-                first_program = c.execute('SELECT channel,start_date FROM programs WHERE channel=? ORDER BY start_date',[channel[0]]).fetchone()
+                first_program = c.execute('SELECT channel,start_date FROM programs WHERE channel=?' +
+                                          scope + ' ORDER BY start_date', [channel[0]] + scope_args).fetchone()
                 if first_program:
                     channel_id = channel[0]
                     this_start = first_program[1]
@@ -616,10 +697,33 @@ class Database(object):
                             'INSERT INTO programs(channel, title, start_date, end_date, source, updates_id) VALUES(?, ?, ?, ?, ?, ?)',
                             [channel_id, "-", start, this_start, self.source.KEY, updatesId])
                         except Exception as e:
+                            if preserve:
+                                raise
                             log(e)
+            if preserve:
+                if initial_order:
+                    # Only a new DB's automatic M3U seed may yield to XMLTV.
+                    # Keep undeclared/M3U-only rows after declarations, stably.
+                    remaining = [row[0] for row in c.execute(
+                        'SELECT id FROM channels WHERE source=? ORDER BY weight, rowid',
+                        [self.source.KEY]) if row[0] not in initial_order]
+                    for weight, channel_id in enumerate(list(initial_order) + remaining):
+                        c.execute('UPDATE channels SET weight=? WHERE id=? AND source=?',
+                                  [weight, channel_id, self.source.KEY])
+                c.execute('DELETE FROM settings WHERE key=?', ['xmltv.initial.order'])
+                c.execute('INSERT OR REPLACE INTO settings(key, value) VALUES(?, ?)',
+                          ['xmltv.imported.cache', cache_key])
             self.conn.commit()
+            if preserve:
+                self.source.needReset = False
 
         except SourceUpdateCanceledException:
+            if preserve:
+                self.conn.rollback()
+                self.source.needReset = True
+                self.settingsChanged = settings_changed
+                self.updateFailed = True
+                return
             # force source update on next load
             c.execute('UPDATE sources SET channels_updated=? WHERE id=?', [0, self.source.KEY])
             c.execute("DELETE FROM updates WHERE source=?",
@@ -640,16 +744,21 @@ class Database(object):
 
             try:
                 # invalidate cached data
-                c.execute('UPDATE sources SET channels_updated=? WHERE id=?', [0, self.source.KEY])
-                self.conn.commit()
+                if not preserve:
+                    c.execute('UPDATE sources SET channels_updated=? WHERE id=?', [0, self.source.KEY])
+                    self.conn.commit()
             except sqlite3.OperationalError:
                 pass  # database is locked
 
             self.updateFailed = True
+            if preserve:
+                self.source.needReset = True
+                self.settingsChanged = settings_changed
         finally:
             self.updateInProgress = False
             c.close()
-        xbmcvfs.delete(lock)
+            if not preserve:
+                xbmcvfs.delete(lock)
 
     def updateProgramList(self, callback, programList, channel):
         self.eventQueue.append(
@@ -683,7 +792,7 @@ class Database(object):
         result = self._invokeAndBlockForResult(self._getEPGView, channelStart, date, progress_callback,
                                                clearExistingProgramList, category)
 
-        if self.updateFailed:
+        if self.updateFailed and (self.source.KEY != 'xmltv' or not result[2]):
             raise SourceException('No channels or programs imported')
 
         return result
@@ -693,7 +802,7 @@ class Database(object):
         result = self._invokeAndBlockForResult(self._getQuickEPGView, channelStart, date, progress_callback,
                                                clearExistingProgramList, category)
 
-        if self.updateFailed:
+        if self.updateFailed and (self.source.KEY != 'xmltv' or not result[2]):
             raise SourceException('No channels or programs imported')
 
         return result
@@ -821,26 +930,32 @@ class Database(object):
         c.close()
         return channelList
 
-    def saveChannelListBlock(self, channelList):
-        result = self._invokeAndBlockForResult(self._saveChannelListBlock, channelList)
+    def saveChannelListBlock(self, channelList, initial_m3u=False):
+        result = self._invokeAndBlockForResult(self._saveChannelListBlock, channelList, initial_m3u)
         return result
 
-    def _saveChannelListBlock(self, channelList):
+    def _saveChannelListBlock(self, channelList, initial_m3u=False):
         # Update in place: deleting channels cascades to cached programmes/rules.
-        return self._saveChannelList(channelList)
+        return self._saveChannelList(channelList, initial_m3u)
 
     def saveChannelList(self, callback, channelList):
         self.eventQueue.append([self._saveChannelList, callback, channelList])
         self.event.set()
 
-    def _saveChannelList(self, channelList):
+    def _saveChannelList(self, channelList, initial_m3u=False):
         c = self.conn.cursor()
+        initial_m3u = initial_m3u and self.source.KEY == 'xmltv'
+        if self.source.KEY == 'xmltv' and not initial_m3u:
+            # A user save or explicit M3U reorder is no longer an incidental seed.
+            c.execute('DELETE FROM settings WHERE key=?', ['xmltv.initial.order'])
         for idx, channel in enumerate(channelList):
             c.execute(
                 'INSERT OR IGNORE INTO channels(id, title, logo, stream_url, visible, weight, source) VALUES(?, ?, ?, ?, ?, (CASE ? WHEN -1 THEN (SELECT COALESCE(MAX(weight)+1, 0) FROM channels WHERE source=?) ELSE ? END), ?)',
                 [channel.id, channel.title, channel.logo, channel.streamUrl, channel.visible, channel.weight,
                  self.source.KEY, channel.weight, self.source.KEY])
-            if not c.rowcount:
+            # Automatic seeding only inserts: a service import may have changed
+            # saved weights/visibility since the foreground read this list.
+            if not c.rowcount and not initial_m3u:
                 c.execute(
                     'UPDATE channels SET title=?, logo=?, stream_url=?, visible=?, weight=(CASE ? WHEN -1 THEN weight ELSE ? END) WHERE id=? AND source=?',
                     [channel.title, channel.logo, channel.streamUrl, channel.visible, channel.weight, channel.weight,
@@ -1470,6 +1585,8 @@ class Database(object):
 
     def _createTables(self):
         c = self.conn.cursor()
+        # Empty histories/timestamps in an existing DB are NOT proof of freshness.
+        fresh_database = c.execute("SELECT 1 FROM sqlite_master WHERE type='table'").fetchone() is None
 
         try:
             c.execute('SELECT major, minor, patch FROM version')
@@ -1583,6 +1700,11 @@ class Database(object):
 
             # make sure we have a record in sources for this Source
             c.execute("INSERT OR IGNORE INTO sources(id, channels_updated) VALUES(?, ?)", [self.source.KEY, 0])
+
+            if fresh_database and self.source.KEY == 'xmltv':
+                # Durable provenance, committed with first schema creation only.
+                c.execute('INSERT INTO settings(key, value) VALUES(?, ?)',
+                          ['xmltv.initial.order', 'pending'])
 
             self.conn.commit()
             c.close()
@@ -2073,11 +2195,13 @@ class XMLTVSource(Source):
 
     def fix_xml(self, xmltvFile):
         f = xbmcvfs.File(xmltvFile,'rb')
-        data = bytes(f.readBytes())
+        try:
+            data = bytes(f.readBytes())
+        finally:
+            f.close()
         declaration = re.search(br'encoding=[\'"](.*?)[\'"]', data)
         encoding = declaration.group(1).decode('ascii') if declaration else 'utf-8'
         data = data.decode(encoding)
-        f.close()
         data = unescape2(data)
         f = xbmcvfs.File(xmltvFile,'wb')
         f.write(data.encode(encoding))
@@ -2123,9 +2247,6 @@ class XMLTVSource(Source):
         else:
             self.xmltvFile = self.updateLocalFile('xmltv.xml', addon.getSetting('xmltv.url'), addon, force=force)
 
-        if ADDON.getSetting('xmltv.and') == 'true':
-            self.fix_xml(self.xmltvFile)
-
         self.xmltv2File = ''
         if ADDON.getSetting('xmltv2.enabled') == 'true':
             if self.xmltv2Type == XMLTVSource.XMLTV_SOURCE_FILE:
@@ -2144,9 +2265,6 @@ class XMLTVSource(Source):
                 self.xmltv2File = self.updateLocalFile('xmltv2.xml', addon.getSetting('xmltv2.file'), addon, force=force)
             else:
                 self.xmltv2File = self.updateLocalFile('xmltv2.xml', addon.getSetting('xmltv2.url'), addon, force=force)
-
-            if ADDON.getSetting('xmltv.and') == 'true':
-                self.fix_xml(self.xmltv2File)
 
         self.xmltv3File = ''
         if ADDON.getSetting('xmltv3.enabled') == 'true':
@@ -2167,9 +2285,6 @@ class XMLTVSource(Source):
             else:
                 self.xmltv3File = self.updateLocalFile('xmltv3.xml', addon.getSetting('xmltv3.url'), addon, force=force)
 
-            if ADDON.getSetting('xmltv.and') == 'true':
-                self.fix_xml(self.xmltv3File)
-
 
         if not self.xmltvFile or not xbmcvfs.exists(self.xmltvFile):
             raise SourceNotConfiguredException()
@@ -2182,7 +2297,7 @@ class XMLTVSource(Source):
         #url = url.split('?')[0]
         #fileName = os.path.basename(url)
         path = os.path.join(XMLTVSource.PLUGIN_DATA, fileName)
-        fetcher = FileFetcher(url, path, addon, track_source=True)
+        fetcher = FileFetcher(url, path, addon, track_source=True, validator=self.validateLocalFile)
         retVal = fetcher.fetchFile(force)
         if retVal == fetcher.FETCH_OK and not isIni:
             self.needReset = True
@@ -2190,24 +2305,73 @@ class XMLTVSource(Source):
             xbmcgui.Dialog().ok(strings(FETCH_ERROR_TITLE), '\n'.join((strings(FETCH_ERROR_LINE1), strings(FETCH_ERROR_LINE2))))
         return path
 
+    def validateLocalFile(self, path):
+        if ADDON.getSetting('xmltv.and') == 'true':
+            self.fix_xml(path)
+        # Exercise the real streaming parser/models before promoting cache bytes.
+        # Validation must not change category counts, query logos or show progress.
+        # Fetcher staging paths are native local files; source reads remain VFS.
+        with open(path, 'rb') as staged:
+            context = ElementTree.iterparse(staged, events=('start', 'end'))
+            programmes = 0
+            for item in self.parseXMLTV(context, staged, os.path.getsize(path), '', None, 0, validate_only=True):
+                if isinstance(item, Program):
+                    programmes += 1
+            if not programmes:
+                raise ValueError('XMLTV source has no usable programmes')
+            # XMLTV channel declarations are optional. References may resolve
+            # through the primary feed or saved channels; the merged DB import
+            # enforces actual foreign keys in its rollback-safe transaction.
+
+    def getCacheKey(self):
+        if not hasattr(self, '_cacheDigests'):
+            self._cacheDigests: Dict[str, Tuple[Optional[Tuple[int, int, int, int, int]], str]] = {}
+
+        def digest(path):
+            if not os.path.isfile(path):
+                return 'missing'
+            signature = FileFetcher.fileSignature(path)
+            previous = self._cacheDigests.get(path)
+            if signature is not None and previous is not None and previous[0] == signature:
+                return previous[1]
+            value = FileFetcher.fileDigest(path)
+            self._cacheDigests[path] = (signature, value)
+            return value
+
+        parts = []
+        for slot, path in (('xmltv', self.xmltvFile), ('xmltv2', self.xmltv2File),
+                           ('xmltv3', self.xmltv3File)):
+            if slot != 'xmltv' and ADDON.getSetting(slot + '.enabled') != 'true':
+                continue
+            parts.append((slot, digest(path), digest(path + '.source'),
+                          ADDON.getSetting(slot + '.offset')))
+        settings = tuple(ADDON.getSetting(key) for key in
+                         ('xmltv.date', 'logos.source', 'logos.folder', 'logos.url',
+                          'xmltv.logos', 'thelogodb', 'logos.keep'))
+        cache_key = (parts, settings, digest(os.path.join(self.PLUGIN_DATA, 'channel_id_shortcut.ini')))
+        return hashlib.sha256(repr(cache_key).encode('utf-8')).hexdigest()
+
     def getDataFromExternal(self, date, ch_list, progress_callback=None):
-        time_offset = int(ADDON.getSetting('xmltv.offset'))
-        time_offset2 = int(ADDON.getSetting('xmltv2.offset'))
-        time_offset3 = int(ADDON.getSetting('xmltv3.offset'))
-        if not xbmcvfs.exists(self.xmltvFile):
-            raise SourceNotConfiguredException()
-        if (ADDON.getSetting('xmltv3.enabled') == 'true') and xbmcvfs.exists(self.xmltv3File) and (ADDON.getSetting('xmltv2.enabled') == 'true') and xbmcvfs.exists(self.xmltv2File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset2), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset3)):
-                yield v
-        elif (ADDON.getSetting('xmltv3.enabled') == 'true') and xbmcvfs.exists(self.xmltv3File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv3File, date, ch_list, progress_callback, time_offset3)):
-                yield v
-        elif (ADDON.getSetting('xmltv2.enabled') == 'true') and xbmcvfs.exists(self.xmltv2File):
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset), self.getDataFromExternal2(self.xmltv2File, date, ch_list, progress_callback, time_offset2)):
-                yield v
-        else:
-            for v in chain(self.getDataFromExternal2(self.xmltvFile, date, ch_list, progress_callback, time_offset)):
-                yield v
+        for slot, path in (('xmltv', self.xmltvFile), ('xmltv2', self.xmltv2File),
+                           ('xmltv3', self.xmltv3File)):
+            if slot != 'xmltv' and ADDON.getSetting(slot + '.enabled') != 'true':
+                continue
+            if not path or not xbmcvfs.exists(path):
+                # Beta writes .source only after successful cache promotion.
+                # Never silently drop a previously bound slot's programmes,
+                # but an initially unavailable optional slot must not block
+                # importing the primary. Main cache remains mandatory.
+                if slot != 'xmltv' and path and not xbmcvfs.exists(path + '.source'):
+                    continue
+                raise SourceNotConfiguredException()
+            programmes = 0
+            offset = int(ADDON.getSetting(slot + '.offset'))
+            for item in self.getDataFromExternal2(path, date, ch_list, progress_callback, offset):
+                if not isinstance(item, Channel):
+                    programmes += 1
+                yield item
+            if not programmes:
+                raise ValueError('Enabled XMLTV source has no usable programmes')
 
     def getDataFromExternal2(self, xmltvFile, date, ch_list, progress_callback=None, time_offset=None):
         if xbmcvfs.exists(xmltvFile):
@@ -2221,9 +2385,15 @@ class XMLTVSource(Source):
         if channelsLastUpdated is None or not xbmcvfs.exists(self.xmltvFile):
             return True
 
-        stat = xbmcvfs.Stat(self.xmltvFile)
-        fileUpdated = datetime.datetime.fromtimestamp(stat.st_mtime())
-        return fileUpdated > channelsLastUpdated
+        for slot, path in (('xmltv', self.xmltvFile), ('xmltv2', self.xmltv2File),
+                           ('xmltv3', self.xmltv3File)):
+            if slot != 'xmltv' and ADDON.getSetting(slot + '.enabled') != 'true':
+                continue
+            if path and xbmcvfs.exists(path):
+                stat = xbmcvfs.Stat(path)
+                if datetime.datetime.fromtimestamp(stat.st_mtime()) > channelsLastUpdated:
+                    return True
+        return self.needReset
 
     def parseXMLTVDate(self, origDateString):
         # get timezone information
@@ -2268,13 +2438,15 @@ class XMLTVSource(Source):
         return t
 
 
-    def parseXMLTV(self, context, f, size, logoFolder, progress_callback, time_offset):
+    def parseXMLTV(self, context, f, size, logoFolder, progress_callback, time_offset, validate_only=False):
         import datetime
         try:
             throwaway = datetime.datetime.strptime('20110101','%Y%m%d') #BUG FIX http://stackoverflow.com/questions/16309650/python-importerror-for-strptime-in-spyder-for-windows-7
         except:
             pass
         event, root = next(context)
+        if validate_only and root.tag != 'tv':
+            raise ValueError('Not an XMLTV document')
         elements_parsed = 0
 
         data = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/channel_id_shortcut.ini','rb').read()
@@ -2285,10 +2457,10 @@ class XMLTVSource(Source):
                 id_shortcut = line.split("=")
                 if len(id_shortcut) == 2:
                     id_shortcuts[id_shortcut[0]] = id_shortcut[1]
-        if self.logoSource == XMLTVSource.LOGO_SOURCE_FOLDER:
+        if not validate_only and self.logoSource == XMLTVSource.LOGO_SOURCE_FOLDER:
             dirs, files = xbmcvfs.listdir(logoFolder)
             logos = [file[:-4] for file in files if file.endswith(".png")]
-        if ADDON.getSetting('update.progress') == 'true':
+        if not validate_only and ADDON.getSetting('update.progress') == 'true':
             d = xbmcgui.DialogProgressBG()
             d.create('TV Guide Fullscreen', "parsing xmltv")
         category_count = {}
@@ -2310,7 +2482,7 @@ class XMLTVSource(Source):
                     except (ValueError, IndexError):
                         root.clear()
                         continue
-                    if parsed_start is None or parsed_stop is None:
+                    if parsed_start is None or parsed_stop is None or parsed_stop <= parsed_start:
                         root.clear()
                         continue
                     channel = elem.get("channel").replace("'", "").replace("=","-")  # Make ID safe to use as ' can cause crashes!
@@ -2437,7 +2609,7 @@ class XMLTVSource(Source):
                                         logo = os.path.join(logoFolder, l + '.png')
                                         break
 
-                    if use_thelogodb or (not logo and ADDON.getSetting('thelogodb') == "1"):
+                    if not validate_only and (use_thelogodb or (not logo and ADDON.getSetting('thelogodb') == "1")):
                         if ADDON.getSetting('logos.keep') == 'false':
                             logo = getLogo(title,False,False)
 
@@ -2466,6 +2638,8 @@ class XMLTVSource(Source):
                     yield result
 
             root.clear()
+        if validate_only:
+            return
         f.close()
         if ADDON.getSetting('update.progress') == 'true':
             d.update(100, message="Done")
