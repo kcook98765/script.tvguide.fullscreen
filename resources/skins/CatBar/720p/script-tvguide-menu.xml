@@ -65,6 +65,27 @@
             <visible>true</visible>
         </control>
 
+        <!-- Keep background close behind category and action controls for mouse input. -->
+        <control type="button" id="4015">
+            <description>touch close</description>
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>1280</width>
+            <height>720</height>
+            <texturefocus></texturefocus>
+            <texturenofocus></texturenofocus>
+            <onup></onup>
+            <ondown></ondown>
+            <onleft></onleft>
+            <align>center</align>
+            <aligny>center</aligny>
+            <font>font13</font>
+            <textcolor>white</textcolor>
+            <focusedcolor>black</focusedcolor>
+            <label></label>
+            <visible>true</visible>
+        </control>
+
         <control type="button" id="80003">
             <description>add category</description>
             <posx>20</posx>
@@ -89,7 +110,7 @@
             <description>categories</description>
             <left>20</left>
             <top>65</top>
-            <width>1280</width>
+            <width>200</width>
             <height>625</height>
             <visible>true</visible>
             <onup>80003</onup>
@@ -275,26 +296,6 @@
             <align>center</align>
             <aligny>bottom</aligny>
             <aspectratio>keep</aspectratio>
-            <visible>true</visible>
-        </control>
-
-        <control type="button" id="4015">
-            <description>touch close</description>
-            <posx>0</posx>
-            <posy>0</posy>
-            <width>1280</width>
-            <height>720</height>
-            <texturefocus></texturefocus>
-            <texturenofocus></texturenofocus>
-            <onup></onup>
-            <ondown></ondown>
-            <onleft></onleft>
-            <align>center</align>
-            <aligny>center</aligny>
-            <font>font13</font>
-            <textcolor>white</textcolor>
-            <focusedcolor>black</focusedcolor>
-            <label></label>
             <visible>true</visible>
         </control>
 
