@@ -114,6 +114,14 @@ class FileFetcher(object):
             return None  # Unreliable identity: callers must compare bytes.
         return (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns)
 
+    def diagnosticSlot(self):
+        # Only reviewed local cache names may enter visible diagnostics. Neither
+        # source basenames nor arbitrary destination names are safe to display.
+        if self.fileName in ('xmltv.xml', 'xmltv2.xml', 'xmltv3.xml',
+                             'categories.ini', 'mapping.ini', 'addons.ini'):
+            return self.fileName
+        return 'cache file'
+
     def fetchFile(self,force=False):
         # Never clean up another foreground/service fetch's staging files.
         tmpFile = os.path.join(self.basePath, self.fileName+'.'+uuid.uuid4().hex+'.tmp')
@@ -140,6 +148,7 @@ class FileFetcher(object):
 
     def _fetchFile(self, force, tmpFile):
         assert self.addon is not None  # Provided by __init__ before fetching.
+        slot = self.diagnosticSlot()
         retVal = self.FETCH_NOT_NEEDED
         retry_pending = self.track_source and os.path.exists(self.filePath+'.retry')
         source_changed = False
@@ -207,7 +216,7 @@ class FileFetcher(object):
                 password = self.addon.getSetting('password')
                 auth = (user, password)
             if self.fileType == self.TYPE_DEFAULT:
-                xbmc.log('[script.tvguide.fullscreen] file is in remote location: %s' % self.fileUrl, xbmc.LOGDEBUG)
+                xbmc.log('[script.tvguide.fullscreen] VFS copy: %s' % slot, xbmc.LOGDEBUG)
                 if not self.track_source and not source_changed and xbmcvfs.exists(self.filePath):
                     st = xbmcvfs.Stat(self.fileUrl)
                     src_modified = st.st_mtime()
@@ -216,7 +225,7 @@ class FileFetcher(object):
                     if src_modified <= dst_modified:
                         return self.FETCH_NOT_NEEDED
                 if not xbmcvfs.copy(self.fileUrl, tmpFile):
-                    xbmc.log('[script.tvguide.fullscreen] Remote file couldn\'t be copied: %s' % self.fileUrl, xbmc.LOGERROR)
+                    xbmc.log('[script.tvguide.fullscreen] VFS copy failed: %s' % slot, xbmc.LOGERROR)
                     return self.FETCH_ERROR
             else:
 
@@ -228,15 +237,14 @@ class FileFetcher(object):
                         r = requests.get(url,auth=auth)
                         if r.status_code == requests.codes.ok:
                             new_md5 = r.text[:32]
-                    except Exception as detail:
-                        xbmc.log('[script.tvguide.fullscreen] Missing md5: %s.md5 (%s)' % (self.fileUrl,detail), xbmc.LOGERROR)
-                    #log((old_md5,new_md5))
+                    except Exception:
+                        xbmc.log('[script.tvguide.fullscreen] MD5 request failed: %s' % slot, xbmc.LOGERROR)
                     if ((not self.track_source or not (force or retry_pending)) and not source_changed and
                             old_md5 and old_md5 == new_md5 and self.addon.getSetting('xmltv.refresh') == 'false'):
                         if self.track_source:
                             os.remove(retry)
                         return self.FETCH_NOT_NEEDED
-                xbmc.log('[script.tvguide.fullscreen] file is on the internet: %s' % self.fileUrl, xbmc.LOGDEBUG)
+                xbmc.log('[script.tvguide.fullscreen] HTTP download: %s' % slot, xbmc.LOGDEBUG)
                 total = 0
                 fileUrl = self.fileUrl
                 if ADDON.getSetting('gz') == 'true':
@@ -247,25 +255,24 @@ class FileFetcher(object):
                         if ADDON.getSetting('gz') == 'true':
                             r = requests.get(self.fileUrl,auth=auth, stream=True)
                             if r.status_code != requests.codes.ok:
-                                xbmc.log('[script.tvguide.fullscreen] no file: %s' % self.fileUrl, xbmc.LOGERROR)
-                                xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s" % self.fileUrl,xbmcgui.NOTIFICATION_ERROR)
+                                xbmc.log('[script.tvguide.fullscreen] HTTP download failed: %s (status %d)' % (slot, r.status_code), xbmc.LOGERROR)
+                                xbmcgui.Dialog().notification("TV Guide Fullscreen", "Download failed: %s (HTTP %d)" % (slot, r.status_code),xbmcgui.NOTIFICATION_ERROR)
                                 return self.FETCH_ERROR
                         else:
-                            xbmc.log('[script.tvguide.fullscreen] no file: %s' % fileUrl, xbmc.LOGERROR)
-                            xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
+                            xbmc.log('[script.tvguide.fullscreen] HTTP download failed: %s (status %d)' % (slot, r.status_code), xbmc.LOGERROR)
+                            xbmcgui.Dialog().notification("TV Guide Fullscreen", "Download failed: %s (HTTP %d)" % (slot, r.status_code),xbmcgui.NOTIFICATION_ERROR)
                             # Keep ordinary HTTP failures notification-only.
                             # XMLTV's retry marker schedules another attempt.
                             return self.FETCH_NOT_NEEDED
                     if "Content-Length" in r.headers:
                         total = int(r.headers['Content-Length'])
-                except Exception as detail:
-                    xbmc.log('[script.tvguide.fullscreen] bad request: %s (%s)' % (fileUrl,detail), xbmc.LOGERROR)
-                    xbmcgui.Dialog().notification("TV Guide Fullscreen", "failed to download %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
+                except Exception:
+                    xbmc.log('[script.tvguide.fullscreen] HTTP request failed: %s' % slot, xbmc.LOGERROR)
+                    xbmcgui.Dialog().notification("TV Guide Fullscreen", "Download request failed: %s" % slot,xbmcgui.NOTIFICATION_ERROR)
                     return self.FETCH_NOT_NEEDED
 
-                title = fileUrl.split('/')[-1]
                 d = xbmcgui.DialogProgressBG()
-                d.create('TV Guide Fullscreen', 'downloading %s' % title)
+                d.create('TV Guide Fullscreen', 'downloading %s' % slot)
                 chunk_size = 16 * 1024
                 size = 0
                 oldtime = time.time()
@@ -305,8 +312,8 @@ class FileFetcher(object):
                         md5.update(chunk)
                 md5_file = md5.hexdigest()
                 if md5_file != new_md5:
-                    xbmc.log('[script.tvguide.fullscreen] md5 mismatch: %s calculated:%s server:%s' % (self.fileUrl,md5_file,new_md5), xbmc.LOGERROR)
-                    xbmcgui.Dialog().notification("TV Guide Fullscreen", "failed md5 check %s",xbmcgui.NOTIFICATION_ERROR)
+                    xbmc.log('[script.tvguide.fullscreen] MD5 check failed: %s' % slot, xbmc.LOGERROR)
+                    xbmcgui.Dialog().notification("TV Guide Fullscreen", "MD5 check failed: %s" % slot,xbmcgui.NOTIFICATION_ERROR)
                     return self.FETCH_ERROR
             # XMLTV validation (including optional legacy entity repair) happens
             # only on our staging file, never on the usable last-good cache.
@@ -335,5 +342,5 @@ class FileFetcher(object):
             if check_md5:
                 xbmcvfs.File(self.filePath+".md5","wb").write(new_md5)
             retVal = self.FETCH_NOT_NEEDED if unchanged else self.FETCH_OK
-            xbmc.log('[script.tvguide.fullscreen] file %s was downloaded' % self.filePath, xbmc.LOGDEBUG)
+            xbmc.log('[script.tvguide.fullscreen] Cache updated: %s' % slot, xbmc.LOGDEBUG)
         return retVal
