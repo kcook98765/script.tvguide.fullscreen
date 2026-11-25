@@ -203,7 +203,8 @@ class ServiceSafety(unittest.TestCase):
         text = (ROOT / 'source.py').read_text()
         self.assertIn("if xbmcvfs.exists(lock):\n            return", text)
         self.assertIn("xbmcvfs.File(lock,'wb')", text)
-        self.assertIn('finally:\n            self.updateInProgress = False\n            c.close()\n        xbmcvfs.delete(lock)', text)
+        # Cleanup is now inside finally, including XMLTV cancellation/rollback.
+        self.assertIn('finally:\n            self.updateInProgress = False\n            c.close()\n            xbmcvfs.delete(lock)', text)
 
 
 if __name__ == '__main__':

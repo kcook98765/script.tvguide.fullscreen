@@ -5,18 +5,23 @@ import datetime
 import gzip
 import hashlib
 import os
+import re
 from pathlib import Path
 import shutil
+import sqlite3
 import tempfile
 import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 import uuid
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-A = b'<tv><channel id="a"><display-name>A</display-name></channel></tv>'
-B = b'<tv><channel id="b"><display-name>B</display-name></channel></tv>'
+A = (b'<tv><channel id="a"><display-name>A</display-name></channel>'
+     b'<programme channel="a" start="20261120120000 +0000" stop="20261120123000 +0000">'
+     b'<title>A</title><desc>Fixture</desc></programme></tv>')
+B = A.replace(b'id="a"', b'id="b"').replace(b'channel="a"', b'channel="b"').replace(b'>A<', b'>B<')
 
 
 def extract(path, name, env, methods=None):
@@ -39,6 +44,9 @@ class VFSFile:
 
     def readBytes(self, size=-1):
         return self.file.read(size) if self.file else b''
+
+    def size(self):
+        return os.fstat(self.file.fileno()).st_size
 
     def write(self, data):
         if 'b' in self.file.mode and isinstance(data, str):
@@ -72,13 +80,19 @@ class SourceCache(unittest.TestCase):
             File=VFSFile, copy=self.copy, delete=lambda path: os.remove(path),
             Stat=lambda path: SimpleNamespace(st_mtime=lambda: os.path.getmtime(path)))
         self.env = dict(os=os, datetime=datetime, time=time, gzip=gzip, hashlib=hashlib, uuid=uuid,
+                        sqlite3=sqlite3, ElementTree=ET, re=re,
                         requests=self.requests, ADDON=self.addon, xbmcvfs=vfs,
                         xbmc=SimpleNamespace(log=Mock(), LOGDEBUG=0, LOGERROR=4),
                         xbmcgui=SimpleNamespace(Dialog=Mock(), DialogProgressBG=Mock(),
                                                 NOTIFICATION_ERROR='error'))
         self.fetcher = extract('fileFetcher.py', 'FileFetcher', self.env)
         self.env['FileFetcher'] = self.fetcher
-        self.source_cls = extract('source.py', 'XMLTVSource', self.env, {'updateLocalFile'})
+        for name in ('Channel', 'Program'):
+            extract('utils.py', name, self.env)
+        extract('source.py', 'FileWrapper', self.env)
+        self.source_cls = extract('source.py', 'XMLTVSource', self.env, {
+            'updateLocalFile', 'validateLocalFile', 'parseXMLTV', 'parseXMLTVDate'})
+        self.source_cls.LOGO_SOURCE_FOLDER = 1
         self.source_cls.PLUGIN_DATA = str(self.profile)
         self.source = self.source_cls()
         self.source.needReset = False
@@ -281,7 +295,7 @@ class SourceCache(unittest.TestCase):
         self.fetch(str(local))
         self.copy.reset_mock()
         self.fetch(str(local), force=True)
-        self.copy.assert_not_called()  # unchanged local timestamp shortcut retained
+        self.copy.assert_called_once()  # XMLTV compares staged content, not timestamps
         os.utime(local, (time.time() + 10, time.time() + 10))
         local.write_bytes(A)
         self.fetch(str(local))

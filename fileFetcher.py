@@ -35,6 +35,7 @@ import gzip
 import requests
 import hashlib
 import uuid
+import sqlite3
 
 ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
 
@@ -63,9 +64,10 @@ class FileFetcher(object):
     addon = None
     fileType = TYPE_DEFAULT
 
-    def __init__(self, url, path, addon, track_source=False):
+    def __init__(self, url, path, addon, track_source=False, validator=None):
         self.addon = addon
         self.track_source = track_source
+        self.validator = validator
 
         if url.startswith("http://") or url.startswith("https://"):
             self.fileType = self.TYPE_REMOTE
@@ -82,15 +84,44 @@ class FileFetcher(object):
         if not os.path.exists(self.basePath):
             os.makedirs(self.basePath)
 
+    @staticmethod
+    def acquireXMLTVLock():
+        # SQLite's OS lock coordinates Kodi interpreters and releases on crash.
+        # Never unlink this file: doing so would split the lock's identity.
+        lock = sqlite3.connect(os.path.join(FileFetcher.basePath, 'xmltv.cache.lock'), timeout=0)
+        try:
+            lock.execute('BEGIN EXCLUSIVE')
+        except Exception:
+            lock.close()
+            raise
+        return lock
+
+    @staticmethod
+    def fileDigest(path):
+        digest = hashlib.sha256()
+        with open(path, 'rb') as data:
+            for chunk in iter(lambda: data.read(1024 * 1024), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
+
     def fetchFile(self,force=False):
         # Never clean up another foreground/service fetch's staging files.
         tmpFile = os.path.join(self.basePath, self.fileName+'.'+uuid.uuid4().hex+'.tmp')
+        lock = None
         try:
+            if self.track_source:
+                try:
+                    lock = self.acquireXMLTVLock()
+                except sqlite3.OperationalError:
+                    # Another fetch/import owns the caches; keep last-good data.
+                    return self.FETCH_NOT_NEEDED
             return self._fetchFile(force, tmpFile)
         except Exception:
             xbmc.log('[script.tvguide.fullscreen] Failed to fetch cache file', xbmc.LOGERROR)
             return self.FETCH_ERROR
         finally:
+            if lock is not None:
+                lock.close()
             for path in (tmpFile, tmpFile+'.decoded'):
                 try:
                     os.remove(path)
@@ -111,7 +142,7 @@ class FileFetcher(object):
         fetch = False
         if not os.path.exists(self.filePath):  # always fetch if file doesn't exist!
             fetch = True
-        elif force == True or source_changed:
+        elif force == True or source_changed or (self.track_source and self.fileType == self.TYPE_DEFAULT):
             fetch = True
         else:
             interval = int(self.addon.getSetting('xmltv.interval'))
@@ -140,7 +171,7 @@ class FileFetcher(object):
                 auth = (user, password)
             if self.fileType == self.TYPE_DEFAULT:
                 xbmc.log('[script.tvguide.fullscreen] file is in remote location: %s' % self.fileUrl, xbmc.LOGDEBUG)
-                if not source_changed and xbmcvfs.exists(self.filePath):
+                if not self.track_source and not source_changed and xbmcvfs.exists(self.filePath):
                     st = xbmcvfs.Stat(self.fileUrl)
                     src_modified = st.st_mtime()
                     st = xbmcvfs.Stat(self.filePath)
@@ -230,6 +261,14 @@ class FileFetcher(object):
                     xbmc.log('[script.tvguide.fullscreen] md5 mismatch: %s calculated:%s server:%s' % (self.fileUrl,md5_file,new_md5), xbmc.LOGERROR)
                     xbmcgui.Dialog().notification("TV Guide Fullscreen", "failed md5 check %s",xbmcgui.NOTIFICATION_ERROR)
                     return self.FETCH_ERROR
+            # XMLTV validation (including optional legacy entity repair) happens
+            # only on our staging file, never on the usable last-good cache.
+            if self.validator is not None:
+                self.validator(tmpFile)
+            if (self.track_source and self.fileType == self.TYPE_DEFAULT and
+                    not source_changed and os.path.exists(self.filePath) and
+                    self.fileDigest(tmpFile) == self.fileDigest(self.filePath)):
+                return self.FETCH_NOT_NEEDED
             # Invalidate first: a marker-write failure must never bind new bytes
             # to the previous source. Missing/partial markers safely force retry.
             if self.track_source and os.path.exists(self.filePath+'.source'):
