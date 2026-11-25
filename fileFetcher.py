@@ -139,6 +139,7 @@ class FileFetcher(object):
                     pass
 
     def _fetchFile(self, force, tmpFile):
+        assert self.addon is not None  # Provided by __init__ before fetching.
         retVal = self.FETCH_NOT_NEEDED
         retry_pending = self.track_source and os.path.exists(self.filePath+'.retry')
         source_changed = False

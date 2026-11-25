@@ -27,6 +27,7 @@
 
 import os
 import hashlib
+from typing import Dict, Optional, Tuple
 import threading
 import datetime
 from dateutil import tz
@@ -417,6 +418,7 @@ class Database(object):
             return True
 
         if self.source.KEY == 'xmltv':
+            assert self.conn is not None  # This DB-thread query requires initialize().
             source_row = self.conn.execute('SELECT channels_updated FROM sources WHERE id=?',
                                            [self.source.KEY]).fetchone()
             if (source_row is None or source_row[0] is None or
@@ -477,6 +479,7 @@ class Database(object):
             lock.close()
 
     def _updateChannelAndProgramListCachesLocked(self, date, progress_callback, clearExistingProgramList):
+        assert self.conn is not None  # This DB-thread import requires initialize().
         # todo workaround service.py 'forgets' the adapter and convert set in _initialize.. wtf?!
         sqlite3.register_adapter(datetime.datetime, self.adapt_datetime)
         sqlite3.register_converter('timestamp', self.convert_datetime)
@@ -2276,11 +2279,11 @@ class XMLTVSource(Source):
             self.fix_xml(path)
         # Exercise the real streaming parser/models before promoting cache bytes.
         # Validation must not change category counts, query logos or show progress.
-        staged = FileWrapper(path)
-        try:
+        # Fetcher staging paths are native local files; source reads remain VFS.
+        with open(path, 'rb') as staged:
             context = ElementTree.iterparse(staged, events=('start', 'end'))
             programmes = 0
-            for item in self.parseXMLTV(context, staged, staged.size, '', None, 0, validate_only=True):
+            for item in self.parseXMLTV(context, staged, os.path.getsize(path), '', None, 0, validate_only=True):
                 if isinstance(item, Program):
                     programmes += 1
             if not programmes:
@@ -2288,12 +2291,10 @@ class XMLTVSource(Source):
             # XMLTV channel declarations are optional. References may resolve
             # through the primary feed or saved channels; the merged DB import
             # enforces actual foreign keys in its rollback-safe transaction.
-        finally:
-            staged.close()
 
     def getCacheKey(self):
         if not hasattr(self, '_cacheDigests'):
-            self._cacheDigests = {}
+            self._cacheDigests: Dict[str, Tuple[Optional[Tuple[int, int, int, int, int]], str]] = {}
 
         def digest(path):
             if not os.path.isfile(path):
@@ -2313,11 +2314,11 @@ class XMLTVSource(Source):
                 continue
             parts.append((slot, digest(path), digest(path + '.source'),
                           ADDON.getSetting(slot + '.offset')))
-        parts.append(tuple(ADDON.getSetting(key) for key in
-                           ('xmltv.date', 'logos.source', 'logos.folder', 'logos.url',
-                             'xmltv.logos', 'thelogodb', 'logos.keep')))
-        parts.append(digest(os.path.join(self.PLUGIN_DATA, 'channel_id_shortcut.ini')))
-        return hashlib.sha256(repr(parts).encode('utf-8')).hexdigest()
+        settings = tuple(ADDON.getSetting(key) for key in
+                         ('xmltv.date', 'logos.source', 'logos.folder', 'logos.url',
+                          'xmltv.logos', 'thelogodb', 'logos.keep'))
+        cache_key = (parts, settings, digest(os.path.join(self.PLUGIN_DATA, 'channel_id_shortcut.ini')))
+        return hashlib.sha256(repr(cache_key).encode('utf-8')).hexdigest()
 
     def getDataFromExternal(self, date, ch_list, progress_callback=None):
         for slot, path in (('xmltv', self.xmltvFile), ('xmltv2', self.xmltv2File),
