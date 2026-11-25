@@ -65,11 +65,13 @@ as a promise that every legacy integration works. See the detailed
 3. Choose **Install from repository → kcook-lab-repo → Program add-ons →
    TV Guide Fullscreen**.
 
-Check the catalog for your Kodi version for the latest available build.
-[Matrix](https://kcook98765.github.io/kcook-lab-repo/catalogs/matrix/addons.xml),
-[Nexus](https://kcook98765.github.io/kcook-lab-repo/catalogs/nexus/addons.xml) and
-[Omega](https://kcook98765.github.io/kcook-lab-repo/catalogs/omega/addons.xml)
-are the published lanes. Piers 22.x is outside repository publication.
+The [Nexus 20.x](https://kcook98765.github.io/kcook-lab-repo/catalogs/nexus/addons.xml)
+and [Omega 21.x](https://kcook98765.github.io/kcook-lab-repo/catalogs/omega/addons.xml)
+catalogs offer **0.1.2 Beta**. The
+[Matrix 19.x catalog](https://kcook98765.github.io/kcook-lab-repo/catalogs/matrix/addons.xml)
+stays on **0.1.1 Beta** pending investigation of the
+[Matrix startup fault](https://github.com/kcook98765/script.tvguide.fullscreen/issues/82).
+Piers 22.x is a development preview and is outside TV Guide repository publication.
 
 ### Direct GitHub Beta ZIP
 
@@ -107,7 +109,10 @@ You need your own sources and stream/content entitlements.
 
 Back up your **Kodi profile, TV Guide settings, channel/stream mappings and saved
 reminder/AutoPlay rules** first; a separate test profile is preferable. The same
-add-on ID supports the normal in-place update path. Updates from older builds
+add-on ID supports the normal in-place update path. A native 0.1.1 to 0.1.2
+upgrade using the exact ZIPs on disposable Omega 21.3 preserved user settings,
+channels and saved stream mappings. The ZIP upgrade ran through a private test
+feed. Public catalog availability was verified separately. Updates from older builds
 or different fork IDs can require separate migration checks.
 Changing source offsets may reuse cached programmes; read the
 [refresh and rule-preservation cautions](docs/xmltv-source-offsets.md) before forcing refreshes.
