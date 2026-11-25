@@ -935,13 +935,14 @@ class Database(object):
         search = "%%%s%%" % search
         for channel in channelList:
 
+            # XMLTV episode titles may be stored separately from the series title.
             if ADDON.getSetting('program.search.plot') == 'true':
-                try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND start_date>=? AND end_date<=? AND (title LIKE ? OR description LIKE ?)',
-                          [channel.id, self.source.KEY, startTime, endTime, search, search])
+                try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND start_date>=? AND end_date<=? AND (title LIKE ? OR sub_title LIKE ? OR description LIKE ?)',
+                          [channel.id, self.source.KEY, startTime, endTime, search, search, search])
                 except: return
             else:
-                try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND start_date>=? AND end_date<=? AND title LIKE ?',
-                          [channel.id, self.source.KEY, startTime, endTime, search])
+                try: c.execute('SELECT * FROM programs WHERE channel=? AND source=? AND start_date>=? AND end_date<=? AND (title LIKE ? OR sub_title LIKE ?)',
+                          [channel.id, self.source.KEY, startTime, endTime, search, search])
                 except: return
             for row in c:
                 program = Program(channel, title=row['title'], sub_title=row['sub_title'], startDate=row['start_date'], endDate=row['end_date'],
