@@ -63,6 +63,8 @@ An already committed import is reused, not repeated on every redraw.
 Existing channel order, visibility, category/lineup, non-null automatic streams,
 manual/alternative mappings and reminder/AutoPlay rules survive refresh,
 including Reset on Start. Explicit Reset Database remains separate.
+The bounded [fresh-profile order follow-up](xmltv-initial-order.md) distinguishes
+initial automatic M3U seeding from saved user order without reordering upgrades.
 
 XMLTV cache producers and all current DB importers coordinate using the same
 SQLite OS lock (`xmltv.cache.lock`), released on process exit. Never unlink it.

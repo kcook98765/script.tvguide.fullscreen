@@ -515,6 +515,12 @@ class Database(object):
             if preserve:
                 cache_key = self.source.getCacheKey()
                 self.conn.execute('BEGIN IMMEDIATE')
+            initial_order: Optional[Dict[str, int]] = None
+            if preserve:
+                row = c.execute('SELECT value FROM settings WHERE key=?',
+                                ['xmltv.initial.order']).fetchone()
+                if row is not None and row[0] == 'pending' and ADDON.getSetting('mapping.m3u.order') != 'true':
+                    initial_order = {}  # First declaration wins, including merged sources.
             xbmc.log('[script.tvguide.fullscreen] Updating caches...', xbmc.LOGDEBUG)
             if progress_callback:
                 progress_callback(0)
@@ -570,6 +576,8 @@ class Database(object):
                     if isinstance(item, Channel):
                         imported_channels += 1
                         channel = item
+                        if initial_order is not None:
+                            initial_order.setdefault(channel.id, len(initial_order))
                         c.execute(
                             'INSERT OR IGNORE INTO channels(id, title, logo, stream_url, visible, weight, source) VALUES(?, ?, ?, ?, ?, (CASE ? WHEN -1 THEN (SELECT COALESCE(MAX(weight)+1, 0) FROM channels WHERE source=?) ELSE ? END), ?)',
                             [channel.id, channel.title, channel.logo, channel.streamUrl, channel.visible, channel.weight,
@@ -693,6 +701,16 @@ class Database(object):
                                 raise
                             log(e)
             if preserve:
+                if initial_order:
+                    # Only a new DB's automatic M3U seed may yield to XMLTV.
+                    # Keep undeclared/M3U-only rows after declarations, stably.
+                    remaining = [row[0] for row in c.execute(
+                        'SELECT id FROM channels WHERE source=? ORDER BY weight, rowid',
+                        [self.source.KEY]) if row[0] not in initial_order]
+                    for weight, channel_id in enumerate(list(initial_order) + remaining):
+                        c.execute('UPDATE channels SET weight=? WHERE id=? AND source=?',
+                                  [weight, channel_id, self.source.KEY])
+                c.execute('DELETE FROM settings WHERE key=?', ['xmltv.initial.order'])
                 c.execute('INSERT OR REPLACE INTO settings(key, value) VALUES(?, ?)',
                           ['xmltv.imported.cache', cache_key])
             self.conn.commit()
@@ -912,26 +930,32 @@ class Database(object):
         c.close()
         return channelList
 
-    def saveChannelListBlock(self, channelList):
-        result = self._invokeAndBlockForResult(self._saveChannelListBlock, channelList)
+    def saveChannelListBlock(self, channelList, initial_m3u=False):
+        result = self._invokeAndBlockForResult(self._saveChannelListBlock, channelList, initial_m3u)
         return result
 
-    def _saveChannelListBlock(self, channelList):
+    def _saveChannelListBlock(self, channelList, initial_m3u=False):
         # Update in place: deleting channels cascades to cached programmes/rules.
-        return self._saveChannelList(channelList)
+        return self._saveChannelList(channelList, initial_m3u)
 
     def saveChannelList(self, callback, channelList):
         self.eventQueue.append([self._saveChannelList, callback, channelList])
         self.event.set()
 
-    def _saveChannelList(self, channelList):
+    def _saveChannelList(self, channelList, initial_m3u=False):
         c = self.conn.cursor()
+        initial_m3u = initial_m3u and self.source.KEY == 'xmltv'
+        if self.source.KEY == 'xmltv' and not initial_m3u:
+            # A user save or explicit M3U reorder is no longer an incidental seed.
+            c.execute('DELETE FROM settings WHERE key=?', ['xmltv.initial.order'])
         for idx, channel in enumerate(channelList):
             c.execute(
                 'INSERT OR IGNORE INTO channels(id, title, logo, stream_url, visible, weight, source) VALUES(?, ?, ?, ?, ?, (CASE ? WHEN -1 THEN (SELECT COALESCE(MAX(weight)+1, 0) FROM channels WHERE source=?) ELSE ? END), ?)',
                 [channel.id, channel.title, channel.logo, channel.streamUrl, channel.visible, channel.weight,
                  self.source.KEY, channel.weight, self.source.KEY])
-            if not c.rowcount:
+            # Automatic seeding only inserts: a service import may have changed
+            # saved weights/visibility since the foreground read this list.
+            if not c.rowcount and not initial_m3u:
                 c.execute(
                     'UPDATE channels SET title=?, logo=?, stream_url=?, visible=?, weight=(CASE ? WHEN -1 THEN weight ELSE ? END) WHERE id=? AND source=?',
                     [channel.title, channel.logo, channel.streamUrl, channel.visible, channel.weight, channel.weight,
@@ -1561,6 +1585,8 @@ class Database(object):
 
     def _createTables(self):
         c = self.conn.cursor()
+        # Empty histories/timestamps in an existing DB are NOT proof of freshness.
+        fresh_database = c.execute("SELECT 1 FROM sqlite_master WHERE type='table'").fetchone() is None
 
         try:
             c.execute('SELECT major, minor, patch FROM version')
@@ -1674,6 +1700,11 @@ class Database(object):
 
             # make sure we have a record in sources for this Source
             c.execute("INSERT OR IGNORE INTO sources(id, channels_updated) VALUES(?, ?)", [self.source.KEY, 0])
+
+            if fresh_database and self.source.KEY == 'xmltv':
+                # Durable provenance, committed with first schema creation only.
+                c.execute('INSERT INTO settings(key, value) VALUES(?, ?)',
+                          ['xmltv.initial.order', 'pending'])
 
             self.conn.commit()
             c.close()
