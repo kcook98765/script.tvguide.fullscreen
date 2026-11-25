@@ -4077,7 +4077,7 @@ class TVGuide(xbmcgui.WindowXML):
                     f = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/categories.ini','wb')
                     for cat in categories:
                         channels = categories[cat]
-                        for channel in list(set(channels)):
+                        for channel in dict.fromkeys(channels):
                             f.write("%s=%s\n" % (channel,cat))
                     f.close()
                     categories = sorted(categories)

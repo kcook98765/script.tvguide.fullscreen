@@ -1,16 +1,20 @@
-"""Issue #88 bundled PopupMenu XML regression, NOT native mouse acceptance.
+"""Issue #88 PopupMenu XML and category-write regressions, not native acceptance.
 
 Nexus CGUIControlGroup::SendMouseEvent visits children in reverse XML order;
 CGUIBaseContainer::OnMouseOver selects under the pointer and wheel events scroll
 the container. Keep the transparent close button behind interactive controls and
-the category container confined to its drawn column. No Kodi/stub execution.
+the category container confined to its drawn column. The M3U write check executes
+only the source-preservation transformation with synthetic data. No Kodi/stubs.
 
 Real pre-fix XML negative control (must fail):
   python3 tests/check_category_mouse_layering.py --skin-ref v0.1.2-beta
 """
 import argparse
+import ast
+import io
 from pathlib import Path
 import subprocess
+from types import SimpleNamespace
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -33,6 +37,46 @@ def control(root, control_id):
     if len(matches) != 1:
         raise AssertionError('Expected one control {}'.format(control_id))
     return matches[0]
+
+
+class CategoryWriteOrder(unittest.TestCase):
+    def test_m3u_startup_preserves_order_and_adds_members(self):
+        tree = ast.parse((ROOT / 'gui.py').read_text())
+        block, = [n for n in ast.walk(tree) if isinstance(n, ast.If)
+                  and isinstance(n.test, ast.Name) and n.test.id == 'import_m3u']
+        start, = [i for i, n in enumerate(block.body) if isinstance(n, ast.Assign)
+                  and any(isinstance(t, ast.Name) and t.id == 'categories'
+                          for t in n.targets) and isinstance(n.value, ast.Dict)]
+        end = next(i for i in range(start, len(block.body))
+                   if isinstance(block.body[i], ast.For)
+                   and isinstance(block.body[i].target, ast.Name)
+                   and block.body[i].target.id == 'cat')
+        # Execute the actual saved-lines -> additive merge -> write only.
+        code = compile(ast.Module(body=block.body[start:end + 1], type_ignores=[]),
+                       'gui.py:category-preservation', 'exec')
+
+        class Label(str):
+            def __hash__(self):
+                return int(self)  # Fixed hashes: independent of PYTHONHASHSEED.
+
+        class SavedLine(str):
+            def rsplit(self, *args):
+                name, category = super().rsplit(*args)
+                return Label(name), category
+
+        saved = ['3=Custom', '1=Custom', '3=Custom', '2=Other', '1=Other']
+        expected = '3=Custom\n1=Custom\n4=Custom\n2=Other\n1=Other\n5=New\n'
+        for _ in range(2):  # Repeated ordinary startup must remain stable.
+            output = io.StringIO()
+            env = dict(lines=[SavedLine(line) for line in saved],
+                       stream_categories={Label('1'): 'Custom', Label('4'): 'Custom',
+                                          Label('5'): 'New'},
+                       stream_id_categories={'known': 'Custom', 'missing': 'Other'},
+                       channelNames={'known': Label('4')},
+                       xbmcvfs=SimpleNamespace(File=lambda *args: output))
+            exec(code, env)
+            self.assertEqual(output.getvalue(), expected)
+            saved = output.getvalue().splitlines()
 
 
 class CategoryMouseLayering(unittest.TestCase):
