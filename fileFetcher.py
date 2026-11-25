@@ -252,13 +252,15 @@ class FileFetcher(object):
                         else:
                             xbmc.log('[script.tvguide.fullscreen] no file: %s' % fileUrl, xbmc.LOGERROR)
                             xbmcgui.Dialog().notification("TV Guide Fullscreen", "bad status code %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
-                            return self.FETCH_ERROR if self.track_source else self.FETCH_NOT_NEEDED
+                            # Keep ordinary HTTP failures notification-only.
+                            # XMLTV's retry marker schedules another attempt.
+                            return self.FETCH_NOT_NEEDED
                     if "Content-Length" in r.headers:
                         total = int(r.headers['Content-Length'])
                 except Exception as detail:
                     xbmc.log('[script.tvguide.fullscreen] bad request: %s (%s)' % (fileUrl,detail), xbmc.LOGERROR)
                     xbmcgui.Dialog().notification("TV Guide Fullscreen", "failed to download %s " % fileUrl,xbmcgui.NOTIFICATION_ERROR)
-                    return self.FETCH_ERROR if self.track_source else self.FETCH_NOT_NEEDED
+                    return self.FETCH_NOT_NEEDED
 
                 title = fileUrl.split('/')[-1]
                 d = xbmcgui.DialogProgressBG()

@@ -2280,17 +2280,14 @@ class XMLTVSource(Source):
         try:
             context = ElementTree.iterparse(staged, events=('start', 'end'))
             programmes = 0
-            channels, programme_channels = set(), set()
             for item in self.parseXMLTV(context, staged, staged.size, '', None, 0, validate_only=True):
                 if isinstance(item, Program):
                     programmes += 1
-                    programme_channels.add(item.channel)
-                elif isinstance(item, Channel):
-                    channels.add(item.id)
             if not programmes:
                 raise ValueError('XMLTV source has no usable programmes')
-            if not programme_channels.issubset(channels):
-                raise ValueError('XMLTV programmes reference undeclared channels')
+            # XMLTV channel declarations are optional. References may resolve
+            # through the primary feed or saved channels; the merged DB import
+            # enforces actual foreign keys in its rollback-safe transaction.
         finally:
             staged.close()
 
@@ -2328,6 +2325,12 @@ class XMLTVSource(Source):
             if slot != 'xmltv' and ADDON.getSetting(slot + '.enabled') != 'true':
                 continue
             if not path or not xbmcvfs.exists(path):
+                # Beta writes .source only after successful cache promotion.
+                # Never silently drop a previously bound slot's programmes,
+                # but an initially unavailable optional slot must not block
+                # importing the primary. Main cache remains mandatory.
+                if slot != 'xmltv' and path and not xbmcvfs.exists(path + '.source'):
+                    continue
                 raise SourceNotConfiguredException()
             programmes = 0
             offset = int(ADDON.getSetting(slot + '.offset'))

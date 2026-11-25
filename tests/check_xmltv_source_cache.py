@@ -148,6 +148,37 @@ class SourceCache(unittest.TestCase):
         self.requests.get.assert_not_called()
         self.assertFalse(self.cache.with_suffix('.xml.source').exists())
 
+    def test_http_failure_outcomes_keep_notifications_nonblocking_and_retry_scoped(self):
+        for tracked in (False, True):
+            for failure in ('status', 'request', 'gz-status'):
+                with self.subTest(tracked=tracked, failure=failure):
+                    self.settings['gz'] = 'true' if failure == 'gz-status' else 'false'
+                    self.status = 503
+                    self.requests.get.side_effect = (OSError('offline') if failure == 'request'
+                                                     else self.download)
+                    self.env['xbmcgui'].Dialog.reset_mock()
+                    retry = Path(str(self.cache) + '.retry')
+                    retry.unlink(missing_ok=True)
+                    fetcher = self.fetcher('https://example.invalid/a.xml', str(self.cache),
+                                           self.addon, track_source=tracked)
+                    expected = fetcher.FETCH_ERROR if failure == 'gz-status' else fetcher.FETCH_NOT_NEEDED
+                    self.assertEqual(fetcher.fetchFile(force=True), expected)
+                    self.env['xbmcgui'].Dialog.return_value.notification.assert_called_once()
+                    self.env['xbmcgui'].Dialog.return_value.ok.assert_not_called()
+                    self.assertEqual(retry.exists(), tracked)
+
+    def test_xmltv_http_errors_do_not_add_blocking_dialog(self):
+        url = 'https://example.invalid/a.xml'
+        self.fetch(url)
+        for failure in ('status', 'request'):
+            self.status = 503
+            self.requests.get.side_effect = OSError('offline') if failure == 'request' else self.download
+            self.env['xbmcgui'].Dialog.reset_mock()
+            self.fetch(url, force=True)
+            self.env['xbmcgui'].Dialog.return_value.ok.assert_not_called()
+            self.assertTrue(Path(str(self.cache) + '.retry').exists())
+            self.assertEqual(self.cache.read_bytes(), A)
+
     def test_unchanged_source_reuses_fresh_cache_and_force_downloads(self):
         url = 'https://example.invalid/a.xml'
         self.fetch(url)

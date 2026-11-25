@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <channel id="shared"><display-name>Shared</display-name></channel>
+  <channel id="solo"><display-name>Solo</display-name></channel>
+  <programme channel="shared" start="20261120120000 +0000" stop="20261120123000 +0000"><title>Primary</title></programme>
+  <programme channel="solo" start="20261120120000 +0000" stop="20261120123000 +0000"><title>Primary solo</title></programme>
+</tv>

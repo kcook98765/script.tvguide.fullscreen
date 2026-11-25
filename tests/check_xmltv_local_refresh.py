@@ -493,7 +493,7 @@ class LocalRefresh(unittest.TestCase):
         self.inputs[1].unlink()
         path.unlink()
         self.inputs[0].write_bytes(feed('xmltv', True))
-        self.reopen()  # First optional load fails, while primary offers new rows.
+        self.reopen()  # Previously bound optional cache lost; primary has new rows.
         self.update(db)
         self.assertTrue(db.updateFailed)
         self.assertEqual(self.snapshot(db), before)
@@ -511,14 +511,76 @@ class LocalRefresh(unittest.TestCase):
             good = cache.read_bytes()
             for bad in (b'<tv/>', feed(slot).replace(b'start=', b'ignored='),
                         feed(slot).replace(b'20261120123000', b'20261120110000').replace(
-                            b'20261120130000', b'20261120110000'),
-                        feed(slot).replace(b'channel="' + slot.encode() + b'"', b'channel="orphan"')):
+                             b'20261120130000', b'20261120110000')):
                 self.inputs[index].write_bytes(bad)
                 self.reopen(force=True)
                 self.assertEqual(cache.read_bytes(), good)
                 self.update(db)
                 self.assertEqual(self.snapshot(db), before)
             self.inputs[index].write_bytes(good)
+
+    def test_initially_unavailable_optional_slots_allow_real_primary_import(self):
+        for index, slot in ((1, 'xmltv2'), (2, 'xmltv3')):
+            self.inputs[index].unlink()
+            for suffix in ('.xml', '.xml.source', '.xml.validated'):
+                (self.profile / (slot + suffix)).unlink()
+        self.reopen()
+        db = self.database()
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.assertEqual([tuple(row) for row in db.conn.execute(
+            "SELECT channel,title FROM programs ORDER BY start_date")],
+                         [('xmltv', 'Old'), ('xmltv', 'Removed')])
+        self.inputs[0].write_bytes(feed('xmltv', True))
+        self.reopen()
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.assertEqual([row[0] for row in db.conn.execute(
+            "SELECT title FROM programs ORDER BY start_date")], ['New', 'Added'])
+        # Missing main cache is never optional, even without a binding.
+        self.inputs[0].unlink()
+        self.cache.unlink()
+        Path(str(self.cache) + '.source').unlink()
+        with self.assertRaises(self.env['SourceNotConfiguredException']):
+            self.reopen()
+
+    def test_programme_only_supplement_merges_and_orphan_rolls_back(self):
+        primary = (cache_tests.ROOT / 'tests/fixtures/xmltv-merged-primary.xml').read_bytes()
+        supplement = (cache_tests.ROOT / 'tests/fixtures/xmltv-merged-supplement.xml').read_bytes()
+        self.inputs[0].write_bytes(primary)
+        self.inputs[1].write_bytes(supplement)
+        self.settings.update({'xmltv2.offset': '0', 'xmltv3.enabled': 'false'})
+        self.reopen()
+        self.assertEqual((self.profile / 'xmltv2.xml').read_bytes(), supplement)
+        db = self.database()
+        self.update(db)
+        self.assertFalse(db.updateFailed)
+        self.assertEqual([tuple(row) for row in db.conn.execute(
+            "SELECT channel,title FROM programs ORDER BY channel,start_date")],
+                         [('shared', 'Primary'), ('shared', 'Supplement'),
+                          ('shared', 'Supplement later'), ('solo', 'Primary solo')])
+        self.assertEqual(db.conn.execute('PRAGMA foreign_key_check').fetchall(), [])
+        before = self.snapshot(db)
+        # Offline/malformed refreshes keep the now-usable programme-only cache.
+        cache = self.profile / 'xmltv2.xml'
+        binding = Path(str(cache) + '.source').read_bytes()
+        for replacement in (None, b'<tv/>', b'<tv><programme'):
+            if replacement is None:
+                self.inputs[1].unlink()
+            else:
+                self.inputs[1].write_bytes(replacement)
+            self.reopen(force=True)
+            self.assertEqual(cache.read_bytes(), supplement)
+            self.assertEqual(Path(str(cache) + '.source').read_bytes(), binding)
+            self.update(db)
+            self.assertFalse(db.updateFailed)
+            self.assertEqual(self.snapshot(db), before)
+        # No artificial per-file declaration rule: real merged FK failure rolls back.
+        self.inputs[1].write_bytes(supplement.replace(b'channel="shared"', b'channel="orphan"'))
+        self.reopen()
+        self.update(db)
+        self.assertTrue(db.updateFailed)
+        self.assertEqual(self.snapshot(db), before)
 
     def test_promotion_without_import_and_committed_import_survive_reopen(self):
         filename = str(self.profile / 'fixture.db')

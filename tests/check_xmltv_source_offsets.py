@@ -123,12 +123,9 @@ class SourceOffsets(unittest.TestCase):
                     continue
 
                 active = [0] + [i for i in (1, 2) if enabled[i - 1] and present[i]]
-                if any(enabled[i - 1] and not present[i] for i in (1, 2)):
-                    # #85: silently skipping an enabled missing cache would let
-                    # a successful primary import erase that slot's old rows.
-                    with self.assertRaises(env['SourceNotConfiguredException']):
-                        list(source.getDataFromExternal(date, channels, progress))
-                    continue
+                # No .source markers in this fixture: absent optional caches
+                # are initially unavailable. Bound-cache loss/rollback is
+                # exercised against the real schema in local-refresh tests.
                 rows = list(source.getDataFromExternal(date, channels, progress))
                 self.assertEqual(len(rows), 2 * len(active))
                 # Preserve primary/secondary/tertiary order, channel identity and
