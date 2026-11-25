@@ -1,4 +1,4 @@
-# TV Guide Fullscreen — 0.1.3 Beta preparation
+# TV Guide Fullscreen — 0.1.3 Beta
 
 ## Introduction
 
@@ -6,14 +6,12 @@ TV Guide Fullscreen is a fullscreen XMLTV programme guide for Kodi: browse listi
 map channels to streams, search programmes, and set reminders or ordinary AutoPlay.
 This maintained Python 3 modernization fork builds on **primaeval's TV Guide
 Fullscreen**, retaining its Program add-on and background service.
-**0.1.3 Beta is prepared, pending owner review and publication.** Independent
-exact-version ZIP install/upgrade checks are complete within the
-[documented scope](docs/beta-0.1.3.md#qualification). The published release remains
-**[0.1.2 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.2-beta)**;
-the Nexus/Omega and direct ZIP links below still install that version. TV Guide Fullscreen
+**[0.1.3 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.3-beta)** is available for Kodi Nexus and Omega.
+Independent exact-version ZIP install and upgrade checks are complete within the
+[documented scope](docs/beta-0.1.3.md#qualification). TV Guide Fullscreen
 supplies no subscriptions or feeds.
 
-## Prepared for 0.1.3
+## What changed in 0.1.3
 
 - Reliable [same-path XMLTV refresh](docs/xmltv-local-refresh.md), including changed
   local content with unchanged or older timestamps.
@@ -24,7 +22,7 @@ supplies no subscriptions or feeds.
   matching) respects visibility and the configured listing window, without
   silently falling back to all channels. Separate synopsis/category search
   routes are not covered by this strict-scoping correction.
-- Restored Kodi native Favorites navigation and return to the guide.
+- Restored Kodi native Favorites navigation, including return focus on Nexus.
 - Working category mouse interaction and preserved category membership order.
 
 On fresh profiles, [XMLTV declaration order](docs/xmltv-initial-order.md) applies
@@ -86,20 +84,21 @@ as a promise that every legacy integration works. See the detailed
 
 The [Nexus 20.x](https://kcook98765.github.io/kcook-lab-repo/catalogs/nexus/addons.xml)
 and [Omega 21.x](https://kcook98765.github.io/kcook-lab-repo/catalogs/omega/addons.xml)
-catalogs offer **0.1.2 Beta**. The
+catalogs offer **0.1.3 Beta**. The
 [Matrix 19.x catalog](https://kcook98765.github.io/kcook-lab-repo/catalogs/matrix/addons.xml)
 stays on **0.1.1 Beta** pending investigation of the
 [Matrix startup fault](https://github.com/kcook98765/script.tvguide.fullscreen/issues/82).
 Piers 22.x is a development preview and is outside TV Guide repository publication.
-The planned 0.1.3 publication scope is Nexus/Omega only; it is not yet available
-through these installation routes.
+Existing Nexus and Omega repository users can update in place after Kodi refreshes
+the repository catalog. Keep the existing add-on installed and follow the upgrade
+guidance below.
 
 ### Direct GitHub Beta ZIP
 
-Download the [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.2-beta/script.tvguide.fullscreen-0.1.2.zip)
-and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.2-beta/SHA256SUMS)
+Download the [installer ZIP](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.3-beta/script.tvguide.fullscreen-0.1.3.zip)
+and [SHA256SUMS](https://github.com/kcook98765/script.tvguide.fullscreen/releases/download/v0.1.3-beta/SHA256SUMS)
 together without renaming. Run `sha256sum --check --strict SHA256SUMS` there;
-require `script.tvguide.fullscreen-0.1.2.zip: OK` before **Install from zip file**.
+require `script.tvguide.fullscreen-0.1.3.zip: OK` before **Install from zip file**.
 Do not install after a verification failure or use source-snapshot ZIPs as installers.
 Both routes require ordinary **Unknown sources** consent when prompted; ask your
 administrator if policy prevents installation, rather than bypassing it. No Reset is required.
@@ -134,8 +133,8 @@ same add-on ID, `script.tvguide.fullscreen`, for a normal in-place update;
 **do not uninstall with data removal or Reset Database**. Keep Kodi's official
 repository enabled so Kodi can resolve all six required dependencies normally;
 do not replace them with bundled modules or bypass dependency errors.
-For 0.1.3, wait for owner publication and its verified installer/checksum or
-catalog update. No guide reset is needed. Independent exact-0.1.3 checks passed
+Use the updated Nexus or Omega catalog or the verified 0.1.3 installer ZIP.
+No guide reset is needed. Independent exact-0.1.3 checks passed
 published-0.1.2 upgrade on Nexus 20.5 and integrated-0.1.2 upgrades on Omega 21.3
 and Piers RC2 preview, preserving captured guide state; see the
 [qualification limits](docs/beta-0.1.3.md#qualification). A native 0.1.1 to 0.1.2

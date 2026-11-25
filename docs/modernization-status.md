@@ -1,9 +1,7 @@
 # Current fork feature and qualification status
 
-**Current release-facing status: [0.1.3 Beta preparation](beta-0.1.3.md), pending
-owner review and publication.** Published install links remain 0.1.2.
-Planned publication is Nexus/Omega; Matrix retains its 0.1.1
-catalog and Piers is preview-only. Independent exact-0.1.3 checks passed published
+**[0.1.3 Beta](beta-0.1.3.md) is published for Nexus and Omega.** Matrix retains
+its 0.1.1 catalog and Piers is a forward-compatibility preview. Independent exact-0.1.3 checks passed published
 0.1.2 upgrade on Nexus 20.5 and integrated 0.1.2 upgrades on Omega 21.3/Piers RC2,
 including fresh guide execution, programme focus, preserved captured state and
 clean final stop/release. Piers remains forward smoke only; Matrix was not launched.

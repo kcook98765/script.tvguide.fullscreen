@@ -7,12 +7,11 @@ No native run, static gate or package rebuild was performed for the original rel
 
 ## 0.1.3 Beta preparation — 25 November 2026
 
-**Prepared/pending owner review and publication.** Independent exact-version ZIP
-qualification is complete within the
-[0.1.3 release/prerelease notes' scope](beta-0.1.3.md#qualification), separate from
-the retained feature-specific integrated-runtime evidence below. Published
-README installation links remain 0.1.2; planned publication is Nexus/Omega only,
-Matrix retains the 0.1.1 catalog and Piers RC2 is forward smoke outside publication.
+**[Published 0.1.3 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.3-beta)** serves Nexus and Omega. The release tag
+pins `079b1cff0e5385c2a5f79ec288519a737ac5add0` and the exact qualified ZIP.
+Matrix retains the 0.1.1 catalog and Piers RC2 has forward smoke coverage.
+See the [qualification record](beta-0.1.3.md#qualification) for the exact-version
+checks and separate integrated-runtime evidence below.
 
 The preparation base is verified merged main
 `0ab8c3db5d6a693823b2fe3a6adf5d1c5eb252f7`, tree
