@@ -1,14 +1,11 @@
-# TV Guide Fullscreen 0.1.3 Beta — prepared release notes
+# TV Guide Fullscreen 0.1.3 Beta — release notes
 
-**Pending owner review and publication; exact-version qualification completed
-within the scope below.** These notes can also serve as prerelease notes.
-They do not announce a published 0.1.3
-installer. Use the [README installation routes](../README.md#installation) for
-published **0.1.2 Beta** until the owner publishes an approved successor.
-Planned distribution is **Nexus 20.x / Omega 21.x**. Matrix keeps its **0.1.1**
-catalog; Piers preview is outside publication. No 0.1.3 asset links are advertised.
+**[0.1.3 Beta](https://github.com/kcook98765/script.tvguide.fullscreen/releases/tag/v0.1.3-beta)** is published for **Nexus 20.x and Omega 21.x**.
+Use the [README installation routes](../README.md#installation) for the existing
+repository installer, direct add-on ZIP and SHA256SUMS. Matrix keeps its **0.1.1**
+catalog and Piers remains a development preview.
 
-## Expected improvements
+## Improvements
 
 1. **Reliable same-path XMLTV refresh.** Reopening the guide or its supported
    background update detects changed local content even with unchanged or older
@@ -47,10 +44,10 @@ step. Keep Kodi's official repository enabled and let Kodi resolve the unchanged
 are bundled and dependency failures should not be bypassed. Other fork IDs and
 older migrations need separate checks.
 
-Wait for owner publication and its verified installer/checksum or catalog update.
-The current README repository/direct ZIP links intentionally remain **0.1.2**.
-Independent actual versioned **0.1.3 ZIP install/upgrade checks are complete**
-within the following scope; this does not publish or approve distribution.
+Existing Nexus and Omega repository users can update in place after Kodi refreshes
+the catalog. Manual installers can verify the exact public 0.1.3 ZIP using the
+SHA256SUMS linked in the README. Independent versioned **0.1.3 ZIP install and
+upgrade checks** are complete within the following scope.
 
 ## Qualification
 
